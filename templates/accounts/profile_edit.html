@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - LEX REGIS{% endblock %}
+
+{% block page_title %}Edit Profile{% endblock %}
+{% block breadcrumb_active %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-10">
+        <div class="card card-premium">
+            <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0">
+                <h5 class="fw-bold text-dark"><i class="fa-solid fa-user-pen text-primary me-2"></i> Update Personal Information</h5>
+                <p class="text-muted small mb-0">Keep your professional identity up to date</p>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger shadow-sm border-0">
+                        <ul class="mb-0">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-4 text-center">
+                            <div class="mb-3">
+                                {% if user.profile_photo %}
+                                    <img src="{{ user.profile_photo.url }}" class="rounded-circle img-thumbnail shadow-sm mb-3" alt="Profile Photo" style="width: 150px; height: 150px; object-fit: cover; border-color: var(--royal-gold);">
+                                {% else %}
+                                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style="width: 150px; height: 150px; border: 2px dashed var(--royal-gold);">
+                                        <i class="fa-solid fa-camera text-muted" style="font-size: 3rem;"></i>
+                                    </div>
+                                {% endif %}
+                                <label class="form-label fw-bold d-block text-dark">Profile Photo</label>
+                                {{ form.profile_photo }}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <h6 class="text-uppercase fw-bold text-muted border-bottom pb-2 mb-3">Basic Information</h6>
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-dark">First Name</label>
+                                    {{ form.first_name }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-dark">Middle Name</label>
+                                    {{ form.middle_name }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-dark">Last Name</label>
+                                    {{ form.last_name }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-dark">Date of Birth</label>
+                                    {{ form.date_of_birth }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-dark">Gender</label>
+                                    {{ form.gender }}
+                                </div>
+                            </div>
+                            
+                            <h6 class="text-uppercase fw-bold text-muted border-bottom pb-2 mb-3">Contact & Preferences</h6>
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold text-dark">Phone Number</label>
+                                    {{ form.phone_number }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-dark">Language</label>
+                                    {{ form.preferred_language }}
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-dark">Timezone</label>
+                                    {{ form.timezone }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="mt-5 mb-4">
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-save me-2"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

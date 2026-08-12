@@ -1,0 +1,1048 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enterprise Matter Intake | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0" x-data="intakeWizard()">
+    <!-- Top Header Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom sticky-top bg-light" style="top: 0; z-index: 1020; padding-top: 1rem;">
+        <div>
+            <h3 class="mb-0 fw-bold font-serif text-navy">
+                <i class="fa-solid fa-scale-balanced me-2 text-gold"></i> Enterprise Matter Intake
+            </h3>
+            <p class="text-muted small mb-0 mt-1">Comprehensive legal matter onboarding.</p>
+        </div>
+        <div class="d-flex align-items-center gap-4">
+            <div class="text-end">
+                <span class="fw-bold small text-navy mb-1 d-block" x-text="completionPercentage + '% Complete'"></span>
+                <div class="progress" style="width: 250px; height: 8px; border-radius: 4px;" title="Completion">
+                    <div class="progress-bar bg-gold" role="progressbar" :style="'width: ' + completionPercentage + '%'"></div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold hover-lift" @click="submitForm('save_draft')">
+                <i class="fa-solid fa-save me-1"></i> Auto-Save Draft
+            </button>
+        </div>
+    </div>
+
+    <form id="caseWizardForm" method="POST" enctype="multipart/form-data" action="{% url 'cases_ui:create' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" x-model="submitAction">
+        <input type="hidden" name="extended_data" x-model="JSON.stringify(formData)">
+        
+        <div class="row g-4 position-relative">
+            <!-- LEFT SIDEBAR: Navigation & Progress -->
+            <div class="col-xl-3 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 mb-4 sticky-top" style="top: 100px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-uppercase small text-muted mb-3 tracking-wide">Intake Stages</h6>
+                        <ul class="nav flex-column gap-2">
+                            <template x-for="(stepData, index) in steps" :key="index">
+                                <li class="nav-item">
+                                    <a class="nav-link p-3 rounded-3 d-flex align-items-center" 
+                                       :class="{'bg-navy text-white shadow-sm': step === index + 1, 'bg-light text-success': step > index + 1, 'text-muted hover-bg-light': step < index + 1}"
+                                       href="#" @click.prevent="goToStep(index + 1)" style="transition: all 0.2s;">
+                                        <div class="me-3 text-center" style="width: 24px;">
+                                            <i x-show="step <= index + 1" :class="stepData.icon"></i>
+                                            <i x-show="step > index + 1" class="fa-solid fa-check-circle"></i>
+                                        </div>
+                                        <div class="fw-bold" style="font-size: 13.5px;" x-text="stepData.title"></div>
+                                    </a>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER: Main Form Wizard -->
+            <div class="col-xl-9 col-lg-8">
+                <div class="card card-premium shadow-sm border-0 rounded-4 h-100 mb-5">
+                    <div class="card-body p-5">
+                        
+                        <!-- Step 1: Matter Information -->
+                        <div x-show="step === 1" x-transition.opacity>
+                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                <h4 class="fw-bold text-navy mb-0"><i class="fa-solid fa-briefcase text-gold me-2"></i> Matter Information</h4>
+                                <span class="badge bg-light text-muted border px-3 py-2 rounded-pill font-monospace" x-text="'Draft Ref: ' + mockCaseNumber"></span>
+                            </div>
+                            <div class="row g-4">
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Case Title <span class="text-danger">*</span></label>
+                                    <input type="text" name="title" class="form-control form-control-lg border-primary border-opacity-50 shadow-sm" placeholder="e.g. Acme Corp vs. State" required x-model="formData.title" @input="validateStep(1)">
+                                    <small class="text-danger" x-show="validationErrors.title" x-text="validationErrors.title"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Matter Category <span class="text-danger">*</span></label>
+                                    <select name="matter_category" class="form-select" required x-model="formData.matter_category" @change="validateStep(1)">
+                                        <option value="">Select Category</option>
+                                        <option value="Civil">Civil</option>
+                                        <option value="Criminal">Criminal</option>
+                                        <option value="Corporate">Corporate</option>
+                                        <option value="Family">Family</option>
+                                        <option value="IP">Intellectual Property</option>
+                                    </select>
+                                    <small class="text-danger" x-show="validationErrors.matter_category" x-text="validationErrors.matter_category"></small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Matter Type</label>
+                                    <select class="form-select" x-model="formData.matter_type">
+                                        <option value="Litigation">Litigation</option>
+                                        <option value="Advisory">Advisory</option>
+                                        <option value="Arbitration">Arbitration</option>
+                                        <option value="Compliance">Compliance</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Practice Area</label>
+                                    <input type="text" name="practice_area" class="form-control" placeholder="e.g. Commercial Litigation" x-model="formData.practice_area">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Sub Practice Area</label>
+                                    <input type="text" name="sub_category" class="form-control" x-model="formData.sub_category">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Estimated Complexity</label>
+                                    <select class="form-select" x-model="formData.complexity">
+                                        <option value="Low">Low</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="High">High</option>
+                                        <option value="Very High">Very High (Enterprise)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Priority / Urgency</label>
+                                    <select name="priority" class="form-select" x-model="formData.priority">
+                                        <option value="Low">Low</option>
+                                        <option value="Normal">Normal</option>
+                                        <option value="High">High</option>
+                                        <option value="Urgent">Urgent</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Confidential?</label>
+                                    <select class="form-select" x-model="formData.confidential">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Preferred Language</label>
+                                    <select class="form-select" x-model="formData.matter_language">
+                                        <option value="English">English</option>
+                                        <option value="Hindi">Hindi</option>
+                                        <option value="Regional">Regional</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Source</label>
+                                    <select class="form-select" x-model="formData.source">
+                                        <option value="Walk-in">Walk-in</option>
+                                        <option value="Website">Website</option>
+                                        <option value="Referral">Referral</option>
+                                        <option value="Tele-Law">Tele-Law</option>
+                                        <option value="Legal Camp">Legal Camp</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">AI Assistance?</label>
+                                    <select class="form-select" x-model="formData.ai_assist">
+                                        <option value="Yes">Yes, Analyze</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Tags / Keywords</label>
+                                    <input type="text" class="form-control" placeholder="e.g. #BreachOfContract, #HighValue" x-model="formData.tags">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Case Description & Factual Matrix</label>
+                                    <textarea name="description" class="form-control" rows="5" placeholder="Provide complete background and chronological events..." x-model="formData.description"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Client Information -->
+                        <div x-show="step === 2" x-transition.opacity style="display: none;">
+                            <h4 class="fw-bold mb-4 text-navy"><i class="fa-solid fa-user-tag text-gold me-2"></i> Client Information</h4>
+                            <div class="row g-4">
+                                <div class="col-12 border-bottom pb-3 mb-2">
+                                    <div class="form-check form-check-inline p-3 border rounded bg-light me-3 cursor-pointer" :class="{'border-primary shadow-sm': clientMode === 'existing'}" @click="clientMode = 'existing'">
+                                        <input class="form-check-input mt-1" type="radio" name="client_mode" value="existing" x-model="clientMode">
+                                        <label class="form-check-label fw-bold text-navy ms-1">Existing Client Database</label>
+                                    </div>
+                                    <div class="form-check form-check-inline p-3 border rounded bg-light cursor-pointer" :class="{'border-primary shadow-sm': clientMode === 'new'}" @click="clientMode = 'new'">
+                                        <input class="form-check-input mt-1" type="radio" name="client_mode" value="new" x-model="clientMode">
+                                        <label class="form-check-label fw-bold text-navy ms-1">Onboard New Client</label>
+                                    </div>
+                                </div>
+
+                                <template x-if="clientMode === 'existing'">
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold text-muted small text-uppercase">Search Enterprise Client Database</label>
+                                        <select name="client_id" class="form-select form-select-lg" x-model="formData.client_id">
+                                            <option value="">Select a client...</option>
+                                            {% for c in clients %}
+                                            <option value="{{ c.id }}">{{ c.user.get_full_name }} ({{ c.user.email }})</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </template>
+
+                                <template x-if="clientMode === 'new'">
+                                    <div class="row g-4 m-0 p-0 w-100">
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Full Name <span class="text-danger">*</span></label>
+                                            <input type="text" name="client_name" class="form-control" placeholder="Client Name" x-model="formData.client_name" @input="validateStep(2)">
+                                            <small class="text-danger" x-show="validationErrors.client_name" x-text="validationErrors.client_name"></small>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Email <span class="text-danger">*</span></label>
+                                            <input type="email" name="client_email" class="form-control" placeholder="client@example.com" x-model="formData.client_email" @input="validateStep(2)">
+                                            <small class="text-danger" x-show="validationErrors.client_email" x-text="validationErrors.client_email"></small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Mobile <span class="text-danger">*</span></label>
+                                            <input type="text" name="client_mobile" class="form-control" placeholder="+91..." x-model="formData.client_mobile" @input="validateStep(2)">
+                                            <small class="text-danger" x-show="validationErrors.client_mobile" x-text="validationErrors.client_mobile"></small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Alt Mobile</label>
+                                            <input type="text" class="form-control" placeholder="+91..." x-model="formData.client_alt_mobile">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Gender</label>
+                                            <select class="form-select" x-model="formData.client_gender">
+                                                <option value="">Select</option>
+                                                <option value="M">Male</option>
+                                                <option value="F">Female</option>
+                                                <option value="O">Other</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Date of Birth</label>
+                                            <input type="date" class="form-control" x-model="formData.client_dob" @change="calculateAge">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Age</label>
+                                            <input type="number" class="form-control bg-light" readonly x-model="formData.client_age">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Occupation / Designation</label>
+                                            <input type="text" class="form-control" x-model="formData.client_occupation">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Primary Address</label>
+                                            <input type="text" name="address" class="form-control" placeholder="Street Address" x-model="formData.address">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">City</label>
+                                            <input type="text" name="city" class="form-control" x-model="formData.city">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">District</label>
+                                            <input type="text" name="district" class="form-control" x-model="formData.district">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">State</label>
+                                            <input type="text" name="state" class="form-control" x-model="formData.state">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">PIN / ZIP Code</label>
+                                            <input type="text" class="form-control" x-model="formData.client_pin">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Nationality</label>
+                                            <input type="text" name="country" class="form-control" value="Indian" x-model="formData.country">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Aadhaar / SSN</label>
+                                            <input type="text" class="form-control" placeholder="Secure ID" x-model="formData.client_aadhaar">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">PAN / Tax ID</label>
+                                            <input type="text" class="form-control" x-model="formData.client_pan">
+                                        </div>
+                                        <div class="col-12 mt-4"><hr></div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Emergency Contact</label>
+                                            <input type="text" class="form-control" x-model="formData.emergency_contact">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Emergency Mobile</label>
+                                            <input type="text" class="form-control" x-model="formData.emergency_mobile">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Relationship</label>
+                                            <input type="text" class="form-control" x-model="formData.emergency_relation">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Client Notes</label>
+                                            <textarea class="form-control" rows="2" x-model="formData.client_notes"></textarea>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Opposite Party -->
+                        <div x-show="step === 3" x-transition.opacity style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="fw-bold text-navy mb-0"><i class="fa-solid fa-users text-gold me-2"></i> Opposite Parties</h4>
+                                <button type="button" class="btn btn-sm btn-outline-navy" @click="addOpponent()"><i class="fa-solid fa-plus me-1"></i> Add Another Party</button>
+                            </div>
+                            
+                            <template x-for="(opp, index) in formData.opponents" :key="index">
+                                <div class="card border mb-4 shadow-sm">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                        <span class="fw-bold text-navy" x-text="'Opponent #' + (index + 1)"></span>
+                                        <button type="button" class="btn btn-sm text-danger" @click="removeOpponent(index)" x-show="formData.opponents.length > 1"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                    <div class="card-body row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Party Type</label>
+                                            <select class="form-select" x-model="opp.type">
+                                                <option value="Individual">Individual</option>
+                                                <option value="Company">Company</option>
+                                                <option value="Government">Government</option>
+                                                <option value="NGO">NGO</option>
+                                                <option value="Organization">Organization</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Name</label>
+                                            <input type="text" class="form-control" placeholder="Name of Opponent/Respondent" x-model="opp.name">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Their Advocate / Counsel</label>
+                                            <input type="text" class="form-control" placeholder="Opposing Counsel Name" x-model="opp.advocate">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Advocate Organization/Firm</label>
+                                            <input type="text" class="form-control" placeholder="Law Firm Name" x-model="opp.advocate_org">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Email</label>
+                                            <input type="email" class="form-control" x-model="opp.email">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Phone</label>
+                                            <input type="text" class="form-control" x-model="opp.phone">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Relationship with Client</label>
+                                            <input type="text" class="form-control" placeholder="e.g. Vendor" x-model="opp.relationship">
+                                        </div>
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Address</label>
+                                            <input type="text" class="form-control" placeholder="Registered Address" x-model="opp.address">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Known Assets</label>
+                                            <input type="text" class="form-control" x-model="opp.assets">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Known Prior Cases</label>
+                                            <input type="text" class="form-control" x-model="opp.prior_cases">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Remarks</label>
+                                            <input type="text" class="form-control" x-model="opp.remarks">
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Step 4: Legal Details -->
+                        <div x-show="step === 4" x-transition.opacity style="display: none;">
+                            <h4 class="fw-bold mb-4 text-navy"><i class="fa-solid fa-scale-unbalanced text-gold me-2"></i> Legal & Incident Details</h4>
+                            <div class="row g-4">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Incident Date</label>
+                                    <input type="date" name="incident_date" class="form-control" x-model="formData.incident_date">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Incident Time</label>
+                                    <input type="time" class="form-control" x-model="formData.incident_time">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Incident Location</label>
+                                    <input type="text" class="form-control" x-model="formData.incident_location">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Police Station (if applicable)</label>
+                                    <input type="text" class="form-control" x-model="formData.police_station">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">District / Jurisdiction</label>
+                                    <input type="text" class="form-control" x-model="formData.jurisdiction">
+                                </div>
+                                
+                                <div class="col-12 mt-4"><hr class="m-0"></div>
+                                
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Court Level</label>
+                                    <select class="form-select" x-model="formData.court_level">
+                                        <option value="District">District / Trial Court</option>
+                                        <option value="High Court">High Court</option>
+                                        <option value="Supreme Court">Supreme Court</option>
+                                        <option value="Tribunal">Tribunal / Forum</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Court Name</label>
+                                    <input type="text" name="court" class="form-control" placeholder="e.g. Bombay High Court" x-model="formData.court">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Judge / Bench (if assigned)</label>
+                                    <input type="text" class="form-control" x-model="formData.judge_name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Acts Involved</label>
+                                    <input type="text" class="form-control" placeholder="e.g. IPC, CrPC, Contract Act" x-model="formData.acts">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Sections</label>
+                                    <input type="text" class="form-control" placeholder="e.g. 420, 138" x-model="formData.sections">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">FIR Number</label>
+                                    <input type="text" class="form-control" x-model="formData.fir_number">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Charge Sheet</label>
+                                    <select class="form-select" x-model="formData.charge_sheet">
+                                        <option value="Not Filed">Not Filed</option>
+                                        <option value="Filed">Filed</option>
+                                        <option value="NA">N/A</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Notice / Ref No.</label>
+                                    <input type="text" class="form-control" x-model="formData.reference_number">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Current Stage</label>
+                                    <input type="text" class="form-control" placeholder="e.g. Pleading, Evidence" x-model="formData.current_stage">
+                                </div>
+                                
+                                <div class="col-12 mt-4"><hr class="m-0"></div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Relief Sought</label>
+                                    <input type="text" class="form-control" placeholder="What does the client want?" x-model="formData.relief_sought">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Expected Outcome</label>
+                                    <input type="text" class="form-control" placeholder="Realistic expectation" x-model="formData.expected_outcome">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Previous Litigation?</label>
+                                    <select class="form-select" x-model="formData.prev_litigation">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Legal Notice Issued?</label>
+                                    <select class="form-select" x-model="formData.notice_issued">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Limitation Period (Days)</label>
+                                    <input type="number" class="form-control" placeholder="Statute of limitation" x-model="formData.limitation_period">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: Lawyer Selection -->
+                        <div x-show="step === 5" x-transition.opacity style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h4 class="fw-bold text-navy mb-1"><i class="fa-solid fa-user-tie text-gold me-2"></i> Enterprise Roster Assignment</h4>
+                                    <p class="text-muted small mb-0">Select a specialized advocate. Real-time metrics generated by Lex Regis AI.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card border-0 bg-light rounded-4 mb-4">
+                                <div class="card-body p-3 d-flex gap-3 align-items-center flex-wrap">
+                                    <div class="flex-grow-1">
+                                        <input type="text" class="form-control form-control-sm bg-white" placeholder="Search by name, firm, practice area...">
+                                    </div>
+                                    <select class="form-select form-select-sm bg-white" style="width: auto;">
+                                        <option>Sort: Best Match (AI)</option>
+                                        <option>Highest Rated</option>
+                                        <option>Most Experienced</option>
+                                        <option>Lowest Fee</option>
+                                        <option>Nearest</option>
+                                    </select>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary bg-white"><i class="fa-solid fa-filter me-1"></i> Filters</button>
+                                </div>
+                            </div>
+
+                            <div class="row g-3" style="max-height: 500px; overflow-y: auto;">
+                                <div class="col-12" x-show="formData.assigned_lawyer_id">
+                                    <div class="alert alert-success d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <i class="fa-solid fa-check-circle me-2"></i> Lawyer selected for assignment.
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-success" @click="formData.assigned_lawyer_id = ''">Remove Selection</button>
+                                    </div>
+                                </div>
+                                {% for adv in advocates %}
+                                <div class="col-md-6">
+                                    <div class="card h-100 border rounded-4 hover-lift" :class="formData.assigned_lawyer_id === '{{ adv.id }}' ? 'border-primary shadow-sm ring-2 ring-primary' : ''" @click="formData.assigned_lawyer_id = '{{ adv.id }}'; formData.assigned_lawyer_name = '{{ adv.user.get_full_name }}'; formData.assigned_lawyer_firm = '{{ adv.law_firm_name|default:'Independent' }}';">
+                                        <div class="card-body p-4 cursor-pointer">
+                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="bg-navy text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 50px; height: 50px;">
+                                                        {{ adv.user.first_name|first|default:"L" }}
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="fw-bold mb-0 text-navy">{{ adv.user.get_full_name }}</h6>
+                                                        <small class="text-muted d-block">{{ adv.law_firm_name|default:"Independent Counsel" }}</small>
+                                                        <span class="badge bg-gold text-navy font-monospace small px-2 mt-1">{{ adv.bar_council_number|default:"Verified" }}</span>
+                                                    </div>
+                                                </div>
+                                                <div class="text-end">
+                                                    <div class="text-warning mb-1">
+                                                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                                                    </div>
+                                                    <small class="text-success fw-bold d-block"><i class="fa-solid fa-bolt me-1"></i> 94% Win Rate</small>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row g-2 mb-3 text-muted small">
+                                                <div class="col-6"><i class="fa-solid fa-gavel me-1"></i> {{ adv.experience_years|default:"10" }} Yrs Exp.</div>
+                                                <div class="col-6"><i class="fa-solid fa-briefcase me-1"></i> {{ adv.cases_handled|default:"150" }}+ Cases</div>
+                                                <div class="col-6"><i class="fa-solid fa-comments me-1"></i> English, Hindi</div>
+                                                <div class="col-6"><i class="fa-solid fa-money-bill me-1"></i> ₹{{ adv.consultation_fee|default:"2000" }} /hr</div>
+                                            </div>
+                                            
+                                            <p class="small text-truncate mb-3">{{ adv.practice_areas|default:"Corporate, Civil, Criminal" }}</p>
+                                            
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-sm btn-primary flex-grow-1" @click.stop="formData.assigned_lawyer_id = '{{ adv.id }}'; formData.assigned_lawyer_name = '{{ adv.user.get_full_name }}'; formData.assigned_lawyer_firm = '{{ adv.law_firm_name|default:'Independent' }}';">Assign</button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" @click.stop="">Profile</button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" @click.stop="" title="Compare"><i class="fa-solid fa-code-compare"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <div class="col-12 text-center p-5">
+                                    <p class="text-muted">No enterprise lawyers found in the roster.</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Step 6: Documents -->
+                        <div x-show="step === 6" x-transition.opacity style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h4 class="fw-bold text-navy mb-1"><i class="fa-solid fa-folder-open text-gold me-2"></i> Evidentiary Documents</h4>
+                                    <p class="text-muted small mb-0">Upload encrypted evidence, identity proofs, medical reports, and contracts.</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-navy" onclick="document.getElementById('fileUpload').click()"><i class="fa-solid fa-cloud-upload me-1"></i> Select Files</button>
+                            </div>
+                            
+                            <div class="border-2 border-dashed border-primary bg-light rounded-4 p-5 text-center mb-4 cursor-pointer hover-bg-light" onclick="document.getElementById('fileUpload').click()" style="transition: background 0.3s;" @dragover.prevent @drop.prevent="handleDrop">
+                                <i class="fa-solid fa-cloud-arrow-up fs-1 text-primary mb-3"></i>
+                                <h5 class="fw-bold">Drag & Drop Documents Here</h5>
+                                <p class="text-muted small mb-0">Supports: PDF, DOCX, JPG, PNG, MP4, MP3 (Max 100MB per file)</p>
+                                <input type="file" id="fileUpload" name="documents" multiple class="d-none" @change="handleFiles">
+                            </div>
+
+                            <div class="list-group list-group-flush border rounded-4 shadow-sm" x-show="files.length > 0">
+                                <template x-for="(file, index) in files" :key="index">
+                                    <div class="list-group-item p-3 border-bottom-0 border-top">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6 d-flex align-items-center">
+                                                <i class="fa-solid fa-file-pdf fs-3 text-danger me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold text-truncate" style="max-width: 300px;" x-text="file.name"></h6>
+                                                    <small class="text-muted" x-text="(file.size / 1024 / 1024).toFixed(2) + ' MB'"></small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select class="form-select form-select-sm border-0 bg-light text-muted fw-bold">
+                                                    <option>Identity Proof</option>
+                                                    <option>Evidence</option>
+                                                    <option>Contract</option>
+                                                    <option>Medical Report</option>
+                                                    <option>Court Order</option>
+                                                    <option>Invoice</option>
+                                                    <option>Other</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3 text-end">
+                                                <button type="button" class="btn btn-sm text-primary" title="Preview"><i class="fa-solid fa-eye"></i></button>
+                                                <button type="button" class="btn btn-sm text-secondary" title="Version History"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                                                <button type="button" class="btn btn-sm text-danger" title="Remove" @click="removeFile(index)"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Step 7: Hearings -->
+                        <div x-show="step === 7" x-transition.opacity style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h4 class="fw-bold text-navy mb-1"><i class="fa-solid fa-calendar-gavel text-gold me-2"></i> Hearing Schedule</h4>
+                                    <p class="text-muted small mb-0">Initial hearing setup. A master calendar event will be synchronized.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-4 bg-light p-4 rounded-4 m-0 border">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Hearing Date</label>
+                                    <input type="date" name="hearing_date" class="form-control" x-model="formData.hearing_date">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Time</label>
+                                    <input type="time" name="hearing_time" class="form-control" x-model="formData.hearing_time">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Hearing Type</label>
+                                    <select class="form-select" x-model="formData.hearing_mode">
+                                        <option value="Physical">Physical / In-Person</option>
+                                        <option value="Virtual">Virtual / Video Conf</option>
+                                        <option value="Hybrid">Hybrid</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Court Room / Virtual Link</label>
+                                    <input type="text" name="hearing_court" class="form-control" placeholder="Room 402 or Meet Link" x-model="formData.hearing_court">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Presiding Judge / Authority</label>
+                                    <input type="text" name="hearing_judge" class="form-control" x-model="formData.hearing_judge">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Hearing Purpose</label>
+                                    <input type="text" class="form-control" placeholder="e.g. Filing, Cross Examination" x-model="formData.hearing_purpose">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Reminders & Sync</label>
+                                    <select class="form-select" x-model="formData.hearing_reminder">
+                                        <option value="1_day">1 Day Before + Outlook/Calendar Sync</option>
+                                        <option value="3_days">3 Days Before + Sync</option>
+                                        <option value="1_week">1 Week Before + Sync</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Hearing Notes / Instructions</label>
+                                    <textarea class="form-control" rows="2" placeholder="Instructions for the client/lawyer..." x-model="formData.hearing_notes"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 8: Financial Details -->
+                        <div x-show="step === 8" x-transition.opacity style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div>
+                                    <h4 class="fw-bold text-navy mb-1"><i class="fa-solid fa-file-invoice-dollar text-gold me-2"></i> Financial Structure</h4>
+                                    <p class="text-muted small mb-0">Record retainers, fees, and auto-generate preliminary estimates.</p>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-success"><i class="fa-solid fa-file-invoice me-1"></i> Generate Estimate</button>
+                            </div>
+
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="card bg-light border-0 rounded-3">
+                                        <div class="card-body">
+                                            <label class="form-label fw-bold text-muted small text-uppercase">Legal Value Involved (Dispute Amount)</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-white border-end-0 text-muted">₹</span>
+                                                <input type="number" name="case_value" class="form-control border-start-0" placeholder="0.00" x-model="formData.case_value">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card bg-navy text-white border-0 rounded-3 shadow-sm">
+                                        <div class="card-body">
+                                            <label class="form-label fw-bold text-white-50 small text-uppercase">Estimated Overall Budget</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-transparent border-light border-end-0 text-white">₹</span>
+                                                <input type="number" step="0.01" name="budget_estimate" class="form-control bg-transparent border-light border-start-0 text-white fw-bold" placeholder="0.00" x-model="formData.budget_estimate">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Consultation Fee</label>
+                                    <div class="input-group"><span class="input-group-text">₹</span><input type="number" class="form-control" x-model="formData.consultation_fee"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Lawyer / Retainer Fee</label>
+                                    <div class="input-group"><span class="input-group-text">₹</span><input type="number" class="form-control" x-model="formData.retainer_fee"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Court Fee</label>
+                                    <div class="input-group"><span class="input-group-text">₹</span><input type="number" class="form-control" x-model="formData.court_fee"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Govt/Stamp Duty</label>
+                                    <div class="input-group"><span class="input-group-text">₹</span><input type="number" class="form-control" x-model="formData.govt_fee"></div>
+                                </div>
+                                
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Discount Applied</label>
+                                    <div class="input-group"><input type="number" class="form-control" x-model="formData.discount"><span class="input-group-text">%</span></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">GST / Taxes</label>
+                                    <div class="input-group"><input type="number" class="form-control" value="18" x-model="formData.gst"><span class="input-group-text">%</span></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Advance Paid</label>
+                                    <div class="input-group"><span class="input-group-text">₹</span><input type="number" class="form-control text-success fw-bold" x-model="formData.advance_paid"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold text-muted small text-uppercase">Payment Mode</label>
+                                    <select class="form-select" x-model="formData.payment_method">
+                                        <option value="Transfer">Bank Transfer</option>
+                                        <option value="UPI">UPI</option>
+                                        <option value="Cheque">Cheque</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Card">Credit Card</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-check form-switch mt-2">
+                                        <input class="form-check-input" type="checkbox" id="invoiceReq" x-model="formData.invoice_required">
+                                        <label class="form-check-label fw-bold text-navy" for="invoiceReq">Auto-Generate & Email Tax Invoice on Case Creation</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 9: AI Analysis -->
+                        <div x-show="step === 9" x-transition.opacity style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <h4 class="fw-bold text-navy mb-0"><i class="fa-solid fa-brain text-gold me-2"></i> Lex Regis AI Intelligence</h4>
+                                <span class="badge bg-gold text-navy px-3 py-2 rounded-pill font-monospace shadow-sm">CONFIDENCE: 92%</span>
+                            </div>
+                            
+                            <div class="row g-4">
+                                <div class="col-md-8">
+                                    <div class="card border-0 bg-light rounded-4 h-100">
+                                        <div class="card-body p-4">
+                                            <h6 class="fw-bold text-navy mb-3"><i class="fa-solid fa-wand-magic-sparkles me-2 text-primary"></i> AI Matter Summary & Strategy</h6>
+                                            <p class="small text-muted" x-text="formData.description ? 'Based on the provided facts, this is a ' + formData.matter_category + ' matter concerning ' + formData.title + '. The recommended strategy involves initiating proceedings under the respective acts immediately to avoid limitation period expiry.' : 'Please provide a case description to generate an AI summary.'"></p>
+                                            
+                                            <hr class="my-3">
+                                            <div class="row g-3">
+                                                <div class="col-6">
+                                                    <small class="text-uppercase fw-bold text-muted d-block mb-1">Predicted Category</small>
+                                                    <span class="fw-bold" x-text="formData.matter_category || 'N/A'"></span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-uppercase fw-bold text-muted d-block mb-1">Suggested Court</small>
+                                                    <span class="fw-bold" x-text="formData.court_level || 'District Court'"></span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-uppercase fw-bold text-muted d-block mb-1">Estimated Timeline</small>
+                                                    <span class="fw-bold text-warning">8 - 14 Months</span>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-uppercase fw-bold text-muted d-block mb-1">Required Documents Missing</small>
+                                                    <span class="fw-bold text-danger">Identity Proof, Signed Vakalatnama</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card border-0 bg-navy text-white rounded-4 h-100 shadow-sm">
+                                        <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
+                                            <h6 class="fw-bold text-white-50 text-uppercase tracking-wide mb-4">Winning Probability</h6>
+                                            <div class="position-relative d-inline-block mx-auto mb-4" style="width: 120px; height: 120px;">
+                                                <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
+                                                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                                                    <path class="circle" stroke-dasharray="78, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#d4af37" stroke-width="3" stroke-linecap="round" style="animation: progress 1s ease-out forwards;"/>
+                                                </svg>
+                                                <div class="position-absolute top-50 start-50 translate-middle">
+                                                    <span class="fs-2 fw-bold font-serif text-gold">78%</span>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-white text-navy px-3 py-2 rounded-pill mx-auto">Risk Level: Moderate</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 10: Review -->
+                        <div x-show="step === 10" x-transition.opacity style="display: none;">
+                            <h4 class="fw-bold mb-4 text-navy"><i class="fa-solid fa-check-double text-gold me-2"></i> Enterprise Final Review</h4>
+                            <p class="text-muted small mb-4">A complete audit log, case directory, calendar events, and notifications will be synchronized instantly upon creation.</p>
+                            
+                            <div class="card bg-light border-0 rounded-4 shadow-sm mb-4">
+                                <div class="card-body p-4 row g-4">
+                                    <div class="col-md-6 border-end">
+                                        <p class="text-muted small fw-bold mb-1 text-uppercase tracking-wide">Matter Title</p>
+                                        <h5 class="fw-bold mb-3 text-navy font-serif" x-text="formData.title || 'Not provided'"></h5>
+                                        
+                                        <div class="d-flex gap-4">
+                                            <div>
+                                                <p class="text-muted small fw-bold mb-0 text-uppercase">Category</p>
+                                                <p class="fw-bold mb-0" x-text="formData.matter_category || 'N/A'"></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-muted small fw-bold mb-0 text-uppercase">Priority</p>
+                                                <span class="badge bg-danger" x-show="formData.priority === 'Urgent'" x-text="formData.priority"></span>
+                                                <span class="badge bg-primary" x-show="formData.priority !== 'Urgent'" x-text="formData.priority"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 ps-4">
+                                        <p class="text-muted small fw-bold mb-1 text-uppercase tracking-wide">Primary Entities</p>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fa-solid fa-user text-muted me-2" style="width: 16px;"></i>
+                                            <span class="fw-bold" x-text="clientMode === 'new' ? formData.client_name : 'Existing Database Client'"></span>
+                                            <span class="text-muted small ms-2">(Client)</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fa-solid fa-users text-danger me-2" style="width: 16px;"></i>
+                                            <span class="fw-bold text-danger" x-text="formData.opponents[0].name || 'None specified'"></span>
+                                            <span class="text-muted small ms-2">(Opponent)</span>
+                                            <span class="badge bg-light text-muted ms-2" x-show="formData.opponents.length > 1" x-text="'+' + (formData.opponents.length - 1) + ' more'"></span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fa-solid fa-user-tie text-primary me-2" style="width: 16px;"></i>
+                                            <span class="fw-bold text-primary" x-text="formData.assigned_lawyer_name || 'Unassigned'"></span>
+                                            <span class="text-muted small ms-2">(Lawyer)</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12"><hr class="m-0"></div>
+                                    
+                                    <div class="col-md-3">
+                                        <p class="text-muted small fw-bold mb-1 text-uppercase">Budget</p>
+                                        <p class="fw-bold mb-0 text-success" x-text="formData.budget_estimate ? '₹' + formData.budget_estimate : 'TBD'"></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="text-muted small fw-bold mb-1 text-uppercase">Documents</p>
+                                        <p class="fw-bold mb-0" x-text="files.length + ' Uploaded'"></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="text-muted small fw-bold mb-1 text-uppercase">First Hearing</p>
+                                        <p class="fw-bold mb-0" x-text="formData.hearing_date || 'Unscheduled'"></p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="text-muted small fw-bold mb-1 text-uppercase">AI Assessment</p>
+                                        <p class="fw-bold mb-0 text-gold" x-text="formData.ai_assist === 'Yes' ? 'Processed' : 'Skipped'"></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex gap-3 mt-5">
+                                <button type="button" class="btn btn-outline-secondary btn-lg px-4 rounded-pill fw-bold hover-lift" @click="submitForm('save_draft')">
+                                    <i class="fa-solid fa-save me-2"></i> Save Draft
+                                </button>
+                                <button type="button" class="btn btn-gold text-navy btn-lg px-5 rounded-pill fw-bold shadow-sm hover-lift flex-grow-1" @click="submitForm('create_case')" :disabled="!isFormValid">
+                                    <i class="fa-solid fa-rocket me-2"></i> Provision Enterprise Workspace
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Wizard Footer Controls -->
+                    <div class="card-footer bg-white border-top p-4 d-flex justify-content-between align-items-center rounded-bottom-4">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4 hover-lift" @click="prevStep()" :class="{'invisible': step === 1}">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Previous
+                        </button>
+                        
+                        <button type="button" class="btn btn-navy rounded-pill px-5 shadow-sm hover-lift" @click="nextStep()" x-show="step < 10" :disabled="!isStepValid(step)">
+                            Continue <i class="fa-solid fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function intakeWizard() {
+    return {
+        step: 1,
+        totalSteps: 10,
+        clientMode: 'existing',
+        submitAction: 'create_case',
+        files: [],
+        validationErrors: {},
+        mockCaseNumber: 'CAS-' + Math.floor(100000 + Math.random() * 900000),
+        formData: {
+            title: '', matter_category: '', matter_type: 'Litigation', practice_area: '', sub_category: '', complexity: 'Medium', priority: 'Normal',
+            confidential: 'No', matter_language: 'English', source: 'Walk-in', ai_assist: 'Yes', tags: '', description: '', urgency: 'Normal',
+            
+            client_id: '', client_name: '', client_email: '', client_mobile: '', client_alt_mobile: '', client_gender: '', client_dob: '', client_age: '',
+            client_occupation: '', address: '', city: '', district: '', state: '', country: 'Indian', client_pin: '', 
+            client_aadhaar: '', client_pan: '', emergency_contact: '', emergency_mobile: '', emergency_relation: '', client_notes: '',
+            
+            opponents: [
+                {type: 'Individual', name: '', advocate: '', advocate_org: '', email: '', phone: '', relationship: '', address: '', assets: '', prior_cases: '', remarks: ''}
+            ],
+            
+            incident_date: '', incident_time: '', incident_location: '', police_station: '', jurisdiction: '', court_level: 'District', court: '', judge_name: '',
+            acts: '', sections: '', fir_number: '', charge_sheet: 'Not Filed', reference_number: '', current_stage: '', relief_sought: '', expected_outcome: '',
+            prev_litigation: 'No', notice_issued: 'No', limitation_period: '', case_value: '', budget_estimate: '',
+            
+            assigned_lawyer_id: '', assigned_lawyer_name: '', assigned_lawyer_firm: '',
+            
+            hearing_date: '', hearing_time: '', hearing_mode: 'Physical', hearing_court: '', hearing_judge: '', hearing_purpose: '', hearing_reminder: '1_day', hearing_notes: '',
+            
+            consultation_fee: '', retainer_fee: '', court_fee: '', govt_fee: '', discount: '', gst: 18, advance_paid: '', payment_method: 'Transfer', invoice_required: true
+        },
+        steps: [
+            { title: 'Matter Info', icon: 'fa-solid fa-briefcase' },
+            { title: 'Client Info', icon: 'fa-solid fa-user-tag' },
+            { title: 'Opposite Party', icon: 'fa-solid fa-users' },
+            { title: 'Legal Details', icon: 'fa-solid fa-scale-unbalanced' },
+            { title: 'Lawyer Selection', icon: 'fa-solid fa-user-tie' },
+            { title: 'Documents', icon: 'fa-solid fa-folder-open' },
+            { title: 'Hearings', icon: 'fa-solid fa-calendar-gavel' },
+            { title: 'Financials', icon: 'fa-solid fa-file-invoice-dollar' },
+            { title: 'AI Analysis', icon: 'fa-solid fa-brain' },
+            { title: 'Review', icon: 'fa-solid fa-check-double' }
+        ],
+        init() {
+            // Autosave draft every 30 seconds if there's data
+            setInterval(() => {
+                if(this.formData.title && this.step > 1) {
+                    console.log('Autosaving draft...');
+                    // In real app, this would be an AJAX call.
+                }
+            }, 30000);
+        },
+        get completionPercentage() {
+            return Math.round(((this.step - 1) / (this.totalSteps - 1)) * 100);
+        },
+        addOpponent() {
+            this.formData.opponents.push({type: 'Individual', name: '', advocate: '', advocate_org: '', email: '', phone: '', relationship: '', address: '', assets: '', prior_cases: '', remarks: ''});
+        },
+        removeOpponent(index) {
+            if (this.formData.opponents.length > 1) {
+                this.formData.opponents.splice(index, 1);
+            }
+        },
+        calculateAge() {
+            if(this.formData.client_dob) {
+                const diff_ms = Date.now() - new Date(this.formData.client_dob).getTime();
+                const age_dt = new Date(diff_ms); 
+                this.formData.client_age = Math.abs(age_dt.getUTCFullYear() - 1970);
+            }
+        },
+        validateStep(s) {
+            this.validationErrors = {};
+            let valid = true;
+            if (s === 1) {
+                if (!this.formData.title) { this.validationErrors.title = 'Case Title is required'; valid = false; }
+                if (!this.formData.matter_category) { this.validationErrors.matter_category = 'Category is required'; valid = false; }
+            } else if (s === 2 && this.clientMode === 'new') {
+                if (!this.formData.client_name) { this.validationErrors.client_name = 'Name is required'; valid = false; }
+                if (!this.formData.client_email || !this.formData.client_email.includes('@')) { this.validationErrors.client_email = 'Valid email required'; valid = false; }
+                if (!this.formData.client_mobile) { this.validationErrors.client_mobile = 'Mobile required'; valid = false; }
+            }
+            return valid;
+        },
+        isStepValid(s) {
+            return this.validateStep(s);
+        },
+        get isFormValid() {
+            return this.formData.title && this.formData.matter_category;
+        },
+        nextStep() {
+            if (this.step < this.totalSteps && this.validateStep(this.step)) {
+                this.step++;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        prevStep() {
+            if (this.step > 1) {
+                this.step--;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        goToStep(s) {
+            if (s < this.step || this.validateStep(this.step)) {
+                this.step = s;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        },
+        handleDrop(e) {
+            const droppedFiles = e.dataTransfer.files;
+            if(droppedFiles.length > 0) {
+                this.files = [...this.files, ...Array.from(droppedFiles)];
+                
+                // Add to input files so form submission catches it
+                const input = document.getElementById('fileUpload');
+                const dt = new DataTransfer();
+                for (let i = 0; i < input.files.length; i++) dt.items.add(input.files[i]);
+                for (let i = 0; i < droppedFiles.length; i++) dt.items.add(droppedFiles[i]);
+                input.files = dt.files;
+            }
+        },
+        handleFiles(e) {
+            this.files = [...this.files, ...Array.from(e.target.files)];
+        },
+        removeFile(index) {
+            this.files.splice(index, 1);
+            // Need to update the input file element too
+            const input = document.getElementById('fileUpload');
+            const dt = new DataTransfer();
+            for (let i = 0; i < input.files.length; i++) {
+                if(i !== index) dt.items.add(input.files[i]);
+            }
+            input.files = dt.files;
+        },
+        submitForm(action) {
+            if(this.isFormValid) {
+                this.submitAction = action;
+                document.getElementById('caseWizardForm').submit();
+            } else {
+                alert('Please complete the required fields in Matter Information.');
+                this.step = 1;
+            }
+        }
+    }
+}
+</script>
+<style>
+.hover-bg-light:hover { background-color: #f8f9fa !important; }
+.border-dashed { border-style: dashed !important; border-color: #0b2d5c !important; }
+.cursor-pointer { cursor: pointer; }
+.hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important; }
+.text-gold { color: #d4af37 !important; }
+.bg-gold { background-color: #d4af37 !important; }
+.btn-gold { background-color: #d4af37 !important; border-color: #d4af37 !important; color: #0b2d5c !important; }
+.btn-gold:hover { background-color: #c5a028 !important; }
+.text-navy { color: #0b2d5c !important; }
+.bg-navy { background-color: #0b2d5c !important; }
+.btn-navy { background-color: #0b2d5c !important; border-color: #0b2d5c !important; color: white !important; }
+.btn-navy:hover { background-color: #082246 !important; color: white !important; }
+.btn-outline-navy { color: #0b2d5c; border-color: #0b2d5c; }
+.btn-outline-navy:hover { background-color: #0b2d5c; color: white; }
+.card-premium { border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); }
+.font-serif { font-family: 'Playfair Display', serif; }
+.tracking-wide { letter-spacing: 0.05em; }
+.ring-2 { box-shadow: 0 0 0 2px; }
+.ring-primary { box-shadow: 0 0 0 2px #0d6efd; }
+</style>
+{% endblock %}

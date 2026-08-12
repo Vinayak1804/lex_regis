@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lawyer Workspace | Lex Regis{% endblock %}
+
+{% block content %}
+<!-- Professional Workspace Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 bg-white p-4 rounded-4 shadow-sm border-0">
+    <div class="d-flex align-items-center">
+        <div class="position-relative me-3">
+            <img src="https://ui-avatars.com/api/?name={{ request.user.first_name }}+{{ request.user.last_name }}&background=0a192f&color=fff&size=64" class="rounded-circle shadow-sm" alt="Profile">
+            <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle p-1" style="width: 15px; height: 15px;" title="Online"></span>
+        </div>
+        <div>
+            <h3 class="fw-bold mb-0 text-dark" style="font-family: var(--font-family-serif);">
+                Good Morning, {{ request.user.get_full_name|default:"Advocate" }}
+                {% if profile.verification.is_verified %}
+                    <i class="fa-solid fa-circle-check text-primary fs-5 ms-1" title="Verified Lawyer"></i>
+                {% endif %}
+            </h3>
+            <p class="text-muted mb-0 fw-bold small">
+                {% now "l, j F Y" %} &nbsp;|&nbsp; 
+                <span class="text-warning"><i class="fa-solid fa-star"></i> 92% Profile Completion</span>
+            </p>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary rounded-pill fw-bold bg-light border-0"><i class="fa-solid fa-toggle-on text-success me-1"></i> Go Offline</button>
+        <button class="btn btn-outline-primary rounded-pill fw-bold"><i class="fa-regular fa-calendar-check me-1"></i> Update Availability</button>
+        <a href="#" class="btn btn-primary rounded-pill fw-bold shadow-sm"><i class="fa-solid fa-plus me-1"></i> New Matter</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Content Area -->
+    <div class="col-xl-8">
+        
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-6">
+                <div class="card card-premium border-0 shadow-sm h-100 rounded-4 border-bottom border-primary border-4 hover-lift">
+                    <div class="card-body p-3">
+                        <div class="text-muted text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Today's Hearings</div>
+                        <h3 class="fw-bold mb-0 text-dark">{{ kpis.hearings }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card card-premium border-0 shadow-sm h-100 rounded-4 border-bottom border-warning border-4 hover-lift">
+                    <div class="card-body p-3">
+                        <div class="text-muted text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Pending Requests</div>
+                        <h3 class="fw-bold mb-0 text-dark">{{ kpis.pending_requests }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card card-premium border-0 shadow-sm h-100 rounded-4 border-bottom border-success border-4 hover-lift">
+                    <div class="card-body p-3">
+                        <div class="text-muted text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Accepted Cases</div>
+                        <h3 class="fw-bold mb-0 text-dark">{{ kpis.accepted_cases }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="card card-premium border-0 shadow-sm h-100 rounded-4 border-bottom border-info border-4 hover-lift">
+                    <div class="card-body p-3">
+                        <div class="text-muted text-uppercase fw-bold mb-1" style="font-size: 0.65rem;">Revenue (Month)</div>
+                        <h3 class="fw-bold mb-0 text-dark fs-5 mt-1">{{ kpis.revenue }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Incoming Client Requests -->
+        {% if incoming_requests %}
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+            <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-inbox text-warning me-2"></i> Incoming Client Requests</h5>
+        </div>
+        
+        <div class="d-flex flex-column gap-3 mb-5">
+            {% for req in incoming_requests %}
+            <div class="card card-premium border-0 shadow-sm rounded-4 hover-lift bg-warning bg-opacity-10 border-start border-warning border-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-warning text-dark mb-2 px-3 py-2 rounded-pill fw-bold">Direct Booking Request</span>
+                            <h5 class="fw-bold text-dark mb-1">{{ req.issue.description|truncatewords:8 }}</h5>
+                            <p class="text-muted small mb-0">From Client: <strong>{{ req.client.get_full_name }}</strong></p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-white text-dark shadow-sm px-3 py-2 rounded-pill fs-6 mb-2">
+                                <i class="fa-regular fa-clock text-warning me-1"></i> Pending Response
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3 bg-white rounded-3 p-3 mb-3 shadow-sm">
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.65rem;">Est. Budget</small>
+                            <span class="fw-bold text-success">{{ req.estimated_budget }}</span>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.65rem;">Timeline</small>
+                            <span class="fw-bold text-dark">{{ req.timeline }}</span>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.65rem;">Practice Area</small>
+                            <span class="fw-bold text-dark">{{ req.practice_area }}</span>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.65rem;">Category</small>
+                            <span class="fw-bold text-primary">{{ req.matter_category }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small fw-bold">
+                            <i class="fa-solid fa-file-pdf me-1"></i> Documents Attached
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-danger fw-bold rounded-pill px-4">Reject</button>
+                            <button class="btn btn-light bg-white border fw-bold rounded-pill px-4 shadow-sm">Request Info</button>
+                            <form method="POST" action="{% url 'lawyer_portal:accept_request' req.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-warning fw-bold rounded-pill px-4 shadow-sm">Accept Matter</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- AI Case Marketplace -->
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+            <h5 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-store text-primary me-2"></i> AI Case Marketplace</h5>
+            <div>
+                <button class="btn btn-light bg-white border shadow-sm btn-sm rounded-pill fw-bold"><i class="fa-solid fa-filter me-1 text-primary"></i> Advanced Filters</button>
+                <div class="dropdown d-inline-block ms-2">
+                    <button class="btn btn-light bg-white border shadow-sm btn-sm rounded-pill fw-bold dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-sort me-1 text-primary"></i> Sort: Best Match
+                    </button>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item active fw-bold" href="#">Best Match</a></li>
+                        <li><a class="dropdown-item" href="#">Highest Budget</a></li>
+                        <li><a class="dropdown-item" href="#">Nearest Location</a></li>
+                        <li><a class="dropdown-item" href="#">Newest First</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Panel (Collapsible Mock) -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white" style="display: none;" id="filterPanel">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3">Filter Opportunities</h6>
+                <!-- Filters go here -->
+            </div>
+        </div>
+
+        <div class="d-flex flex-column gap-3 mb-4">
+            {% for issue in marketplace_issues %}
+            <div class="card card-premium border-0 shadow-sm rounded-4 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-primary mb-2 px-3 py-2 rounded-pill fw-bold">{{ issue.ai_analysis.practice_area|default:"Corporate Law" }}</span>
+                            <h5 class="fw-bold text-dark mb-1">{{ issue.description|truncatewords:8 }}</h5>
+                            <p class="text-muted small mb-0"><i class="fa-solid fa-location-dot me-1"></i> {{ issue.district|default:"Mumbai, Maharashtra" }} &nbsp;|&nbsp; <i class="fa-solid fa-clock me-1"></i> Posted {{ issue.created_at|timesince }} ago</p>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill fs-6 mb-2">
+                                <i class="fa-solid fa-bolt text-warning me-1"></i> 95% Match
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3 bg-light rounded-3 p-3 mb-3">
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.65rem;">Est. Budget</small>
+                            <span class="fw-bold text-success">{{ issue.ai_analysis.cost_estimate|default:"₹50,000 - ₹1,00,000" }}</span>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.65rem;">Timeline</small>
+                            <span class="fw-bold text-dark">{{ issue.ai_analysis.timeline_estimate|default:"3-6 Months" }}</span>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.65rem;">Complexity</small>
+                            <span class="fw-bold text-warning">{{ issue.ai_analysis.complexity|default:"High" }}</span>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <small class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.65rem;">Urgency</small>
+                            <span class="fw-bold text-danger">{{ issue.urgency }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small fw-bold">
+                            <i class="fa-solid fa-file-pdf me-1"></i> 3 Documents Uploaded
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-light bg-white border fw-bold text-muted shadow-sm px-3 rounded-pill hover-primary" title="Bookmark"><i class="fa-regular fa-bookmark"></i></button>
+                            <button class="btn btn-outline-danger fw-bold rounded-pill px-4">Decline</button>
+                            <button class="btn btn-light bg-white border fw-bold rounded-pill px-4 shadow-sm">View Details</button>
+                            <button class="btn btn-primary fw-bold rounded-pill px-4 shadow-sm" onclick="this.innerHTML='Accepted <i class=\'fa-solid fa-check ms-1\'></i>'; this.classList.remove('btn-primary'); this.classList.add('btn-success', 'disabled')">Accept Matter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="card border-0 shadow-sm rounded-4 py-5 text-center bg-white">
+                <i class="fa-solid fa-inbox fs-1 text-muted opacity-25 mb-3"></i>
+                <h5 class="fw-bold text-muted">No New Matters Found</h5>
+                <p class="text-muted small">We will notify you when AI matches you with new clients.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Right Sidebar -->
+    <div class="col-xl-4">
+        
+        <!-- Profile Summary Card -->
+        <div class="card border-0 shadow-sm rounded-4 bg-dark text-white mb-4" style="background: linear-gradient(135deg, var(--royal-navy) 0%, #0a192f 100%);">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="https://ui-avatars.com/api/?name={{ request.user.first_name }}+{{ request.user.last_name }}&background=fff&color=0a192f" class="rounded-circle me-3" style="width: 50px; height: 50px;">
+                    <div>
+                        <h5 class="fw-bold mb-0">{{ request.user.get_full_name|default:"Advocate" }}</h5>
+                        <small class="text-warning fw-bold">{{ profile.designation|default:"Senior Partner" }} | {{ profile.law_firm|default:"Lex Regis Associates" }}</small>
+                    </div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <small class="text-white-50 text-uppercase d-block" style="font-size: 0.65rem;">Experience</small>
+                        <span class="fw-bold">{{ profile.years_of_experience|default:"15" }} Years</span>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-white-50 text-uppercase d-block" style="font-size: 0.65rem;">Rating</small>
+                        <span class="fw-bold text-warning"><i class="fa-solid fa-star"></i> 4.9/5.0</span>
+                    </div>
+                    <div class="col-12 mt-2">
+                        <small class="text-white-50 text-uppercase d-block mb-1" style="font-size: 0.65rem;">Top Practice Areas</small>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-white bg-opacity-10 rounded-pill">Corporate</span>
+                            <span class="badge bg-white bg-opacity-10 rounded-pill">Civil</span>
+                            <span class="badge bg-white bg-opacity-10 rounded-pill">IPR</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-outline-light btn-sm w-100 rounded-pill fw-bold">Edit Profile</button>
+            </div>
+        </div>
+
+        <!-- Today's Work Panel -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+            <div class="card-header bg-transparent border-bottom pt-4 pb-3">
+                <h6 class="fw-bold mb-0 text-dark"><i class="fa-regular fa-calendar text-primary me-2"></i> Today's Schedule</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush rounded-bottom-4">
+                    <div class="list-group-item bg-light border-bottom-0 py-2 px-4">
+                        <small class="fw-bold text-muted text-uppercase" style="font-size: 0.7rem;">Hearings</small>
+                    </div>
+                    {% for h in todays_work.hearings %}
+                    <div class="list-group-item border-bottom-0 py-3 px-4 hover-bg-light">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-danger bg-opacity-10 text-danger rounded px-2 py-1 me-3 fw-bold small text-center" style="min-width: 70px;">
+                                {{ h.time }}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.9rem;">{{ h.title }}</h6>
+                                <p class="text-muted small mb-0"><i class="fa-solid fa-building-columns me-1"></i> {{ h.court }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="list-group-item bg-light border-bottom-0 py-2 px-4 mt-2">
+                        <small class="fw-bold text-muted text-uppercase" style="font-size: 0.7rem;">Meetings</small>
+                    </div>
+                    {% for m in todays_work.meetings %}
+                    <div class="list-group-item border-bottom-0 py-3 px-4 hover-bg-light">
+                        <div class="d-flex align-items-start">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded px-2 py-1 me-3 fw-bold small text-center" style="min-width: 70px;">
+                                {{ m.time }}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1" style="font-size: 0.9rem;">{{ m.title }}</h6>
+                                <p class="text-muted small mb-0">
+                                    {% if 'Video' in m.mode %}<i class="fa-solid fa-video text-info me-1"></i>{% else %}<i class="fa-solid fa-handshake text-success me-1"></i>{% endif %}
+                                    {{ m.mode }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Analytics Mini -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+            <div class="card-header bg-transparent border-bottom pt-4 pb-3">
+                <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-chart-line text-primary me-2"></i> Performance Analytics</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                    <span class="text-muted fw-bold small">Acceptance Rate</span>
+                    <span class="badge bg-success rounded-pill px-2 py-1">85%</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
+                    <span class="text-muted fw-bold small">Avg Response Time</span>
+                    <span class="badge bg-primary rounded-pill px-2 py-1">2.4 Hours</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted fw-bold small">Client Satisfaction</span>
+                    <span class="fw-bold text-warning"><i class="fa-solid fa-star"></i> 4.9/5.0</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notifications & Recent Activity -->
+        <div class="card border-0 shadow-sm rounded-4 bg-white">
+            <div class="card-header bg-transparent border-bottom pt-4 pb-3">
+                <h6 class="fw-bold mb-0 text-dark"><i class="fa-solid fa-bell text-primary me-2"></i> Notification Center</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush rounded-bottom-4">
+                    {% for notif in notifications %}
+                    <a href="#" class="list-group-item list-group-item-action border-bottom-0 py-3 px-4 d-flex align-items-start hover-bg-light">
+                        <div class="me-3 mt-1">
+                            {% if notif.category == 'Urgent' %}<i class="fa-solid fa-circle-exclamation text-danger fs-5"></i>
+                            {% elif notif.category == 'Documents' %}<i class="fa-solid fa-file-contract text-info fs-5"></i>
+                            {% else %}<i class="fa-solid fa-robot text-primary fs-5"></i>{% endif %}
+                        </div>
+                        <div>
+                            <span class="badge {% if notif.category == 'Urgent' %}bg-danger{% else %}bg-secondary{% endif %} bg-opacity-10 text-{% if notif.category == 'Urgent' %}danger{% else %}dark{% endif %} mb-1" style="font-size: 0.65rem;">{{ notif.category }}</span>
+                            <p class="mb-0 text-dark small fw-bold">{{ notif.msg }}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .hover-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+    .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1)!important; }
+    .hover-bg-light { transition: background-color 0.2s ease; }
+    .hover-bg-light:hover { background-color: #f8f9fa!important; cursor: pointer; }
+    .hover-primary:hover { color: var(--color-primary)!important; border-color: var(--color-primary)!important; }
+</style>
+{% endblock %}

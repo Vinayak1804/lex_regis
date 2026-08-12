@@ -1,0 +1,80 @@
+<header class="bg-white shadow-sm py-2 px-4 d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <button class="btn btn-link text-dark p-0 me-3" @click="toggle()">
+            <i class="fa-solid fa-bars fs-5"></i>
+        </button>
+        <!-- Search Bar -->
+        <div class="position-relative d-none d-md-block" x-data="{ searchOpen: false }">
+            <i class="fa-solid fa-search position-absolute text-muted" style="top: 50%; transform: translateY(-50%); left: 12px;"></i>
+            <input type="text" name="q" class="form-control bg-light border-0 ps-5 rounded-pill" placeholder="Search cases, documents..." style="width: 300px;"
+                hx-get="{% url 'dashboard:search' %}"
+                hx-trigger="keyup changed delay:300ms, search"
+                hx-target="#search-results"
+                @focus="searchOpen = true"
+                @click.outside="searchOpen = false">
+                
+            <div id="search-results" class="position-absolute bg-white shadow-lg rounded-3 mt-2 border overflow-hidden" 
+                 style="width: 400px; max-height: 400px; overflow-y: auto; z-index: 1050; display: none;"
+                 x-show="searchOpen">
+                 <!-- Results will be loaded here -->
+                 <div class="p-3 text-center text-muted">Start typing to search...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="d-flex align-items-center gap-3">
+        <!-- Theme Toggle -->
+        <button class="btn btn-link text-secondary p-0" @click="toggle()" title="Toggle Theme">
+            <i class="fa-solid" :class="theme === 'dark' ? 'fa-sun' : 'fa-moon'"></i>
+        </button>
+        
+        {% if request.user.is_authenticated %}
+        <!-- Notifications Dropdown -->
+        <div class="dropdown" x-data="{ open: false }">
+            <button class="btn btn-link text-secondary position-relative p-0" @click="open = !open" @click.outside="open = false">
+                <i class="fa-regular fa-bell fs-5"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                    3
+                </span>
+            </button>
+            <div x-show="open" class="dropdown-menu dropdown-menu-end shadow-lg border-0 show glass-panel mt-2" style="width: 300px; display: none;">
+                <h6 class="dropdown-header text-primary fw-bold">Notifications</h6>
+                <a class="dropdown-item py-2 border-bottom" href="#">
+                    <small class="text-muted d-block">10 mins ago</small>
+                    Hearing HR-2026-00001 scheduled.
+                </a>
+                <a class="dropdown-item py-2 border-bottom" href="#">
+                    <small class="text-muted d-block">1 hour ago</small>
+                    Document verified on Blockchain.
+                </a>
+                <a class="dropdown-item py-2 text-center text-primary" href="{% url 'dashboard:notifications' %}">View All</a>
+            </div>
+        </div>
+        
+        <!-- Profile Dropdown -->
+        <div class="dropdown" x-data="{ open: false }">
+            <button class="btn btn-light rounded-pill px-3 py-1 shadow-sm border d-flex align-items-center gap-2" @click="open = !open" @click.outside="open = false">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                    <span class="fw-bold fs-6">{{ request.user.email|default:"U"|slice:":1"|upper }}</span>
+                </div>
+                <span class="d-none d-md-inline text-dark">{{ request.user.get_full_name|default:request.user.email|default:"Admin User" }}</span>
+                <i class="fa-solid fa-chevron-down text-muted small"></i>
+            </button>
+            <div x-show="open" class="dropdown-menu dropdown-menu-end shadow-lg border-0 show mt-2" style="display: none;">
+                <a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fa-solid fa-user me-2 text-muted"></i> Profile</a>
+                <a class="dropdown-item" href="{% url 'accounts:security' %}"><i class="fa-solid fa-shield-halved me-2 text-muted"></i> Security</a>
+                <a class="dropdown-item" href="{% url 'accounts:preferences' %}"><i class="fa-solid fa-sliders me-2 text-muted"></i> Preferences</a>
+                <div class="dropdown-divider"></div>
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-sign-out-alt me-2"></i> Logout</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn btn-primary rounded-pill px-4 py-1 text-decoration-none" data-bs-toggle="modal" data-bs-target="#authModal" @click="window.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { mode: 'login' } }))">Login</button>
+        </div>
+        {% endif %}
+    </div>
+</header>

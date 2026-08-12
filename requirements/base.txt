@@ -1,0 +1,9 @@
+Django>=5.0
+djangorestframework
+python-dotenv
+Pillow
+psycopg[binary]
+django-filter
+django-cors-headers
+djangorestframework-simplejwt
+django-htmx

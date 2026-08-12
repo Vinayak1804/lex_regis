@@ -1,0 +1,56 @@
+{% if hearings %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light text-muted text-uppercase" style="font-size: 0.8rem; letter-spacing: 0.5px;">
+            <tr>
+                <th class="ps-4">Hearing No.</th>
+                <th>Title / Case</th>
+                <th>Schedule</th>
+                <th>Courtroom</th>
+                <th>Status</th>
+                <th class="pe-4 text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="border-top-0">
+            {% for h in hearings %}
+            <tr>
+                <td class="ps-4"><span class="fw-bold text-dark">{{ h.number }}</span></td>
+                <td>
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold text-primary">{{ h.title }}</span>
+                        <small class="text-muted">{{ h.case_title }}</small>
+                    </div>
+                </td>
+                <td>
+                    <div class="d-flex flex-column">
+                        <span><i class="fa-regular fa-calendar me-1 text-muted"></i> {{ h.date|date:"M d, Y" }}</span>
+                        <small class="text-muted"><i class="fa-regular fa-clock me-1"></i> {{ h.time|time:"H:i" }}</small>
+                    </div>
+                </td>
+                <td>{{ h.courtroom }}</td>
+                <td>
+                    {% if h.status == 'Scheduled' %}
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary">{{ h.status }}</span>
+                    {% elif h.status == 'Completed' %}
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success">{{ h.status }}</span>
+                    {% elif h.status == 'Adjourned' %}
+                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning">{{ h.status }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary">{{ h.status }}</span>
+                    {% endif %}
+                </td>
+                <td class="pe-4 text-end">
+                    <button class="btn btn-sm btn-light rounded-circle"><i class="fa-solid fa-chevron-right"></i></button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="text-center py-5">
+    <div class="text-muted mb-3"><i class="fa-regular fa-calendar-xmark fs-1 opacity-50"></i></div>
+    <h6 class="fw-bold">No Hearings Found</h6>
+    <p class="text-muted small">Try adjusting your search criteria or schedule a new hearing.</p>
+</div>
+{% endif %}

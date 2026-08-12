@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Coming Soon - Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 text-center">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="fa-solid fa-person-digging fa-4x text-primary mb-3"></i>
+                        <h2 class="fw-bold text-dark mb-2">{{ feature_name }}</h2>
+                        <p class="text-muted fs-5">This feature is currently under development.</p>
+                    </div>
+                    
+                    <div class="alert alert-light border rounded-3 text-start mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-code-pull-request text-primary me-2"></i>
+                            <span class="fw-bold">Development Status</span>
+                        </div>
+                        <p class="mb-0 text-muted small">
+                            We are actively working on building out the {{ feature_name }} module. 
+                            It will be available in an upcoming release as part of the Lex Regis enterprise rollout.
+                        </p>
+                    </div>
+                    
+                    <a href="{% url 'dashboard:index' %}" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
+                        <i class="fa-solid fa-arrow-left me-2"></i> Return to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

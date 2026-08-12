@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Settings - LEX REGIS{% endblock %}
+
+{% block page_title %}Settings{% endblock %}
+{% block breadcrumb_active %}Settings{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12 col-lg-4 col-xl-3">
+        <!-- Settings Sidebar -->
+        <div class="card card-premium">
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush rounded-3">
+                    <a href="#general" class="list-group-item list-group-item-action active border-0 py-3 d-flex align-items-center" data-bs-toggle="list">
+                        <i class="fa-solid fa-sliders me-3 fs-5"></i> General
+                    </a>
+                    <a href="#appearance" class="list-group-item list-group-item-action border-0 py-3 d-flex align-items-center" data-bs-toggle="list">
+                        <i class="fa-solid fa-palette me-3 fs-5"></i> Appearance
+                    </a>
+                    <a href="#notifications" class="list-group-item list-group-item-action border-0 py-3 d-flex align-items-center" data-bs-toggle="list">
+                        <i class="fa-solid fa-bell me-3 fs-5"></i> Notifications
+                    </a>
+                    <a href="#security" class="list-group-item list-group-item-action border-0 py-3 d-flex align-items-center" data-bs-toggle="list">
+                        <i class="fa-solid fa-shield-halved me-3 fs-5"></i> Security
+                    </a>
+                    <a href="#ai-blockchain" class="list-group-item list-group-item-action border-0 py-3 d-flex align-items-center" data-bs-toggle="list">
+                        <i class="fa-solid fa-link me-3 fs-5"></i> AI & Blockchain
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-lg-8 col-xl-9">
+        <div class="tab-content">
+            <!-- General Settings -->
+            <div class="tab-pane fade show active" id="general">
+                <div class="card card-premium mb-4">
+                    <div class="card-header bg-transparent pt-4 pb-0 border-bottom-0">
+                        <h5 class="fw-bold text-dark"><i class="fa-solid fa-sliders text-primary me-2"></i> General Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-4">Configure your workspace and system defaults.</p>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">Default Landing Page</label>
+                            <select class="form-select">
+                                <option value="dashboard" selected>Dashboard</option>
+                                <option value="cases">My Cases</option>
+                                <option value="calendar">Hearing Calendar</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">Document Export Format</label>
+                            <select class="form-select">
+                                <option value="pdf" selected>PDF Document</option>
+                                <option value="docx">Microsoft Word (DOCX)</option>
+                            </select>
+                        </div>
+                        
+                        <hr class="my-4">
+                        <button class="btn btn-primary"><i class="fa-solid fa-save me-2"></i> Save Preferences</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Appearance Settings -->
+            <div class="tab-pane fade" id="appearance">
+                <div class="card card-premium">
+                    <div class="card-header bg-transparent pt-4 pb-0 border-bottom-0">
+                        <h5 class="fw-bold text-dark"><i class="fa-solid fa-palette text-primary me-2"></i> Appearance Options</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-4">Customize the look and feel of the LEX REGIS platform.</p>
+                        
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-4">
+                                <div class="card border border-primary bg-light cursor-pointer text-center py-4 rounded-3 h-100 shadow-sm">
+                                    <div class="card-body">
+                                        <i class="fa-solid fa-sun fs-1 text-primary mb-3"></i>
+                                        <h6 class="fw-bold mb-0">Light Theme</h6>
+                                        <div class="mt-2 text-success small fw-bold"><i class="fa-solid fa-check me-1"></i> Active</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border cursor-pointer text-center py-4 rounded-3 bg-dark h-100 opacity-50">
+                                    <div class="card-body text-white">
+                                        <i class="fa-solid fa-moon fs-1 mb-3"></i>
+                                        <h6 class="fw-bold mb-0">Dark Theme</h6>
+                                        <div class="mt-2 text-muted small">Coming Soon</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border cursor-pointer text-center py-4 rounded-3 h-100 opacity-50" style="background: linear-gradient(135deg, #f8f9fa 50%, #212529 50%);">
+                                    <div class="card-body">
+                                        <i class="fa-solid fa-circle-half-stroke fs-1 mb-3 text-secondary"></i>
+                                        <h6 class="fw-bold mb-0 text-dark">System Default</h6>
+                                        <div class="mt-2 text-muted small">Coming Soon</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-check form-switch mb-3 mt-4">
+                            <input class="form-check-input" type="checkbox" role="switch" id="compactMode">
+                            <label class="form-check-label fw-medium text-dark" for="compactMode">Compact Density</label>
+                            <div class="form-text mt-0">Reduce whitespace to fit more information on screen.</div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        <button class="btn btn-primary"><i class="fa-solid fa-save me-2"></i> Apply Theme</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Settings -->
+            <div class="tab-pane fade" id="notifications">
+                <div class="card card-premium">
+                    <div class="card-header bg-transparent pt-4 pb-0 border-bottom-0">
+                        <h5 class="fw-bold text-dark"><i class="fa-solid fa-bell text-primary me-2"></i> Notification Preferences</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="text-uppercase fw-bold text-muted border-bottom pb-2 mb-3">Email Notifications</h6>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="notifHearing" checked>
+                            <label class="form-check-label text-dark fw-medium" for="notifHearing">Hearing Reminders</label>
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="notifDocs" checked>
+                            <label class="form-check-label text-dark fw-medium" for="notifDocs">Document Uploads</label>
+                        </div>
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" role="switch" id="notifStatus">
+                            <label class="form-check-label text-dark fw-medium" for="notifStatus">Case Status Changes</label>
+                        </div>
+
+                        <h6 class="text-uppercase fw-bold text-muted border-bottom pb-2 mb-3">System Alerts</h6>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" role="switch" id="sysNotifAi" checked>
+                            <label class="form-check-label text-dark fw-medium" for="sysNotifAi">AI Analysis Completion</label>
+                        </div>
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" type="checkbox" role="switch" id="sysNotifBc" checked>
+                            <label class="form-check-label text-dark fw-medium" for="sysNotifBc">Blockchain Verification Receipts</label>
+                        </div>
+                        
+                        <hr class="my-4">
+                        <button class="btn btn-primary"><i class="fa-solid fa-save me-2"></i> Save Preferences</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Settings -->
+            <div class="tab-pane fade" id="security">
+                <div class="card card-premium">
+                    <div class="card-header bg-transparent pt-4 pb-0 border-bottom-0">
+                        <h5 class="fw-bold text-dark"><i class="fa-solid fa-shield-halved text-primary me-2"></i> Security & Authentication</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded-3 border">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Password Management</h6>
+                                <p class="text-muted small mb-0">Change your password or manage recovery options.</p>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm rounded-pill">Update Password</button>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-4 p-3 {% if user.two_factor_enabled %}bg-success-subtle border-success{% else %}bg-warning-subtle border-warning{% endif %} rounded-3 border">
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark">Two-Factor Authentication (2FA)</h6>
+                                <p class="text-muted small mb-0">
+                                    {% if user.two_factor_enabled %}
+                                        Your account is highly secure.
+                                    {% else %}
+                                        Add an extra layer of security to your account.
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input fs-5" type="checkbox" role="switch" {% if user.two_factor_enabled %}checked{% endif %}>
+                            </div>
+                        </div>
+                        
+                        <h6 class="text-uppercase fw-bold text-muted border-bottom pb-2 mb-3 mt-5">Active Sessions</h6>
+                        <ul class="list-group list-group-flush mb-4">
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-bold text-dark"><i class="fa-brands fa-windows me-2 text-primary"></i> Windows (Current)</div>
+                                    <div class="small text-muted">Last active: Just now • IP: {{ user.last_login_ip|default:"127.0.0.1" }}</div>
+                                </div>
+                                <span class="badge bg-success rounded-pill">Active</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- AI & Blockchain Settings -->
+            <div class="tab-pane fade" id="ai-blockchain">
+                <div class="card card-premium">
+                    <div class="card-header bg-transparent pt-4 pb-0 border-bottom-0">
+                        <h5 class="fw-bold text-dark"><i class="fa-solid fa-link text-primary me-2"></i> Next-Gen Features</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-primary d-flex align-items-center mb-4" role="alert">
+                            <i class="fa-solid fa-microchip fs-3 me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">AI Assistant & Blockchain Registration</h6>
+                                <p class="mb-0 small">These features will be available in Sprints 3 & 4. You will be able to configure API keys, wallets, and preferences here.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark text-muted">OpenAI API Key (Placeholder)</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control bg-light" value="sk-xxxxxxxxxxxxxxxxxxxxxxxx" disabled>
+                                <button class="btn btn-outline-secondary" type="button" disabled><i class="fa-solid fa-eye"></i></button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark text-muted">Ethereum Wallet Address (Placeholder)</label>
+                            <input type="text" class="form-control bg-light" value="0x0000000000000000000000000000000000000000" disabled>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}

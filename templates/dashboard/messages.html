@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enterprise Messaging | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 d-flex flex-column" style="height: calc(100vh - 100px);" x-data="{ activeChat: 1 }">
+    <!-- Top Header Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+            <h3 class="mb-0 fw-bold font-serif text-navy">
+                <i class="fa-solid fa-comments me-2 text-info"></i> Secure Communications
+            </h3>
+            <p class="text-muted small mb-0 mt-1">End-to-End Encrypted messaging for clients and legal counsel.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-navy btn-sm rounded-pill px-4 fw-bold hover-lift">
+                <i class="fa-solid fa-video me-1"></i> Start Video Call
+            </button>
+            <button class="btn btn-info btn-sm rounded-pill px-4 fw-bold hover-lift text-white ms-2 shadow-sm">
+                <i class="fa-solid fa-pen-to-square me-1"></i> New Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="row g-0 flex-grow-1 card card-premium shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+        <!-- Sidebar: Chat List -->
+        <div class="col-md-4 col-lg-3 border-end bg-light d-flex flex-column h-100">
+            <div class="p-3 border-bottom bg-white">
+                <div class="position-relative">
+                    <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 15px; top: 12px;"></i>
+                    <input type="text" class="form-control rounded-pill ps-5 bg-light border-0" placeholder="Search messages...">
+                </div>
+            </div>
+            <div class="flex-grow-1 overflow-auto">
+                <!-- Chat Item 1 -->
+                <div class="d-flex align-items-center p-3 border-bottom cursor-pointer hover-bg-light" 
+                     :class="{'bg-info bg-opacity-10 border-info border-start border-4': activeChat === 1}"
+                     @click="activeChat = 1">
+                    <div class="position-relative me-3">
+                        <div class="bg-navy text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm" style="width: 45px; height: 45px;">
+                            <span class="fw-bold">SJ</span>
+                        </div>
+                        <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style="width: 12px; height: 12px;"></span>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0 fw-bold text-navy text-truncate">Adv. Sanjay Joshi</h6>
+                            <small class="text-info fw-bold" style="font-size: 0.7rem;">10:45 AM</small>
+                        </div>
+                        <p class="mb-0 text-dark small text-truncate fw-bold">Please upload the signed affidavit.</p>
+                    </div>
+                </div>
+                
+                <!-- Chat Item 2 -->
+                <div class="d-flex align-items-center p-3 border-bottom cursor-pointer hover-bg-light"
+                     :class="{'bg-info bg-opacity-10 border-info border-start border-4': activeChat === 2}"
+                     @click="activeChat = 2">
+                    <div class="position-relative me-3">
+                        <div class="bg-gold text-navy rounded-circle d-flex justify-content-center align-items-center shadow-sm" style="width: 45px; height: 45px;">
+                            <span class="fw-bold">TC</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0 fw-bold text-navy text-truncate">TechCorp Inc. Team</h6>
+                            <small class="text-muted" style="font-size: 0.7rem;">Yesterday</small>
+                        </div>
+                        <p class="mb-0 text-muted small text-truncate">We will review the contract draft...</p>
+                    </div>
+                </div>
+                
+                <!-- Chat Item 3 -->
+                <div class="d-flex align-items-center p-3 border-bottom cursor-pointer hover-bg-light"
+                     :class="{'bg-info bg-opacity-10 border-info border-start border-4': activeChat === 3}"
+                     @click="activeChat = 3">
+                    <div class="position-relative me-3">
+                        <div class="bg-secondary text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm" style="width: 45px; height: 45px;">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0 fw-bold text-navy text-truncate">System Notifications</h6>
+                            <small class="text-muted" style="font-size: 0.7rem;">Oct 12</small>
+                        </div>
+                        <p class="mb-0 text-muted small text-truncate">Invoice #INV-2026-088 is generated.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="col-md-8 col-lg-9 d-flex flex-column h-100 bg-white position-relative">
+            
+            <div x-show="activeChat !== 1" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-light">
+                <i class="fa-regular fa-comments text-muted mb-3" style="font-size: 80px; opacity: 0.2;"></i>
+                <h5 class="fw-bold text-muted">Select a conversation</h5>
+                <p class="text-muted small">Choose a chat from the sidebar to start messaging.</p>
+            </div>
+            
+            <template x-if="activeChat === 1">
+                <div class="d-flex flex-column h-100 w-100">
+                    <!-- Chat Header -->
+                    <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center shadow-sm z-1">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-navy text-white rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 45px; height: 45px;">
+                                <span class="fw-bold">SJ</span>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-navy">Adv. Sanjay Joshi</h6>
+                                <small class="text-success fw-bold d-flex align-items-center"><i class="fa-solid fa-circle me-1" style="font-size: 6px;"></i> Online | Case: LR-2026-0091</small>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 text-muted">
+                            <button class="btn btn-light rounded-circle"><i class="fa-solid fa-magnifying-glass"></i></button>
+                            <button class="btn btn-light rounded-circle"><i class="fa-solid fa-phone"></i></button>
+                            <button class="btn btn-light rounded-circle"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Messages -->
+                    <div class="flex-grow-1 p-4 overflow-auto" style="background-color: #f8f9fc;">
+                        <div class="text-center mb-4"><span class="badge bg-white text-muted border px-3 py-1 shadow-sm rounded-pill"><i class="fa-solid fa-lock text-warning me-1"></i> Messages are E2E Encrypted</span></div>
+                        
+                        <div class="text-center mb-4"><small class="text-muted fw-bold">Today</small></div>
+                        
+                        <!-- Received Message -->
+                        <div class="d-flex mb-3">
+                            <div class="bg-navy text-white rounded-circle d-flex justify-content-center align-items-center me-2 mt-auto" style="width: 28px; height: 28px; font-size: 10px;">
+                                <span class="fw-bold">SJ</span>
+                            </div>
+                            <div class="bg-white border rounded-3 p-3 shadow-sm" style="max-width: 75%; border-bottom-left-radius: 4px !important;">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold small text-navy">Adv. Sanjay Joshi</span>
+                                    <span class="text-muted ms-3" style="font-size: 0.7rem;">10:30 AM</span>
+                                </div>
+                                <p class="mb-0 text-dark small">Hello! I have reviewed your case file. Can you please upload the latest notice you received from the opposite party? We need it to draft the rejoinder.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Sent Message -->
+                        <div class="d-flex mb-3 justify-content-end">
+                            <div class="bg-info text-white rounded-3 p-3 shadow-sm" style="max-width: 75%; border-bottom-right-radius: 4px !important;">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-white-50 ms-3" style="font-size: 0.7rem;">10:35 AM</span>
+                                    <span class="fw-bold small text-white">You</span>
+                                </div>
+                                <p class="mb-0 small">Sure, I will upload it in the Documents section shortly.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Received Message -->
+                        <div class="d-flex mb-3">
+                            <div class="bg-navy text-white rounded-circle d-flex justify-content-center align-items-center me-2 mt-auto" style="width: 28px; height: 28px; font-size: 10px;">
+                                <span class="fw-bold">SJ</span>
+                            </div>
+                            <div class="bg-white border rounded-3 p-3 shadow-sm border-start border-4 border-info" style="max-width: 75%; border-bottom-left-radius: 4px !important;">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-bold small text-navy">Adv. Sanjay Joshi</span>
+                                    <span class="text-muted ms-3" style="font-size: 0.7rem;">10:45 AM</span>
+                                </div>
+                                <p class="mb-0 text-dark small fw-bold">Please also upload the signed affidavit once you get it notarized.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input -->
+                    <div class="p-3 bg-white border-top shadow-sm z-1">
+                        <form class="d-flex align-items-end gap-2" onsubmit="event.preventDefault(); alert('Message feature available in production deployment.');">
+                            <button type="button" class="btn btn-light rounded-circle text-muted"><i class="fa-solid fa-paperclip"></i></button>
+                            <div class="flex-grow-1">
+                                <textarea class="form-control bg-light border-0" rows="1" placeholder="Type a secure message..." style="resize: none;"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-info text-white rounded-circle shadow-sm" style="width: 40px; height: 40px;"><i class="fa-solid fa-paper-plane"></i></button>
+                        </form>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.hover-bg-light:hover { background-color: #f8f9fa !important; }
+.hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important; }
+.cursor-pointer { cursor: pointer; }
+.text-gold { color: #d4af37 !important; }
+.bg-gold { background-color: #d4af37 !important; }
+.text-navy { color: #0b2d5c !important; }
+.bg-navy { background-color: #0b2d5c !important; }
+.btn-navy { background-color: #0b2d5c !important; border-color: #0b2d5c !important; color: white !important; }
+.btn-outline-navy { color: #0b2d5c; border-color: #0b2d5c; }
+.btn-outline-navy:hover { background-color: #0b2d5c; color: white; }
+.card-premium { border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); }
+.font-serif { font-family: 'Playfair Display', serif; }
+</style>
+{% endblock %}

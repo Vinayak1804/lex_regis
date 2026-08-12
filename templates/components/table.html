@@ -1,0 +1,35 @@
+<div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 {% if class_names %}{{ class_names }}{% endif %}">
+        <thead class="table-light text-muted">
+            <tr>
+                {% for column in columns %}
+                <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody id="{{ table_id|default:'table-body' }}">
+            {{ rows|safe }}
+        </tbody>
+    </table>
+</div>
+
+{% if pagination %}
+<div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+    <small class="text-muted">Showing page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</small>
+    <nav>
+        <ul class="pagination pagination-sm mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="#" hx-get="{{ hx_url }}?page={{ page_obj.previous_page_number }}" hx-target="#{{ hx_target }}">Previous</a>
+            </li>
+            {% endif %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="#" hx-get="{{ hx_url }}?page={{ page_obj.next_page_number }}" hx-target="#{{ hx_target }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Security Settings - LEX REGIS{% endblock %}
+
+{% block page_title %}Security Settings{% endblock %}
+{% block breadcrumb_active %}Security{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12 col-xl-8 mx-auto">
+        <div class="card card-premium">
+            <div class="card-header bg-transparent pt-4 pb-0 border-bottom-0">
+                <h5 class="fw-bold text-dark"><i class="fa-solid fa-shield-halved text-primary me-2"></i> Security Configuration</h5>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="form-check form-switch form-switch-lg mt-3">
+                                {{ form.two_factor_enabled }}
+                                <label class="form-check-label fw-bold ms-2" for="{{ form.two_factor_enabled.id_for_label }}">
+                                    Enable Two-Factor Authentication (2FA)
+                                </label>
+                                <small class="d-block text-muted ms-2 mt-1">Enhance your account security by requiring a verification code along with your password.</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Backup Email Address</label>
+                            {{ form.backup_email }}
+                            <small class="text-muted">Used for account recovery if you lose access.</small>
+                            {% if form.backup_email.errors %}
+                                <div class="text-danger small mt-1">{{ form.backup_email.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Backup Phone Number</label>
+                            {{ form.backup_phone }}
+                            <small class="text-muted">Alternative method for receiving verification codes.</small>
+                            {% if form.backup_phone.errors %}
+                                <div class="text-danger small mt-1">{{ form.backup_phone.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-5">
+                    
+                    <h5 class="fw-bold text-dark mb-4">Change Password</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <a href="#" class="btn btn-outline-secondary w-100"><i class="fa-solid fa-key me-2"></i> Request Password Reset</a>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">Save Security Settings</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

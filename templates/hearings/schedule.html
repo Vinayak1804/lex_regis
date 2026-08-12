@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Hearing - Lex Regis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{% url 'hearings_ui:list' %}" class="btn btn-link text-decoration-none p-0 mb-2 text-muted"><i class="fa-solid fa-arrow-left me-1"></i> Back to Hearings</a>
+        <h2 class="fw-bold mb-0" style="color: var(--color-primary); font-family: var(--font-family-serif);">
+            Schedule Hearing
+        </h2>
+    </div>
+</div>
+
+<div class="card card-premium">
+    <div class="card-body p-4">
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            Please correct the errors below.
+            {{ form.errors }}
+            {% if form.non_field_errors %}
+                {{ form.non_field_errors }}
+            {% endif %}
+        </div>
+        {% endif %}
+        <form method="post" action="{% url 'hearings_ui:schedule' %}">
+            {% csrf_token %}
+            
+            <div class="row g-4">
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Case</label>
+                    {{ form.case }}
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Hearing Type</label>
+                    {{ form.hearing_type }}
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Scheduled Date</label>
+                    {{ form.scheduled_date }}
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Scheduled Time</label>
+                    {{ form.scheduled_time }}
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Estimated Duration (minutes)</label>
+                    {{ form.estimated_duration_minutes }}
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Court Room</label>
+                    {{ form.court_room }}
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Presiding Judge</label>
+                    {{ form.presiding_judge }}
+                </div>
+            </div>
+            
+            <div class="mt-4 text-end">
+                <a href="{% url 'hearings_ui:list' %}" class="btn btn-light me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4"><i class="fa-solid fa-gavel me-2"></i> Schedule Hearing</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

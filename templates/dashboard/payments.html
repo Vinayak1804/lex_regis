@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enterprise Payments | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Top Header Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom sticky-top bg-light" style="top: 0; z-index: 1020; padding-top: 1rem;">
+        <div>
+            <h3 class="mb-0 fw-bold font-serif text-navy">
+                <i class="fa-solid fa-credit-card me-2 text-success"></i> Financial Management
+            </h3>
+            <p class="text-muted small mb-0 mt-1">Ledger, invoicing, and secure payment processing.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold hover-lift">
+                <i class="fa-solid fa-file-invoice me-1"></i> New Invoice
+            </button>
+            <button class="btn btn-success btn-sm rounded-pill px-4 fw-bold hover-lift ms-2 shadow-sm">
+                <i class="fa-solid fa-indian-rupee-sign me-1"></i> Receive Payment
+            </button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 bg-navy text-white rounded-4 h-100 position-relative overflow-hidden">
+                <div class="position-absolute opacity-25" style="right: -20px; bottom: -20px;"><i class="fa-solid fa-sack-dollar" style="font-size: 100px;"></i></div>
+                <div class="card-body p-4 position-relative z-1">
+                    <h6 class="text-white-50 text-uppercase fw-bold small tracking-wide">Total Revenue (YTD)</h6>
+                    <h2 class="fw-bold font-serif text-gold mb-0">₹14,50,000</h2>
+                    <p class="small text-success mb-0 mt-2 fw-bold"><i class="fa-solid fa-arrow-trend-up me-1"></i> +12% vs Last Year</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Outstanding Receivables</h6>
+                    <h2 class="fw-bold text-danger mb-0">₹3,45,000</h2>
+                    <p class="small text-danger fw-bold mb-0 mt-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> 4 Invoices Overdue</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Pending Escrow</h6>
+                    <h2 class="fw-bold text-warning mb-0">₹2,00,000</h2>
+                    <p class="small text-muted mb-0 mt-2">Held for LR-2026-0042 Settlement.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Monthly Target</h6>
+                    <div class="d-flex justify-content-between align-items-end mb-1">
+                        <h2 class="fw-bold text-primary mb-0">75%</h2>
+                        <span class="text-muted small fw-bold">₹5L</span>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px;">
+                        <div class="progress-bar bg-primary" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="card card-premium shadow-sm border-0 rounded-4 mb-5">
+        
+        <!-- Filter Bar -->
+        <div class="card-header bg-white pt-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold text-navy mb-0">Recent Transactions</h5>
+            <div class="d-flex gap-2">
+                <select class="form-select form-select-sm bg-light fw-bold text-muted border-0" style="width: auto;">
+                    <option>All Types</option>
+                    <option>Retainers</option>
+                    <option>Hourly Billing</option>
+                    <option>Expenses</option>
+                </select>
+                <div class="position-relative" style="width: 250px;">
+                    <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 15px; top: 10px;"></i>
+                    <input type="text" class="form-control form-control-sm rounded-pill ps-5 bg-light border-0" placeholder="Search invoices...">
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Invoice / Ref #</th>
+                            <th>Date</th>
+                            <th>Client / Matter</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Transaction 1 -->
+                        <tr class="hover-lift">
+                            <td class="ps-4">
+                                <h6 class="fw-bold mb-0 text-navy">INV-2026-089</h6>
+                                <small class="text-muted font-monospace">TRX-948210</small>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark d-block">Today</span>
+                                <small class="text-muted">10:45 AM</small>
+                            </td>
+                            <td>
+                                <h6 class="fw-bold mb-0 text-dark">TechCorp Inc.</h6>
+                                <small class="text-primary">LR-2026-0042</small>
+                            </td>
+                            <td>Initial Retainer Fee</td>
+                            <td><h6 class="fw-bold text-dark mb-0">₹50,000</h6></td>
+                            <td><span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3">Paid</span></td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill" title="Download Receipt"><i class="fa-solid fa-download"></i></button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Transaction 2 -->
+                        <tr class="hover-lift">
+                            <td class="ps-4">
+                                <h6 class="fw-bold mb-0 text-navy">INV-2026-088</h6>
+                                <small class="text-muted font-monospace">-</small>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark d-block">Oct 10, 2026</span>
+                                <small class="text-muted">Net 15</small>
+                            </td>
+                            <td>
+                                <h6 class="fw-bold mb-0 text-dark">Rahul Sharma</h6>
+                                <small class="text-primary">LR-2026-0091</small>
+                            </td>
+                            <td>Court Filing Expenses</td>
+                            <td><h6 class="fw-bold text-dark mb-0">₹12,500</h6></td>
+                            <td><span class="badge bg-danger bg-opacity-10 text-danger border border-danger rounded-pill px-3">Overdue</span></td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-outline-danger rounded-pill fw-bold px-3">Remind</button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Transaction 3 -->
+                        <tr class="hover-lift">
+                            <td class="ps-4">
+                                <h6 class="fw-bold mb-0 text-navy">INV-2026-087</h6>
+                                <small class="text-muted font-monospace">TRX-947702</small>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-dark d-block">Oct 05, 2026</span>
+                                <small class="text-muted">14:20 PM</small>
+                            </td>
+                            <td>
+                                <h6 class="fw-bold mb-0 text-dark">Priya Patel</h6>
+                                <small class="text-primary">LR-2026-0085</small>
+                            </td>
+                            <td>Consultation Fee</td>
+                            <td><h6 class="fw-bold text-dark mb-0">₹5,000</h6></td>
+                            <td><span class="badge bg-success bg-opacity-10 text-success border border-success rounded-pill px-3">Paid</span></td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill" title="Download Receipt"><i class="fa-solid fa-download"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important; z-index: 10; position: relative; }
+.text-gold { color: #d4af37 !important; }
+.text-navy { color: #0b2d5c !important; }
+.bg-navy { background-color: #0b2d5c !important; }
+.card-premium { border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); }
+.font-serif { font-family: 'Playfair Display', serif; }
+.tracking-wide { letter-spacing: 0.05em; }
+</style>
+{% endblock %}

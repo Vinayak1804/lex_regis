@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Document Management System | Lex Regis Enterprise{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0" x-data="documentDashboard()">
+    <!-- Top Header Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom sticky-top bg-light" style="top: 0; z-index: 1020; padding-top: 1rem;">
+        <div>
+            <h3 class="mb-0 fw-bold font-serif text-navy">
+                <i class="fa-solid fa-folder-open me-2 text-warning"></i> Enterprise DMS
+            </h3>
+            <p class="text-muted small mb-0 mt-1">Secure, encrypted, and version-controlled document repository.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold hover-lift">
+                <i class="fa-solid fa-file-signature me-1"></i> Digital Signatures
+            </button>
+            <a href="{% url 'documents_ui:upload' %}" class="btn btn-navy btn-sm rounded-pill px-4 fw-bold hover-lift ms-2 shadow-sm">
+                <i class="fa-solid fa-cloud-arrow-up me-1"></i> Bulk Upload
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- LEFT SIDEBAR: Folders -->
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 rounded-4 h-100 position-sticky" style="top: 100px;">
+                <div class="card-header bg-white pt-4 pb-0 border-0">
+                    <h6 class="fw-bold text-navy mb-0 text-uppercase tracking-wide small">Master Directories</h6>
+                </div>
+                <div class="card-body p-3">
+                    <ul class="nav flex-column gap-1">
+                        <li class="nav-item">
+                            <button class="nav-link w-100 text-start fw-bold rounded-3" :class="activeFolder === 'all' ? 'bg-navy text-white' : 'text-dark hover-bg-light'" @click="activeFolder = 'all'">
+                                <i class="fa-solid fa-layer-group me-2" :class="activeFolder === 'all' ? 'text-white' : 'text-primary'"></i> All Documents
+                            </button>
+                        </li>
+                        <li class="nav-item mt-2 mb-1 px-3"><small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">By Category</small></li>
+                        <li class="nav-item">
+                            <button class="nav-link w-100 text-start fw-bold rounded-3 text-muted hover-bg-light" @click="activeFolder = 'evidence'">
+                                <i class="fa-solid fa-folder text-warning me-2"></i> Evidence & Proofs
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link w-100 text-start fw-bold rounded-3 text-muted hover-bg-light" @click="activeFolder = 'contracts'">
+                                <i class="fa-solid fa-folder text-warning me-2"></i> Contracts & Agreements
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link w-100 text-start fw-bold rounded-3 text-muted hover-bg-light" @click="activeFolder = 'orders'">
+                                <i class="fa-solid fa-folder text-warning me-2"></i> Court Orders
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link w-100 text-start fw-bold rounded-3 text-muted hover-bg-light" @click="activeFolder = 'invoices'">
+                                <i class="fa-solid fa-folder text-warning me-2"></i> Invoices & Receipts
+                            </button>
+                        </li>
+                        <li class="nav-item mt-2 mb-1 px-3"><small class="text-muted fw-bold text-uppercase" style="font-size: 0.65rem;">Smart Views</small></li>
+                        <li class="nav-item">
+                            <button class="nav-link w-100 text-start fw-bold rounded-3 text-muted hover-bg-light" @click="activeFolder = 'recent'">
+                                <i class="fa-regular fa-clock text-info me-2"></i> Recently Added
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link w-100 text-start fw-bold rounded-3 text-muted hover-bg-light" @click="activeFolder = 'signed'">
+                                <i class="fa-solid fa-signature text-success me-2"></i> Signed Documents
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT AREA: File Browser -->
+        <div class="col-md-9 pb-5">
+            <div class="card card-premium shadow-sm border-0 rounded-4 mb-4">
+                
+                <!-- Toolbar -->
+                <div class="card-header bg-white pt-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-navy mb-0" x-text="folderTitle">All Documents</h5>
+                    
+                    <div class="d-flex gap-2">
+                        <div class="position-relative" style="width: 300px;">
+                            <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 15px; top: 10px;"></i>
+                            <input type="text" class="form-control form-control-sm rounded-pill ps-5 bg-light border-0" placeholder="OCR Search content...">
+                            <span class="position-absolute badge bg-gold text-navy rounded-pill" style="right: 5px; top: 5px; font-size: 0.6rem;">AI OCR</span>
+                        </div>
+                        <button class="btn btn-outline-secondary btn-sm rounded-circle" style="width: 32px; height: 32px;"><i class="fa-solid fa-filter"></i></button>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4" style="width: 40px;"><input type="checkbox" class="form-check-input"></th>
+                                    <th>Name</th>
+                                    <th>Related Matter</th>
+                                    <th>Modified</th>
+                                    <th>Version</th>
+                                    <th>Security</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in documents %}
+                                <tr class="hover-lift cursor-pointer">
+                                    <td class="ps-4"><input type="checkbox" class="form-check-input"></td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if '.pdf' in doc.title|lower %}
+                                            <i class="fa-solid fa-file-pdf fs-3 text-danger me-3"></i>
+                                            {% elif '.doc' in doc.title|lower %}
+                                            <i class="fa-solid fa-file-word fs-3 text-primary me-3"></i>
+                                            {% elif '.jpg' in doc.title|lower or '.png' in doc.title|lower %}
+                                            <i class="fa-solid fa-file-image fs-3 text-success me-3"></i>
+                                            {% else %}
+                                            <i class="fa-solid fa-file-lines fs-3 text-secondary me-3"></i>
+                                            {% endif %}
+                                            
+                                            <div>
+                                                <h6 class="fw-bold mb-0 text-navy text-truncate" style="max-width: 200px;" title="{{ doc.title }}">{{ doc.title }}</h6>
+                                                <div class="d-flex gap-1 mt-1">
+                                                    <span class="badge bg-light text-muted border" style="font-size: 0.6rem;">{{ doc.type }}</span>
+                                                    <span class="badge bg-light text-muted border" style="font-size: 0.6rem;">Watermarked</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-dark d-block text-truncate" style="max-width: 150px;" title="{{ doc.case_title }}">{{ doc.case_title }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="text-dark fw-bold d-block small">{{ doc.created_at|date:"M d, Y" }}</span>
+                                        <span class="text-muted" style="font-size: 0.7rem;">{{ doc.created_at|time:"h:i A" }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill">v1.2</span>
+                                    </td>
+                                    <td>
+                                        {% if doc.verification_status == 'PENDING' %}
+                                            <span class="badge bg-warning text-dark"><i class="fa-solid fa-spinner fa-spin me-1"></i> Hashing</span>
+                                        {% else %}
+                                            <span class="badge bg-primary rounded-pill"><i class="fa-brands fa-ethereum me-1"></i> Secured</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <div class="btn-group shadow-sm">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Preview"><i class="fa-solid fa-eye"></i></button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Download"><i class="fa-solid fa-download"></i></button>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="Version History"><i class="fa-solid fa-clock-rotate-left"></i></button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-5">
+                                        <i class="fa-solid fa-folder-open text-muted fs-1 mb-3"></i>
+                                        <h5 class="fw-bold text-navy">Repository Empty</h5>
+                                        <p class="text-muted">No documents have been uploaded to the Enterprise DMS yet.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Storage Usage Indicator -->
+            <div class="card card-premium shadow-sm border-0 rounded-4 bg-light">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="fw-bold text-navy mb-1"><i class="fa-solid fa-hard-drive text-primary me-2"></i> Enterprise Storage</h6>
+                        <p class="text-muted small mb-0">1.2 GB of 500 GB Used (0.24%)</p>
+                    </div>
+                    <div class="progress" style="width: 300px; height: 8px;">
+                        <div class="progress-bar bg-primary" style="width: 2%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function documentDashboard() {
+    return {
+        activeFolder: 'all',
+        get folderTitle() {
+            const map = {
+                'all': 'All Documents',
+                'evidence': 'Evidence & Proofs',
+                'contracts': 'Contracts & Agreements',
+                'orders': 'Court Orders',
+                'invoices': 'Invoices & Receipts',
+                'recent': 'Recently Added',
+                'signed': 'Signed Documents'
+            };
+            return map[this.activeFolder];
+        }
+    }
+}
+</script>
+<style>
+.hover-bg-light:hover { background-color: #f8f9fa !important; }
+.hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important; z-index: 10; position: relative; }
+.cursor-pointer { cursor: pointer; }
+.text-gold { color: #d4af37 !important; }
+.bg-gold { background-color: #d4af37 !important; }
+.text-navy { color: #0b2d5c !important; }
+.bg-navy { background-color: #0b2d5c !important; }
+.btn-navy { background-color: #0b2d5c !important; border-color: #0b2d5c !important; color: white !important; }
+.btn-navy:hover { background-color: #082246 !important; color: white !important; }
+.btn-outline-navy { color: #0b2d5c; border-color: #0b2d5c; }
+.btn-outline-navy:hover { background-color: #0b2d5c; color: white; }
+.card-premium { border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); }
+.font-serif { font-family: 'Playfair Display', serif; }
+.tracking-wide { letter-spacing: 0.05em; }
+</style>
+{% endblock %}

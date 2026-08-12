@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Document - Lex Regis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{% url 'documents_ui:list' %}" class="btn btn-link text-decoration-none p-0 mb-2 text-muted"><i class="fa-solid fa-arrow-left me-1"></i> Back to Documents</a>
+        <h2 class="fw-bold mb-0" style="color: var(--color-primary); font-family: var(--font-family-serif);">
+            Upload Document
+        </h2>
+    </div>
+</div>
+
+<div class="card card-premium">
+    <div class="card-body p-4">
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            Please correct the errors below.
+            {{ form.errors }}
+        </div>
+        {% endif %}
+        <form method="post" action="{% url 'documents_ui:upload' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="row g-4">
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Case</label>
+                    {{ form.case }}
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Document Type</label>
+                    {{ form.document_type }}
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Category</label>
+                    {{ form.category }}
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Status</label>
+                    {{ form.status }}
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Visibility</label>
+                    {{ form.visibility }}
+                </div>
+                
+                <div class="col-12">
+                    <label class="form-label fw-bold text-dark">Description</label>
+                    {{ form.description }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-bold text-dark">File</label>
+                    {{ form.file }}
+                </div>
+            </div>
+            
+            <div class="mt-4 text-end">
+                <a href="{% url 'documents_ui:list' %}" class="btn btn-light me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary px-4"><i class="fa-solid fa-cloud-arrow-up me-2"></i> Upload Document</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Preferences - LEX REGIS{% endblock %}
+
+{% block page_title %}Preferences{% endblock %}
+{% block breadcrumb_active %}Preferences{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12 col-xl-8 mx-auto">
+        <div class="card card-premium">
+            <div class="card-header bg-transparent pt-4 pb-0 border-bottom-0">
+                <h5 class="fw-bold text-dark"><i class="fa-solid fa-sliders text-primary me-2"></i> User Preferences</h5>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <h6 class="fw-bold mb-3 text-muted">General</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.dark_mode }}
+                                <label class="form-check-label fw-bold ms-2" for="{{ form.dark_mode.id_for_label }}">
+                                    Enable Dark Mode
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Language</label>
+                            {{ form.language }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted">Time Zone</label>
+                            {{ form.time_zone }}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h6 class="fw-bold mb-3 text-muted">AI Configuration</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.ai_enabled }}
+                                <label class="form-check-label fw-bold ms-2" for="{{ form.ai_enabled.id_for_label }}">
+                                    Enable AI Assistant
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mt-2">
+                                {{ form.ai_save_history }}
+                                <label class="form-check-label fw-bold ms-2" for="{{ form.ai_save_history.id_for_label }}">
+                                    Save AI Chat History
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mt-2">
+                                {{ form.ai_suggestions }}
+                                <label class="form-check-label fw-bold ms-2" for="{{ form.ai_suggestions.id_for_label }}">
+                                    Enable AI Suggestions across the platform
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label text-muted">Preferred AI Provider</label>
+                            {{ form.ai_preferred_provider }}
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label text-muted">Preferred Model</label>
+                            {{ form.ai_preferred_model }}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h6 class="fw-bold mb-3 text-muted">Blockchain Settings</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.blockchain_verification_enabled }}
+                                <label class="form-check-label fw-bold ms-2" for="{{ form.blockchain_verification_enabled.id_for_label }}">
+                                    Enable Blockchain Document Verification
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label text-muted">Wallet Address (Optional)</label>
+                            {{ form.wallet_address }}
+                        </div>
+                        <div class="col-md-6 mt-3">
+                            <label class="form-label text-muted">Preferred Network</label>
+                            {{ form.preferred_network }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">Save Preferences</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Legal Intake | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row align-items-center" style="min-height: 85vh;">
+        <div class="col-lg-6 px-5">
+            <div class="mb-4 d-inline-flex align-items-center bg-primary bg-opacity-10 text-primary px-3 py-1 rounded-pill fw-bold small">
+                <i class="fa-solid fa-wand-magic-sparkles me-2"></i> Client-Facing AI Portal
+            </div>
+            
+            <h1 class="display-4 fw-bold mb-4" style="color: var(--royal-navy); font-family: var(--font-family-serif);">
+                Describe Your Legal Issue
+            </h1>
+            
+            <p class="lead text-muted mb-5 pe-lg-5">
+                Tell us what happened in your own words. Our AI will analyse your matter and recommend the right legal pathway, documents, and suitable lawyers.
+            </p>
+            
+            <div class="d-flex gap-3 mb-5">
+                <a href="{% url 'intake:wizard' %}" class="btn btn-primary btn-lg px-5 shadow-lg rounded-pill fw-bold">
+                    <i class="fa-solid fa-play me-2"></i> Start Analysis
+                </a>
+                <button class="btn btn-outline-secondary btn-lg px-4 rounded-pill fw-bold">
+                    Learn More
+                </button>
+            </div>
+            
+            <h6 class="text-uppercase fw-bold text-muted small mb-3">Try asking about:</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-light text-dark border p-2 cursor-pointer hover-bg-primary">"My landlord refuses to return my security deposit."</span>
+                <span class="badge bg-light text-dark border p-2 cursor-pointer hover-bg-primary">"My employer terminated me unfairly."</span>
+                <span class="badge bg-light text-dark border p-2 cursor-pointer hover-bg-primary">"My cheque bounced."</span>
+                <span class="badge bg-light text-dark border p-2 cursor-pointer hover-bg-primary">"I want to file for divorce."</span>
+                <span class="badge bg-light text-dark border p-2 cursor-pointer hover-bg-primary">"I received a legal notice."</span>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 d-none d-lg-block text-center p-5 bg-light h-100 border-start" style="min-height: 85vh;">
+            <!-- Decorative Visuals -->
+            <div class="position-relative d-inline-block mt-5">
+                <div class="bg-primary rounded-circle position-absolute" style="width: 300px; height: 300px; top: 10%; left: 10%; opacity: 0.1; filter: blur(40px);"></div>
+                <div class="bg-warning rounded-circle position-absolute" style="width: 250px; height: 250px; bottom: -10%; right: -10%; opacity: 0.15; filter: blur(50px);"></div>
+                
+                <div class="card card-premium shadow-lg border-0 text-start" style="width: 450px; z-index: 10;">
+                    <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Lex Regis AI</h6>
+                                <small class="text-muted">Legal Analysis Engine</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="bg-light p-3 rounded-3 mb-3 text-muted small">
+                            "I signed an employment contract with a non-compete clause, but I was fired without cause. Can I join a competitor?"
+                        </div>
+                        
+                        <div class="d-flex justify-content-center my-3">
+                            <div class="spinner-grow spinner-grow-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+                            <div class="spinner-grow spinner-grow-sm text-primary mx-2" role="status" style="animation-delay: 0.1s;"><span class="visually-hidden">Loading...</span></div>
+                            <div class="spinner-grow spinner-grow-sm text-primary" role="status" style="animation-delay: 0.2s;"><span class="visually-hidden">Loading...</span></div>
+                        </div>
+                        
+                        <div class="border rounded-3 p-3 mt-3 border-primary border-opacity-25 bg-primary bg-opacity-10">
+                            <h6 class="fw-bold text-primary small text-uppercase mb-2"><i class="fa-solid fa-bolt me-2"></i> AI Assessment</h6>
+                            <ul class="list-unstyled mb-0 small">
+                                <li class="mb-1"><i class="fa-solid fa-check text-success me-2"></i> <strong>Area:</strong> Labour & Employment</li>
+                                <li class="mb-1"><i class="fa-solid fa-check text-success me-2"></i> <strong>Complexity:</strong> Medium</li>
+                                <li><i class="fa-solid fa-check text-success me-2"></i> <strong>Action:</strong> Review Contract & Notice</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-bg-primary:hover {
+        background-color: var(--bs-primary) !important;
+        color: white !important;
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}

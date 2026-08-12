@@ -1,0 +1,78 @@
+{% if not query or len == 0 %}
+    <div class="p-3 text-center text-muted">
+        Start typing to search...
+    </div>
+{% elif not has_results %}
+    <div class="p-4 text-center">
+        <i class="fa-solid fa-search fs-3 text-muted mb-2"></i>
+        <h6 class="fw-bold text-dark">No results found</h6>
+        <p class="text-muted small mb-0">Try searching with a different keyword</p>
+    </div>
+{% else %}
+    <div class="list-group list-group-flush rounded-3">
+        {% if results.cases %}
+            <h6 class="dropdown-header text-primary fw-bold text-uppercase mt-2"><i class="fa-solid fa-briefcase me-1"></i> Cases</h6>
+            {% for case in results.cases %}
+                <a href="{% url 'cases_ui:detail' case.id %}" class="list-group-item list-group-item-action border-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 250px;">{{ case.title }}</div>
+                            <small class="text-muted">{{ case.case_number }}</small>
+                        </div>
+                        <span class="badge bg-light text-dark border">{{ case.get_status_display }}</span>
+                    </div>
+                </a>
+            {% endfor %}
+        {% endif %}
+
+        {% if results.documents %}
+            <h6 class="dropdown-header text-primary fw-bold text-uppercase mt-2"><i class="fa-solid fa-file-contract me-1"></i> Documents</h6>
+            {% for doc in results.documents %}
+                <a href="{% url 'documents_ui:detail' doc.id %}" class="list-group-item list-group-item-action border-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 250px;">{{ doc.original_file.name|default:doc.document_number }}</div>
+                            <small class="text-muted">{{ doc.get_document_type_display }}</small>
+                        </div>
+                        {% if doc.case %}
+                            <small class="text-secondary text-truncate ms-2" style="max-width: 100px;">Case: {{ doc.case.case_number }}</small>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+        {% endif %}
+
+        {% if results.hearings %}
+            <h6 class="dropdown-header text-primary fw-bold text-uppercase mt-2"><i class="fa-solid fa-gavel me-1"></i> Hearings</h6>
+            {% for hearing in results.hearings %}
+                <a href="{% url 'hearings_ui:detail' hearing.id %}" class="list-group-item list-group-item-action border-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 250px;">{{ hearing.title }}</div>
+                            <small class="text-muted">{{ hearing.scheduled_date|date:"M d, Y" }} {{ hearing.scheduled_time|time:"H:i" }}</small>
+                        </div>
+                        {% if hearing.court_room %}
+                            <small class="text-secondary text-truncate ms-2" style="max-width: 100px;">{{ hearing.court_room }}</small>
+                        {% endif %}
+                    </div>
+                </a>
+            {% endfor %}
+        {% endif %}
+        
+        {% if results.clients %}
+            <h6 class="dropdown-header text-primary fw-bold text-uppercase mt-2"><i class="fa-solid fa-users me-1"></i> Clients</h6>
+            {% for client in results.clients %}
+                <a href="#" class="list-group-item list-group-item-action border-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="fw-bold text-dark text-truncate" style="max-width: 250px;">{{ client.user.get_full_name }}</div>
+                            {% if client.company_name %}
+                                <small class="text-muted">{{ client.company_name }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            {% endfor %}
+        {% endif %}
+    </div>
+{% endif %}

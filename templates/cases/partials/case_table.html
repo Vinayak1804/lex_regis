@@ -1,0 +1,65 @@
+{% if cases %}
+    {% for case in cases %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift">
+            <!-- Source Badge -->
+            {% if case.matter_source == 'AI_INTAKE' %}
+            <div class="position-absolute top-0 end-0 m-3">
+                <span class="badge bg-gold text-navy rounded-pill"><i class="fa-solid fa-robot me-1"></i> AI Intake</span>
+            </div>
+            {% endif %}
+            
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                    <span class="badge bg-navy bg-opacity-10 text-navy rounded-pill px-3 py-2 fw-bold me-2">{{ case.case_number }}</span>
+                    <span class="badge 
+                        {% if case.status == 'DRAFT' %}bg-secondary
+                        {% elif case.status == 'AI_ANALYSED' %}bg-info
+                        {% elif case.status == 'PENDING_ACCEPTANCE' %}bg-warning text-dark
+                        {% elif case.status == 'CLOSED' %}bg-success
+                        {% else %}bg-primary{% endif %} rounded-pill px-3 py-2">
+                        {{ case.get_status_display }}
+                    </span>
+                </div>
+                
+                <h5 class="fw-bold mb-2 text-dark font-serif" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 3rem;">
+                    <a href="{% url 'cases_ui:detail' case.id %}" class="text-decoration-none text-dark">{{ case.title }}</a>
+                </h5>
+                
+                <p class="text-muted small mb-4">
+                    <i class="fa-solid fa-scale-balanced me-2 text-gold"></i>{{ case.practice_area|default:"Unclassified" }}
+                </p>
+                
+                <div class="d-flex justify-content-between mb-3 border-top pt-3">
+                    <div>
+                        <p class="text-muted small mb-0">Assigned To</p>
+                        <p class="fw-bold small text-navy mb-0">
+                            {% if case.assigned_lawyer %}
+                                {{ case.assigned_lawyer.user.get_full_name }}
+                            {% else %}
+                                Unassigned
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <p class="text-muted small mb-0">Created</p>
+                        <p class="fw-bold small mb-0">{{ case.created_at|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <a href="{% url 'cases_ui:detail' case.id %}" class="btn btn-navy btn-sm rounded-pill flex-grow-1">Open</a>
+                    <a href="{% url 'cases_ui:detail' case.id %}?tab=timeline" class="btn btn-outline-secondary btn-sm rounded-pill" title="Timeline"><i class="fa-solid fa-clock-rotate-left"></i></a>
+                    <a href="{% url 'cases_ui:detail' case.id %}?tab=documents" class="btn btn-outline-secondary btn-sm rounded-pill" title="Documents"><i class="fa-solid fa-folder-open"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="col-12 text-center py-5">
+    <div class="text-muted mb-3"><i class="fa-solid fa-folder-open fs-1 opacity-50"></i></div>
+    <h6 class="fw-bold">No Cases Found</h6>
+    <p class="text-muted small">Try adjusting your search criteria or create a new case.</p>
+</div>
+{% endif %}

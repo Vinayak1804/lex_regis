@@ -1,0 +1,13 @@
+<div class="text-center py-5">
+    <div class="text-muted mb-3">
+        <i class="fa-solid fa-{% if icon %}{{ icon }}{% else %}box-open{% endif %} fs-1 opacity-50"></i>
+    </div>
+    <h5 class="fw-bold text-primary">{{ title|default:"No Data Available" }}</h5>
+    <p class="text-muted small">{{ message|default:"There are currently no records to display." }}</p>
+    {% if action_url and action_label %}
+    <a href="{{ action_url }}" class="btn btn-accent btn-sm mt-2">
+        {% if action_icon %}<i class="fa-solid fa-{{ action_icon }} me-1"></i>{% endif %}
+        {{ action_label }}
+    </a>
+    {% endif %}
+</div>

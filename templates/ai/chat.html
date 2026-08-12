@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Legal Assistant | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="row h-100" style="min-height: calc(100vh - 120px);">
+    
+    <!-- Sidebar / Conversation History -->
+    <div class="col-12 col-md-4 col-xl-3 mb-4 mb-md-0 d-flex flex-column">
+        <div class="card border-0 shadow-sm rounded-4 flex-grow-1">
+            <div class="card-header bg-transparent border-bottom pt-4 pb-3">
+                <h6 class="fw-bold text-dark text-uppercase mb-0">Chat History</h6>
+            </div>
+            <div class="card-body p-0 overflow-auto">
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'ai:chat' %}" class="list-group-item list-group-item-action py-3 px-4 fw-bold text-primary border-bottom border-light">
+                        <i class="fa-solid fa-plus me-2"></i> New Conversation
+                    </a>
+                    {% for conv in recent_conversations %}
+                    <a href="?conv_id={{ conv.id }}" class="list-group-item list-group-item-action py-3 px-4 {% if conv.id == conversation.id %}bg-light border-start border-4 border-primary{% endif %}">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <h6 class="mb-1 text-truncate fw-bold" style="max-width: 80%; font-size: 0.85rem;">{{ conv.title }}</h6>
+                        </div>
+                        <small class="text-muted" style="font-size: 0.75rem;">{{ conv.created_at|date:"M d, Y" }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="col-12 col-md-8 col-xl-9 d-flex flex-column">
+        <div class="card border-0 shadow-sm rounded-4 flex-grow-1 d-flex flex-column overflow-hidden">
+            
+            <!-- Chat Header -->
+            <div class="card-header bg-white border-bottom pt-3 pb-3 d-flex justify-content-between align-items-center z-1 shadow-sm">
+                <div>
+                    <h5 class="fw-bold mb-1 text-primary"><i class="fa-solid fa-scale-balanced me-2 text-accent"></i> Lex AI Assistant</h5>
+                    <p class="text-muted mb-0 small">
+                        {% if conversation.case %}Case: {{ conversation.case.title }}{% elif conversation.document %}Doc: {{ conversation.document.original_file.name }}{% else %}General Legal Assistant{% endif %}
+                    </p>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill me-2"><i class="fa-solid fa-file-export me-1"></i> Export</button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill"><i class="fa-solid fa-trash me-1"></i> Clear</button>
+                </div>
+            </div>
+
+            <!-- Chat Messages (Scrollable) -->
+            <div class="card-body p-4 overflow-auto flex-grow-1" id="chat-messages" style="background-color: #f8f9fa;">
+                {% include 'ai/partials/message_list.html' with messages=messages %}
+                
+                <div id="typing-indicator" class="d-none">
+                    <div class="d-flex mb-4">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 me-3 mt-1 shadow-sm" style="width: 36px; height: 36px;">
+                            <i class="fa-solid fa-robot text-white small"></i>
+                        </div>
+                        <div class="bg-white p-3 rounded-4 shadow-sm" style="max-width: 75%; border-top-left-radius: 0 !important;">
+                            <div class="snippet" data-title="dot-typing">
+                                <div class="stage">
+                                  <div class="dot-typing"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="card-footer bg-white border-top p-4 z-1 shadow-sm">
+                <form id="chat-form" hx-post="{% url 'ai:chat_send' %}" hx-target="#chat-messages" hx-swap="beforeend" hx-indicator="#typing-indicator" onsubmit="setTimeout(() => { document.getElementById('chat-input').value = ''; scrollToBottom(); }, 10);">
+                    {% csrf_token %}
+                    <input type="hidden" name="conversation_id" value="{{ conversation.id }}">
+                    
+                    <div class="input-group input-group-lg bg-white border rounded-pill p-1 shadow-sm focus-ring">
+                        <input type="text" id="chat-input" name="content" class="form-control border-0 bg-transparent shadow-none" placeholder="Ask a legal question, request a summary, or analyze a clause..." autocomplete="off" required>
+                        <button type="submit" class="btn btn-accent rounded-circle ms-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                            <i class="fa-solid fa-paper-plane text-primary-dark"></i>
+                        </button>
+                    </div>
+                </form>
+                <div class="text-center mt-2">
+                    <small class="text-muted" style="font-size: 0.7rem;">Lex AI can make mistakes. Verify important information.</small>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+    .dot-typing {
+        position: relative;
+        left: -9999px;
+        width: 6px;
+        height: 6px;
+        border-radius: 5px;
+        background-color: var(--color-primary);
+        color: var(--color-primary);
+        box-shadow: 9984px 0 0 0 var(--color-primary), 9999px 0 0 0 var(--color-primary), 10014px 0 0 0 var(--color-primary);
+        animation: dot-typing 1.5s infinite linear;
+    }
+    @keyframes dot-typing {
+        0% { box-shadow: 9984px 0 0 0 var(--color-primary), 9999px 0 0 0 var(--color-primary), 10014px 0 0 0 var(--color-primary); }
+        16.667% { box-shadow: 9984px -10px 0 0 var(--color-primary), 9999px 0 0 0 var(--color-primary), 10014px 0 0 0 var(--color-primary); }
+        33.333% { box-shadow: 9984px 0 0 0 var(--color-primary), 9999px 0 0 0 var(--color-primary), 10014px 0 0 0 var(--color-primary); }
+        50% { box-shadow: 9984px 0 0 0 var(--color-primary), 9999px -10px 0 0 var(--color-primary), 10014px 0 0 0 var(--color-primary); }
+        66.667% { box-shadow: 9984px 0 0 0 var(--color-primary), 9999px 0 0 0 var(--color-primary), 10014px 0 0 0 var(--color-primary); }
+        83.333% { box-shadow: 9984px 0 0 0 var(--color-primary), 9999px 0 0 0 var(--color-primary), 10014px -10px 0 0 var(--color-primary); }
+        100% { box-shadow: 9984px 0 0 0 var(--color-primary), 9999px 0 0 0 var(--color-primary), 10014px 0 0 0 var(--color-primary); }
+    }
+    
+    .htmx-request#typing-indicator {
+        display: block !important;
+    }
+</style>
+
+<script>
+    function scrollToBottom() {
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Auto scroll on load
+    document.addEventListener('DOMContentLoaded', scrollToBottom);
+    
+    // Auto scroll after HTMX swap
+    document.body.addEventListener('htmx:afterSettle', function(evt) {
+        if(evt.target.id === 'chat-messages') {
+            scrollToBottom();
+        }
+    });
+</script>
+{% endblock %}

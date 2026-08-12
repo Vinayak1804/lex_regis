@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enterprise Analytics | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Top Header Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom sticky-top bg-light" style="top: 0; z-index: 1020; padding-top: 1rem;">
+        <div>
+            <h3 class="mb-0 fw-bold font-serif text-navy">
+                <i class="fa-solid fa-chart-line me-2 text-primary"></i> Enterprise Analytics
+            </h3>
+            <p class="text-muted small mb-0 mt-1">Real-time performance metrics and predictive intelligence.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold hover-lift">
+                <i class="fa-solid fa-download me-1"></i> Export Report
+            </button>
+            <select class="form-select form-select-sm rounded-pill fw-bold bg-white text-navy shadow-sm ms-2" style="width: auto;">
+                <option>Last 30 Days</option>
+                <option>This Quarter</option>
+                <option>Year to Date</option>
+                <option>All Time</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Analytics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-8">
+            <div class="card card-premium shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-white pt-4 pb-0 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold text-navy mb-0">Case Lifecycle Velocity</h5>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary rounded-pill">Civil</span>
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary rounded-pill">Criminal</span>
+                    </div>
+                </div>
+                <div class="card-body p-4 d-flex align-items-end justify-content-center" style="min-height: 250px;">
+                    <!-- Mock Chart via CSS Bars -->
+                    <div class="d-flex align-items-end justify-content-between w-100 px-4" style="height: 150px; border-bottom: 2px solid #eee;">
+                        <div class="d-flex flex-column align-items-center" style="width: 10%;">
+                            <div class="bg-primary rounded-top" style="width: 20px; height: 120px; opacity: 0.8;"></div>
+                            <small class="text-muted mt-2 fw-bold" style="font-size: 0.7rem;">Jan</small>
+                        </div>
+                        <div class="d-flex flex-column align-items-center" style="width: 10%;">
+                            <div class="bg-primary rounded-top" style="width: 20px; height: 90px; opacity: 0.8;"></div>
+                            <small class="text-muted mt-2 fw-bold" style="font-size: 0.7rem;">Feb</small>
+                        </div>
+                        <div class="d-flex flex-column align-items-center" style="width: 10%;">
+                            <div class="bg-primary rounded-top" style="width: 20px; height: 140px; opacity: 0.8;"></div>
+                            <small class="text-muted mt-2 fw-bold" style="font-size: 0.7rem;">Mar</small>
+                        </div>
+                        <div class="d-flex flex-column align-items-center" style="width: 10%;">
+                            <div class="bg-primary rounded-top" style="width: 20px; height: 70px; opacity: 0.8;"></div>
+                            <small class="text-muted mt-2 fw-bold" style="font-size: 0.7rem;">Apr</small>
+                        </div>
+                        <div class="d-flex flex-column align-items-center" style="width: 10%;">
+                            <div class="bg-primary rounded-top" style="width: 20px; height: 110px; opacity: 0.8;"></div>
+                            <small class="text-muted mt-2 fw-bold" style="font-size: 0.7rem;">May</small>
+                        </div>
+                        <div class="d-flex flex-column align-items-center" style="width: 10%;">
+                            <div class="bg-primary rounded-top" style="width: 20px; height: 130px; opacity: 0.8;"></div>
+                            <small class="text-muted mt-2 fw-bold" style="font-size: 0.7rem;">Jun</small>
+                        </div>
+                        <div class="d-flex flex-column align-items-center" style="width: 10%;">
+                            <div class="bg-navy rounded-top" style="width: 20px; height: 160px; box-shadow: 0 0 10px rgba(11,45,92,0.3);"></div>
+                            <small class="text-navy mt-2 fw-bold" style="font-size: 0.7rem;">Jul</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card card-premium shadow-sm border-0 bg-navy text-white rounded-4 h-100 text-center p-4">
+                <i class="fa-solid fa-trophy text-gold fs-1 mb-3 mt-3"></i>
+                <h6 class="text-white-50 text-uppercase fw-bold small tracking-wide">Enterprise Win Rate</h6>
+                <h1 class="display-3 fw-bold font-serif text-gold mb-0">87<span style="font-size: 2rem;">%</span></h1>
+                <p class="small text-white-50 mb-4 mt-2">Across 412 closed matters</p>
+                
+                <div class="d-flex justify-content-between text-start mt-auto p-3 bg-white bg-opacity-10 rounded-3">
+                    <div>
+                        <small class="text-white-50 d-block mb-1">Litigation</small>
+                        <span class="fw-bold">82%</span>
+                    </div>
+                    <div>
+                        <small class="text-white-50 d-block mb-1">Arbitration</small>
+                        <span class="fw-bold text-success">94%</span>
+                    </div>
+                    <div>
+                        <small class="text-white-50 d-block mb-1">Settlement</small>
+                        <span class="fw-bold text-info">78%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Insights & Metrics -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card card-premium shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-navy mb-4"><i class="fa-solid fa-scale-unbalanced text-danger me-2"></i> Risk Distribution</h6>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-danger fw-bold">High Risk</small>
+                            <small class="text-muted fw-bold">12%</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-danger" style="width: 12%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-warning text-dark fw-bold">Medium Risk</small>
+                            <small class="text-muted fw-bold">34%</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-warning" style="width: 34%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-0">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-success fw-bold">Low Risk</small>
+                            <small class="text-muted fw-bold">54%</small>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" style="width: 54%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card card-premium shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-navy mb-4"><i class="fa-solid fa-hourglass-half text-info me-2"></i> Resolution Time</h6>
+                    
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle me-3">
+                            <i class="fa-solid fa-calendar-check fs-4"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold text-dark mb-0">142 Days</h3>
+                            <small class="text-muted fw-bold">Average time to close</small>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted small mb-0"><i class="fa-solid fa-arrow-trend-down text-success me-1"></i> Down 18% from last quarter due to AI drafting efficiency.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card card-premium border-gold shadow-sm rounded-4 h-100 bg-gold bg-opacity-10">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-navy mb-3"><i class="fa-solid fa-brain text-gold me-2"></i> AI Actionable Insights</h6>
+                    
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3">
+                            <div class="d-flex">
+                                <i class="fa-solid fa-lightbulb text-gold mt-1 me-2"></i>
+                                <small class="text-dark fw-bold">3 High-risk cases require immediate attention before upcoming hearings this week.</small>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex">
+                                <i class="fa-solid fa-lightbulb text-gold mt-1 me-2"></i>
+                                <small class="text-dark fw-bold">IP practice area is showing 40% growth in billable hours compared to Q1.</small>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="d-flex">
+                                <i class="fa-solid fa-lightbulb text-gold mt-1 me-2"></i>
+                                <small class="text-dark fw-bold">Drafting petitions takes 25% less time using Lex Regis AI templates.</small>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important; z-index: 10; position: relative; }
+.text-gold { color: #d4af37 !important; }
+.bg-gold { background-color: #d4af37 !important; }
+.text-navy { color: #0b2d5c !important; }
+.bg-navy { background-color: #0b2d5c !important; }
+.card-premium { border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); }
+.font-serif { font-family: 'Playfair Display', serif; }
+.tracking-wide { letter-spacing: 0.05em; }
+</style>
+{% endblock %}

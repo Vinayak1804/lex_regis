@@ -1,0 +1,205 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hearing Management | Lex Regis Enterprise{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0" x-data="hearingDashboard()">
+    <!-- Top Header Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom sticky-top bg-light" style="top: 0; z-index: 1020; padding-top: 1rem;">
+        <div>
+            <h3 class="mb-0 fw-bold font-serif text-navy">
+                <i class="fa-solid fa-scale-balanced me-2 text-danger"></i> Enterprise Hearing Management
+            </h3>
+            <p class="text-muted small mb-0 mt-1">Master calendar, active proceedings, and virtual courtrooms.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold hover-lift" @click="viewMode = 'calendar'" :class="{'btn-navy text-white': viewMode === 'calendar'}">
+                <i class="fa-solid fa-calendar-days me-1"></i> Calendar View
+            </button>
+            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold hover-lift" @click="viewMode = 'list'" :class="{'btn-navy text-white': viewMode === 'list'}">
+                <i class="fa-solid fa-list me-1"></i> List View
+            </button>
+            <a href="{% url 'hearings_ui:schedule' %}" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold hover-lift ms-2 shadow-sm">
+                <i class="fa-solid fa-plus me-1"></i> Schedule Hearing
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 bg-navy text-white rounded-4 h-100 position-relative overflow-hidden">
+                <div class="position-absolute opacity-25" style="right: -20px; bottom: -20px;"><i class="fa-solid fa-calendar-check" style="font-size: 100px;"></i></div>
+                <div class="card-body p-4 position-relative z-1">
+                    <h6 class="text-white-50 text-uppercase fw-bold small tracking-wide">Today's Hearings</h6>
+                    <h2 class="fw-bold font-serif text-gold mb-0">3</h2>
+                    <p class="small text-white-50 mb-0 mt-2">All scheduled for morning bench.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Upcoming (7 Days)</h6>
+                    <h2 class="fw-bold text-primary mb-0">12</h2>
+                    <p class="small text-success fw-bold mb-0 mt-2"><i class="fa-solid fa-circle-check me-1"></i> All reminders sent.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Adjourned / Postponed</h6>
+                    <h2 class="fw-bold text-danger mb-0">4</h2>
+                    <p class="small text-muted mb-0 mt-2">Pending new date assignment.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+                <div class="card-body p-4">
+                    <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Virtual Proceedings</h6>
+                    <h2 class="fw-bold text-info mb-0">8</h2>
+                    <p class="small text-muted mb-0 mt-2">Requires secure video bridge.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="card card-premium shadow-sm border-0 rounded-4 mb-5">
+        
+        <!-- Filter Bar -->
+        <div class="card-header bg-white pt-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-3">
+                <select class="form-select form-select-sm bg-light fw-bold text-muted border-0" style="width: auto;" x-model="filterStatus">
+                    <option value="ALL">All Statuses</option>
+                    <option value="SCHEDULED">Scheduled</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="ADJOURNED">Adjourned</option>
+                </select>
+                <select class="form-select form-select-sm bg-light fw-bold text-muted border-0" style="width: auto;">
+                    <option>All Courts</option>
+                    <option>High Court</option>
+                    <option>District Court</option>
+                    <option>Tribunals</option>
+                </select>
+            </div>
+            <div class="position-relative" style="width: 300px;">
+                <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 15px; top: 10px;"></i>
+                <input type="text" class="form-control form-control-sm rounded-pill ps-5 bg-light border-0" placeholder="Search hearings by case...">
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <!-- List View -->
+            <div x-show="viewMode === 'list'">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Date & Time</th>
+                                <th>Case Details</th>
+                                <th>Hearing Type</th>
+                                <th>Court / Judge</th>
+                                <th>Status</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for hearing in hearings %}
+                            <tr class="hover-lift" x-show="filterStatus === 'ALL' || filterStatus === '{{ hearing.status }}'">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-danger bg-opacity-10 text-danger text-center rounded p-2 me-3" style="min-width: 50px;">
+                                            <span class="d-block text-uppercase fw-bold" style="font-size: 0.6rem;">{{ hearing.date|date:"M" }}</span>
+                                            <span class="d-block fw-bold">{{ hearing.date|date:"d" }}</span>
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">{{ hearing.time|time:"h:i A"|default:"TBD" }}</h6>
+                                            <small class="text-danger fw-bold"><i class="fa-solid fa-bell me-1"></i> Reminder On</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <h6 class="fw-bold mb-0 text-navy">{{ hearing.case_title }}</h6>
+                                    <small class="text-muted">{{ hearing.number }}</small>
+                                </td>
+                                <td>
+                                    <span class="fw-bold text-dark">{{ hearing.title }}</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-bold text-dark"><i class="fa-solid fa-building-columns text-muted me-1"></i> {{ hearing.courtroom }}</span>
+                                        <small class="text-muted">Hon'ble Judge</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if hearing.status == 'Scheduled' %}
+                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-1 rounded-pill">{{ hearing.status }}</span>
+                                    {% elif hearing.status == 'Completed' %}
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-1 rounded-pill">{{ hearing.status }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-1 rounded-pill">{{ hearing.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-outline-success rounded-pill fw-bold" title="Join Virtual Court"><i class="fa-solid fa-video me-1"></i> Join</button>
+                                    <button class="btn btn-sm btn-outline-navy rounded-pill fw-bold px-3 ms-1">Details</button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <i class="fa-solid fa-calendar-xmark text-muted fs-1 mb-3"></i>
+                                    <h5 class="fw-bold text-navy">No hearings found.</h5>
+                                    <p class="text-muted">You have no upcoming hearings scheduled in the master calendar.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Calendar View Mock -->
+            <div x-show="viewMode === 'calendar'" style="display: none;" class="p-5 text-center bg-light">
+                <i class="fa-solid fa-calendar-days text-muted fs-1 mb-4"></i>
+                <h4 class="fw-bold text-navy">Enterprise Master Calendar</h4>
+                <p class="text-muted mx-auto" style="max-width: 500px;">The interactive calendar view natively synchronizes with Google Calendar, Microsoft Exchange, and Outlook. Full month grids are available in production.</p>
+                <div class="d-flex justify-content-center gap-2 mt-4">
+                    <button class="btn btn-outline-navy rounded-pill fw-bold"><i class="fa-brands fa-google me-2"></i> Sync Google Workspace</button>
+                    <button class="btn btn-outline-primary rounded-pill fw-bold"><i class="fa-brands fa-microsoft me-2"></i> Sync Outlook 365</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function hearingDashboard() {
+    return {
+        viewMode: 'list', // 'list' or 'calendar'
+        filterStatus: 'ALL',
+    }
+}
+</script>
+<style>
+.hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important; z-index: 10; position: relative; }
+.text-gold { color: #d4af37 !important; }
+.text-navy { color: #0b2d5c !important; }
+.bg-navy { background-color: #0b2d5c !important; }
+.btn-navy { background-color: #0b2d5c !important; border-color: #0b2d5c !important; color: white !important; }
+.btn-navy:hover { background-color: #082246 !important; color: white !important; }
+.btn-outline-navy { color: #0b2d5c; border-color: #0b2d5c; }
+.btn-outline-navy:hover { background-color: #0b2d5c; color: white; }
+.card-premium { border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); }
+.font-serif { font-family: 'Playfair Display', serif; }
+.tracking-wide { letter-spacing: 0.05em; }
+</style>
+{% endblock %}

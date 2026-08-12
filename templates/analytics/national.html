@@ -1,0 +1,317 @@
+{% extends 'analytics/base.html' %}
+
+{% block title %}National Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="mb-0 text-primary fw-bold" style="font-family: var(--font-family-serif);">
+        National Overview Data Statistics
+    </h4>
+    <button class="btn btn-success" onclick="window.location.reload()">
+        <i class="fa-solid fa-rotate me-1"></i> Refresh Data
+    </button>
+</div>
+
+<!-- Overview Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card" style="border-top-color: #6f42c1;">
+            <div class="stat-label">Total Cases</div>
+            <div class="stat-value text-purple">{{ dashboard.overview.total_cases|default:"0" }}</div>
+            <small class="text-muted"><i class="fa-solid fa-arrow-up text-success"></i> 5.2% this month</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-top-color: #dc3545;">
+            <div class="stat-label">Pending Cases</div>
+            <div class="stat-value text-danger">{{ dashboard.overview.pending_cases|default:"0" }}</div>
+            <small class="text-muted">Awaiting hearings/disposal</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-top-color: #198754;">
+            <div class="stat-label">Disposed Cases</div>
+            <div class="stat-value text-success">{{ dashboard.overview.disposed_cases|default:"0" }}</div>
+            <small class="text-muted"><i class="fa-solid fa-arrow-up text-success"></i> 12.1% this year</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-top-color: var(--royal-navy);">
+            <div class="stat-label">Total Hearings</div>
+            <div class="stat-value">{{ dashboard.overview.total_hearings|default:"0" }}</div>
+            <small class="text-muted">Conducted across all courts</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-2">
+        <div class="stat-card p-3">
+            <div class="stat-label" style="font-size: 11px;">Active Advocates</div>
+            <div class="fs-4 fw-bold" style="color: var(--royal-navy);">{{ dashboard.overview.active_advocates }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card p-3">
+            <div class="stat-label" style="font-size: 11px;">Registered Clients</div>
+            <div class="fs-4 fw-bold text-primary">{{ dashboard.overview.registered_clients }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card p-3">
+            <div class="stat-label" style="font-size: 11px;">Docs Uploaded</div>
+            <div class="fs-4 fw-bold text-info">{{ dashboard.overview.documents_uploaded }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card p-3" style="background: linear-gradient(135deg, #f8f9fa, #e6f0fa);">
+            <div class="stat-label" style="font-size: 11px;">Blockchain Verified</div>
+            <div class="fs-4 fw-bold text-success">{{ dashboard.overview.blockchain_verified }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card p-3" style="background: linear-gradient(135deg, #f8f9fa, #f3e5ab);">
+            <div class="stat-label" style="font-size: 11px;">AI Assisted</div>
+            <div class="fs-4 fw-bold text-warning">{{ dashboard.overview.ai_assisted }}</div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="stat-card p-3">
+            <div class="stat-label" style="font-size: 11px;">Total Law Firms</div>
+            <div class="fs-4 fw-bold" style="color: var(--royal-navy);">{{ dashboard.overview.total_law_firms }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Map Section -->
+    <div class="col-md-6">
+        <div class="chart-container" style="height: 500px;">
+            <div class="d-flex justify-content-between align-items-center chart-title">
+                <span class="mb-0">Interactive State Map</span>
+                <span class="badge bg-primary">Live</span>
+            </div>
+            
+            <div class="d-flex" style="height: 90%;">
+                <div class="w-100" id="india-map" style="height: 100%;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- State List Table -->
+    <div class="col-md-6">
+        <div class="chart-container" style="height: 500px; overflow-y: auto;">
+            <div class="chart-title">State-wise Distribution</div>
+            <table class="table table-hover table-sm">
+                <thead class="table-light sticky-top">
+                    <tr>
+                        <th>State</th>
+                        <th class="text-end">Total</th>
+                        <th class="text-end">Pending</th>
+                        <th class="text-end">Disposed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for state in dashboard.states %}
+                    <tr style="cursor: pointer;" onclick="window.location.href='{% url 'analytics:state_detail' state.slug %}'">
+                        <td class="fw-bold text-primary">{{ state.state }}</td>
+                        <td class="text-end">{{ state.total }}</td>
+                        <td class="text-end text-danger">{{ state.pending }}</td>
+                        <td class="text-end text-success">{{ state.disposed }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <div class="chart-title">Monthly Registrations vs Disposals</div>
+            <canvas id="monthlyGrowthChart" height="250"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-container">
+            <div class="chart-title">Court-wise Cases Distribution</div>
+            <canvas id="courtDistributionChart" height="250"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="chart-container">
+            <div class="chart-title">Civil vs Criminal Cases</div>
+            <canvas id="categoryChart" height="250"></canvas>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="chart-container">
+            <div class="chart-title">State-wise Cases (Top 10)</div>
+            <canvas id="stateBarChart" height="250"></canvas>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Google Charts for GeoChart Map -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+    // Data passing from Django
+    const monthlyData = {{ dashboard.monthly_growth|safe }};
+    const courtData = {{ dashboard.court_distribution|safe }};
+    const categoryData = {{ dashboard.category_distribution|safe }};
+    
+    // Convert states array to json
+    const statesDataRaw = [
+        {% for s in dashboard.states %}
+            {"state": "{{ s.state }}", "total": {{ s.total }}, "slug": "{{ s.slug }}"}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    // Initialize Chart.js default fonts
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = '#666';
+
+    // 1. Monthly Growth Line Chart
+    new Chart(document.getElementById('monthlyGrowthChart'), {
+        type: 'line',
+        data: {
+            labels: monthlyData.labels,
+            datasets: [
+                {
+                    label: 'New Registrations',
+                    data: monthlyData.cases,
+                    borderColor: '#0B192C',
+                    backgroundColor: 'rgba(11, 25, 44, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                },
+                {
+                    label: 'Cases Disposed',
+                    data: monthlyData.disposals,
+                    borderColor: '#198754',
+                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+
+    // 2. Court Distribution Stacked/Bar Chart
+    new Chart(document.getElementById('courtDistributionChart'), {
+        type: 'bar',
+        data: {
+            labels: courtData.labels,
+            datasets: [{
+                label: 'Total Cases',
+                data: courtData.data,
+                backgroundColor: ['#0B192C', '#1A2B4C', '#D4AF37', '#e6f0fa', '#0056b3', '#198754'],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+    
+    // 3. Category Distribution Doughnut
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: categoryData.labels,
+            datasets: [{
+                data: categoryData.data,
+                backgroundColor: ['#0B192C', '#D4AF37', '#1A2B4C', '#e6f0fa', '#dc3545', '#198754']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            cutout: '70%'
+        }
+    });
+    
+    // 4. State Bar Chart
+    const topStates = statesDataRaw.slice(0, 10);
+    new Chart(document.getElementById('stateBarChart'), {
+        type: 'bar',
+        data: {
+            labels: topStates.map(s => s.state),
+            datasets: [{
+                label: 'Cases',
+                data: topStates.map(s => s.total),
+                backgroundColor: '#0056b3',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // GeoChart India Map
+    google.charts.load('current', {
+        'packages':['geochart'],
+    });
+    google.charts.setOnLoadCallback(drawRegionsMap);
+
+    function drawRegionsMap() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'State');
+        data.addColumn('number', 'Total Cases');
+        
+        // Add data
+        const chartRows = statesDataRaw.map(s => [s.state, s.total]);
+        data.addRows(chartRows);
+
+        var options = {
+            region: 'IN', // India
+            displayMode: 'regions',
+            resolution: 'provinces',
+            colorAxis: {colors: ['#e6f0fa', '#0056b3', '#0B192C']},
+            backgroundColor: 'transparent',
+            datalessRegionColor: '#f8f9fa',
+            defaultColor: '#f5f5f5',
+        };
+
+        var chart = new google.visualization.GeoChart(document.getElementById('india-map'));
+        
+        // Add click listener
+        google.visualization.events.addListener(chart, 'select', function() {
+            var selection = chart.getSelection();
+            if (selection.length > 0) {
+                var stateName = data.getValue(selection[0].row, 0);
+                var stateData = statesDataRaw.find(s => s.state === stateName);
+                if (stateData) {
+                    window.location.href = "{% url 'analytics:states_list' %}../state/" + stateData.slug + "/";
+                }
+            }
+        });
+
+        chart.draw(data, options);
+    }
+</script>
+{% endblock %}

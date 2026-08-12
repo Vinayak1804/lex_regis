@@ -1,0 +1,100 @@
+{% extends 'analytics/base.html' %}
+
+{% block title %}AI Analytics{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <h4 class="mb-0 text-primary fw-bold" style="font-family: var(--font-family-serif);">
+        Lex Regis AI Intelligence
+    </h4>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card" style="border-top-color: #0d6efd;">
+            <div class="stat-label">Total AI Queries</div>
+            <div class="stat-value text-primary">{{ dashboard.total_queries }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-top-color: #20c997;">
+            <div class="stat-label">Docs Summarized</div>
+            <div class="stat-value text-success">{{ dashboard.documents_summarized }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-top-color: #fd7e14;">
+            <div class="stat-label">Contracts Reviewed</div>
+            <div class="stat-value text-warning">{{ dashboard.contracts_reviewed }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card" style="border-top-color: var(--royal-navy);">
+            <div class="stat-label">Avg Response Time</div>
+            <div class="stat-value">{{ dashboard.avg_response_time }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="chart-container">
+            <div class="chart-title">Daily AI Usage (Last 7 Days)</div>
+            <canvas id="dailyAiChart" height="250"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="chart-container">
+            <div class="chart-title">Monthly AI Adoption (Last 6 Months)</div>
+            <canvas id="monthlyAiChart" height="250"></canvas>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const dailyData = {{ dashboard.daily_usage|safe }};
+    const monthlyData = {{ dashboard.monthly_usage|safe }};
+    
+    // Initialize Chart.js default fonts
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    
+    // Daily AI Line Chart
+    new Chart(document.getElementById('dailyAiChart'), {
+        type: 'line',
+        data: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [
+                {
+                    label: 'Queries',
+                    data: dailyData,
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }
+            ]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+    
+    // Monthly AI Bar Chart
+    new Chart(document.getElementById('monthlyAiChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            datasets: [
+                {
+                    label: 'Queries',
+                    data: monthlyData,
+                    backgroundColor: '#1A2B4C',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,125 @@
+:root {
+    /* Royal Navy Blue Theme */
+    --color-primary: #0B2B5A;
+    --color-primary-dark: #071C3B;
+    --color-primary-light: #153E7B;
+    
+    /* Royal Gold Theme */
+    --color-accent: #D4AF37;
+    --color-accent-dark: #AA8B2B;
+    --color-accent-light: #F0CF68;
+    
+    /* Ivory White & Neutrals */
+    --color-background: #F8F9FA;
+    --color-surface: #FFFFF0;
+    --color-text-main: #2C3E50;
+    --color-text-muted: #6C757D;
+    
+    /* Status Colors */
+    --color-success: #198754;
+    --color-warning: #FFC107;
+    --color-danger: #DC3545;
+    --color-info: #0DCAF0;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(11, 43, 90, 0.1);
+    --shadow-md: 0 4px 6px rgba(11, 43, 90, 0.08);
+    --shadow-lg: 0 10px 15px rgba(11, 43, 90, 0.05);
+    
+    /* Border Radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+
+    /* Typography */
+    --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-family-serif: 'Playfair Display', Georgia, serif;
+}
+
+body {
+    font-family: var(--font-family-sans);
+    background-color: var(--color-background);
+    color: var(--color-text-main);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-serif);
+    color: var(--color-primary);
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+    background: rgba(255, 255, 240, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 240, 0.3);
+    box-shadow: var(--shadow-md);
+}
+
+/* Premium Cards */
+.card-premium {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: none;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Button Overrides */
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-surface);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+    border-color: var(--color-primary-dark);
+}
+
+.btn-accent {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-primary-dark);
+    font-weight: 600;
+}
+
+.btn-accent:hover {
+    background-color: var(--color-accent-dark);
+    border-color: var(--color-accent-dark);
+    color: var(--color-surface);
+}
+
+/* Sidebar Specifics */
+.sidebar {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    min-height: 100vh;
+}
+
+.sidebar-link {
+    color: rgba(255, 255, 240, 0.8);
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.sidebar-link:hover, .sidebar-link.active {
+    color: var(--color-accent);
+    background-color: var(--color-primary-dark);
+}
+
+/* HTMX Loading States */
+.htmx-indicator {
+    display: none;
+}
+.htmx-request .htmx-indicator {
+    display: inline-block;
+}
+.htmx-request.htmx-indicator {
+    display: inline-block;
+}

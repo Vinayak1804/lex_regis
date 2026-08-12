@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% block title %}AI Health Diagnostics | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4 px-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-0 fw-bold" style="color: var(--royal-navy);">
+                <i class="fa-solid fa-heart-pulse me-2 text-danger"></i> AI Operations Dashboard
+            </h3>
+            <p class="text-muted small mt-1 mb-0">Production-grade monitoring for Lex Regis Intelligence Engine.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary shadow-sm" onclick="location.reload();"><i class="fa-solid fa-arrows-rotate me-2"></i> Refresh Data</button>
+        </div>
+    </div>
+    
+    {% if error %}
+    <div class="alert alert-danger shadow-sm border-0 mb-4 rounded-3 d-flex align-items-center p-4">
+        <i class="fa-solid fa-triangle-exclamation fs-2 me-4"></i>
+        <div>
+            <h5 class="fw-bold mb-1">Critical Connection Failure</h5>
+            <p class="mb-0 small">{{ error }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- System Status Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <h6 class="text-muted text-uppercase fw-bold small mb-3">Groq Connection</h6>
+                    {% if status == 'Connected' %}
+                    <h3 class="text-success fw-bold mb-0"><i class="fa-solid fa-circle-check me-2"></i> Active</h3>
+                    {% else %}
+                    <h3 class="text-danger fw-bold mb-0"><i class="fa-solid fa-circle-xmark me-2"></i> Offline</h3>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <h6 class="text-muted text-uppercase fw-bold small mb-3">API Latency</h6>
+                    <h3 class="text-dark fw-bold mb-0"><i class="fa-solid fa-stopwatch text-info me-2"></i> {{ latency }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 h-100">
+                <div class="card-body p-4 text-center">
+                    <h6 class="text-muted text-uppercase fw-bold small mb-3">Today's Traffic</h6>
+                    <h3 class="text-primary fw-bold mb-0">{{ requests_today }} Req</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-premium shadow-sm border-0 h-100 bg-dark text-white">
+                <div class="card-body p-4 text-center">
+                    <h6 class="text-white-50 text-uppercase fw-bold small mb-3">System Load</h6>
+                    <h4 class="fw-bold mb-0">CPU: {{ server_cpu }}% | RAM: {{ server_ram }}%</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Metrics Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card card-premium border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-chart-simple me-2 text-primary"></i> Live Telemetry (Today)</h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4 text-center">
+                        <div class="col-md-3">
+                            <h6 class="text-muted small text-uppercase mb-2">Avg Latency</h6>
+                            <h4 class="fw-bold">{{ avg_latency }}</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="text-muted small text-uppercase mb-2">Fastest / Slowest</h6>
+                            <h5 class="fw-bold">{{ fastest }} / {{ slowest }}</h5>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="text-muted small text-uppercase mb-2">Avg Tokens</h6>
+                            <h4 class="fw-bold">{{ avg_tokens }}</h4>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="text-muted small text-uppercase mb-2">Estimated Cost</h6>
+                            <h4 class="fw-bold text-success">{{ estimated_cost }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card card-premium border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-bottom p-4">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-microchip me-2 text-warning"></i> Configuration</h6>
+                </div>
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted">Model</span>
+                        <span class="fw-bold">{{ model }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted">API Key Loaded</span>
+                        <span class="fw-bold text-success">{{ api_key_loaded }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted">Django Ver</span>
+                        <span class="fw-bold">{{ django_version }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-4 py-3">
+                        <span class="text-muted">Python Ver</span>
+                        <span class="fw-bold">{{ python_version }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Requests -->
+    <div class="card card-premium border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-list me-2 text-success"></i> Recent AI Requests</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Timestamp</th>
+                            <th>User</th>
+                            <th>Endpoint</th>
+                            <th>Model</th>
+                            <th>Status</th>
+                            <th>Latency</th>
+                            <th class="pe-4 text-end">Total Tokens</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in recent_requests %}
+                        <tr>
+                            <td class="ps-4 text-muted small">{{ req.created_at|date:"M d, Y H:i:s" }}</td>
+                            <td class="fw-bold">{{ req.user.get_full_name|default:"System" }}</td>
+                            <td><span class="badge bg-secondary">{{ req.endpoint }}</span></td>
+                            <td class="small">{{ req.model_name }}</td>
+                            <td>
+                                {% if req.is_success %}
+                                <span class="badge bg-success">200 OK</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ req.status_code|default:"Error" }} FAIL</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ req.latency_ms|default:"0"|floatformat:0 }} ms</td>
+                            <td class="pe-4 text-end fw-bold text-info">{{ req.total_tokens|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No requests recorded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Failed Requests -->
+    {% if failed_requests_list %}
+    <div class="card card-premium border-0 shadow-sm border-danger border-start border-4 mb-4">
+        <div class="card-header bg-white border-bottom p-4">
+            <h6 class="mb-0 fw-bold text-danger"><i class="fa-solid fa-bug me-2"></i> Failed Requests Traceback</h6>
+        </div>
+        <div class="card-body p-4">
+            <div class="accordion" id="failuresAccordion">
+                {% for freq in failed_requests_list %}
+                <div class="accordion-item border mb-2 rounded shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed bg-light text-danger fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#fail{{ freq.id }}">
+                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                            {{ freq.created_at|date:"Y-m-d H:i:s" }} - {{ freq.endpoint }}
+                        </button>
+                    </h2>
+                    <div id="fail{{ freq.id }}" class="accordion-collapse collapse" data-bs-parent="#failuresAccordion">
+                        <div class="accordion-body">
+                            <h6 class="fw-bold text-dark mb-1">Error Message</h6>
+                            <p class="text-danger small bg-danger bg-opacity-10 p-2 rounded">{{ freq.error_message }}</p>
+                            
+                            <h6 class="fw-bold text-dark mt-3 mb-1">Prompt Context</h6>
+                            <pre class="bg-dark text-light p-3 rounded small" style="max-height: 200px; overflow-y: auto;">{{ freq.prompt }}</pre>
+                            
+                            <h6 class="fw-bold text-dark mt-3 mb-1">Python Traceback</h6>
+                            <pre class="bg-dark text-warning p-3 rounded small" style="max-height: 200px; overflow-y: auto;">{{ freq.traceback }}</pre>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Debug Panel -->
+    <div class="card card-premium border-0 shadow-sm bg-light">
+        <div class="card-body p-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-wrench me-2"></i> Debug Panel</h6>
+            <div class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-outline-primary" onclick="alert('Ping Test Initialized')"><i class="fa-solid fa-satellite-dish me-2"></i> Test Groq Connection</button>
+                <button class="btn btn-outline-secondary" onclick="alert('Sending dummy prompt to Groq API')"><i class="fa-solid fa-paper-plane me-2"></i> Send Test Prompt</button>
+                <button class="btn btn-outline-warning"><i class="fa-solid fa-broom me-2"></i> Clear Cache</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

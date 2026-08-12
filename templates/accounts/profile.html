@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profile - LEX REGIS{% endblock %}
+
+{% block page_title %}My Profile{% endblock %}
+{% block breadcrumb_active %}Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-12 col-xl-4">
+        <div class="card card-premium h-100">
+            <div class="card-body text-center pt-5">
+                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-4 shadow-sm" style="width: 150px; height: 150px; border: 2px solid var(--royal-gold);">
+                    <i class="fa-solid fa-user text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-1">{{ user.first_name }} {{ user.last_name }}</h4>
+                <p class="text-muted mb-3">{{ user.get_role_display }}</p>
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <span class="badge bg-success rounded-pill">
+                        <i class="fa-solid fa-check-circle me-1"></i> Active
+                    </span>
+                    <span class="badge bg-secondary rounded-pill">
+                        <i class="fa-solid fa-shield-halved me-1"></i> 
+                        {% if user.security_settings.two_factor_enabled %}2FA Enabled{% else %}2FA Disabled{% endif %}
+                    </span>
+                </div>
+                
+            </div>
+            <hr class="my-0">
+            <div class="card-body">
+                <h6 class="text-uppercase text-muted fw-bold mb-3">Contact Information</h6>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-3 d-flex align-items-center">
+                        <div class="icon-square bg-light text-primary rounded me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fa-solid fa-envelope"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Email Address</small>
+                            <span class="text-dark fw-medium">{{ user.email }}</span>
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <div class="icon-square bg-light text-primary rounded me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="fa-solid fa-phone"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block">Phone Number</small>
+                            <span class="text-dark fw-medium">{{ user.phone_number|default:"Not provided" }}</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="col-12 col-xl-8">
+        <div class="card card-premium">
+            <div class="card-header bg-transparent pt-4 pb-0 border-bottom-0">
+                <ul class="nav nav-tabs card-header-tabs nav-premium" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab">Personal Info</button>
+                    </li>
+                    {% if user.role == 'ADVOCATE' and professional_form %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="professional-tab" data-bs-toggle="tab" data-bs-target="#professional" type="button" role="tab">Professional Profile</button>
+                    </li>
+                    {% endif %}
+                    {% if user.role == 'LAW_FIRM' and organization_form %}
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="organization-tab" data-bs-toggle="tab" data-bs-target="#organization" type="button" role="tab">Organization</button>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <div class="card-body mt-3">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                <div class="tab-content" id="profileTabsContent">
+                    <!-- Personal Info Tab -->
+                    <div class="tab-pane fade show active" id="personal" role="tabpanel">
+                        <form method="post" action="{% url 'accounts:profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="tab" value="personal">
+                            
+                            <h5 class="fw-bold mb-4">Basic Details</h5>
+                            <div class="row g-3">
+                                {% for field in user_form %}
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <h5 class="fw-bold mt-5 mb-4">Extended Profile</h5>
+                            <div class="row g-3">
+                                {% for field in profile_form %}
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    {% if user.role == 'ADVOCATE' and professional_form %}
+                    <!-- Professional Tab -->
+                    <div class="tab-pane fade" id="professional" role="tabpanel">
+                        <form method="post" action="{% url 'accounts:profile' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="tab" value="professional">
+                            
+                            <h5 class="fw-bold mb-4">Professional Information</h5>
+                            <div class="row g-3">
+                                {% for field in professional_form %}
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+
+                    {% if user.role == 'LAW_FIRM' and organization_form %}
+                    <!-- Organization Tab -->
+                    <div class="tab-pane fade" id="organization" role="tabpanel">
+                        <form method="post" action="{% url 'accounts:profile' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="tab" value="organization">
+                            
+                            <h5 class="fw-bold mb-4">Organization Details</h5>
+                            <div class="row g-3">
+                                {% for field in organization_form %}
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="mt-4 text-end">
+                                <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

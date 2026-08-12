@@ -1,0 +1,19 @@
+
+API_VERSION = "v1"
+DEFAULT_PAGINATION = 20
+ALLOWED_UPLOAD_TYPES = ['application/pdf', 'image/jpeg', 'image/png']
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5 MB
+DEFAULT_AVATAR = "default_avatar.png"
+DASHBOARD_LIMITS = 100
+DATE_FORMAT = "%Y-%m-%d"
+TIME_FORMAT = "%H:%M:%S"
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+REGEX_PHONE = r"^\+?[1-9]\d{1,14}$"
+REGEX_PIN = r"^\d{4,6}$"
+SECURITY_MIN_PASSWORD_LENGTH = 12
+HTTP_200_OK = "Success"
+HTTP_400_BAD_REQUEST = "Bad Request"
+HTTP_401_UNAUTHORIZED = "Unauthorized"
+HTTP_403_FORBIDDEN = "Forbidden"
+HTTP_404_NOT_FOUND = "Not Found"
+HTTP_500_SERVER_ERROR = "Internal Server Error"

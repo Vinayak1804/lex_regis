@@ -1,0 +1,13 @@
+from django.db import models
+
+class ActiveManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False, is_active=True)
+
+class DeletedManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=True)
+
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(is_deleted=False)

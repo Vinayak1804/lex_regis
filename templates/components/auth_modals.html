@@ -1,0 +1,393 @@
+<!-- Auth Modal Component -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true" 
+     x-data="authModal()" 
+     @open-auth-modal.window="initModal($event.detail.mode)">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content glass-modal border-0 overflow-hidden shadow-lg">
+            
+            <!-- Modal Header -->
+            <div class="modal-header border-bottom-0 pb-0 align-items-center">
+                <button x-show="step === 2" @click="step = 1" class="btn btn-sm btn-light rounded-circle shadow-sm me-auto" type="button">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div class="mx-auto text-center" style="flex-grow: 1;">
+                    <h4 class="modal-title font-serif fw-bold text-navy mb-0" x-text="mode === 'login' ? 'Welcome Back' : 'Join Lex Regis'"></h4>
+                    <p class="text-muted small mb-0 mt-1" x-text="step === 1 ? 'Select your role to continue' : 'Enter your credentials'"></p>
+                </div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body p-4 p-md-5">
+                
+                <!-- STEP 1: ROLE SELECTION -->
+                <div x-show="step === 1" x-transition.opacity.duration.300ms>
+                    <div class="row g-4 justify-content-center">
+                        
+                        <!-- Client Role -->
+                        <div class="col-md-6">
+                            <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center"
+                                 @click="selectRole('client')">
+                                <div class="role-icon-wrapper bg-primary bg-opacity-10 text-primary">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">Client</h5>
+                                <p class="text-muted small mb-0">I am looking for legal assistance or managing my case.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Lawyer Role -->
+                        <div class="col-md-6">
+                            <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center"
+                                 @click="selectRole('lawyer')">
+                                <div class="role-icon-wrapper bg-gold bg-opacity-10 text-gold">
+                                    <i class="fa-solid fa-scale-balanced"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">Lawyer</h5>
+                                <p class="text-muted small mb-0">I am an advocate offering legal services.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Law Firm Role -->
+                        <div class="col-md-6">
+                            <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center"
+                                 @click="selectRole('law_firm')">
+                                <div class="role-icon-wrapper bg-navy bg-opacity-10 text-navy">
+                                    <i class="fa-solid fa-building"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">Law Firm</h5>
+                                <p class="text-muted small mb-0">I represent an organization of legal professionals.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Administrator Role -->
+                        <div class="col-md-6" x-show="mode === 'login'">
+                            <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center"
+                                 @click="selectRole('admin')">
+                                <div class="role-icon-wrapper bg-secondary bg-opacity-10 text-secondary">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <h5 class="fw-bold mb-2">Administrator</h5>
+                                <p class="text-muted small mb-0">System management and oversight.</p>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- STEP 2: DYNAMIC FORM -->
+                <div x-show="step === 2" x-transition.opacity.duration.300ms style="display: none;">
+                    
+                    <form @submit.prevent="submitForm" class="mx-auto" style="max-width: 400px;">
+                        {% csrf_token %}
+                        
+                        <!-- Dynamic Error Message -->
+                        <div x-show="errorMessage" class="alert alert-danger py-2 small mb-4" x-text="errorMessage"></div>
+                        
+                        <div class="mb-4 text-center">
+                            <div class="d-inline-flex align-items-center bg-light px-3 py-2 rounded-pill">
+                                <i :class="getRoleIcon()" class="me-2" :class="getRoleColor()"></i>
+                                <span class="fw-bold small text-uppercase" x-text="getRoleName()"></span>
+                            </div>
+                        </div>
+                        
+                        <!-- CLIENT FORM -->
+                        <template x-if="selectedRole === 'client' && mode === 'login'">
+                            <div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Email Address</label>
+                                    <input type="email" x-model="formData.email" class="form-control form-control-premium" placeholder="name@example.com" required>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label small fw-bold mb-0">Password</label>
+                                        <a href="#" class="small text-decoration-none text-gold">Forgot password?</a>
+                                    </div>
+                                    <input type="password" x-model="formData.password" class="form-control form-control-premium" placeholder="••••••••" required>
+                                </div>
+                                <div class="mb-4 form-check">
+                                    <input type="checkbox" class="form-check-input" id="clientRemember">
+                                    <label class="form-check-label small" for="clientRemember">Remember me</label>
+                                </div>
+                                <button type="submit" class="btn btn-navy w-100 py-3 rounded-pill fw-bold mb-3 hover-lift shadow-sm" :disabled="loading">
+                                    <span x-show="!loading">Login as Client</span>
+                                    <span x-show="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </button>
+                                <div class="text-center small">
+                                    <span class="text-muted">Don't have an account?</span>
+                                    <a href="#" @click.prevent="mode = 'register'; step = 1;" class="fw-bold text-navy text-decoration-none ms-1">Create Account</a>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- LAWYER FORM -->
+                        <template x-if="selectedRole === 'lawyer' && mode === 'login'">
+                            <div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Advocate Email</label>
+                                    <input type="email" x-model="formData.email" class="form-control form-control-premium" placeholder="counsel@example.com" required>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label small fw-bold mb-0">Password</label>
+                                        <a href="#" class="small text-decoration-none text-gold">Forgot password?</a>
+                                    </div>
+                                    <input type="password" x-model="formData.password" class="form-control form-control-premium" placeholder="••••••••" required>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="bg-light p-2 rounded d-flex align-items-center small border">
+                                        <i class="fa-solid fa-certificate text-gold me-2"></i>
+                                        <span class="text-muted">Bar Council Verification Required</span>
+                                    </div>
+                                </div>
+                                <div class="mb-4 form-check">
+                                    <input type="checkbox" class="form-check-input" id="lawyerRemember">
+                                    <label class="form-check-label small" for="lawyerRemember">Remember me</label>
+                                </div>
+                                <button type="submit" class="btn btn-gold w-100 py-3 rounded-pill fw-bold mb-3 hover-lift shadow-sm" :disabled="loading">
+                                    <span x-show="!loading">Login as Advocate</span>
+                                    <span x-show="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </button>
+                                <div class="text-center small">
+                                    <a href="#" @click.prevent="mode = 'register'; step = 1;" class="fw-bold text-navy text-decoration-none">Become a Verified Lawyer</a>
+                                </div>
+                            </div>
+                        </template>
+                        
+                        <!-- LAW FIRM FORM -->
+                        <template x-if="selectedRole === 'law_firm' && mode === 'login'">
+                            <div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Organization Email</label>
+                                    <input type="email" x-model="formData.email" class="form-control form-control-premium" placeholder="admin@lawfirm.com" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold">Password</label>
+                                    <input type="password" x-model="formData.password" class="form-control form-control-premium" placeholder="••••••••" required>
+                                </div>
+                                <button type="submit" class="btn btn-navy w-100 py-3 rounded-pill fw-bold mb-3 hover-lift shadow-sm" :disabled="loading">
+                                    <span x-show="!loading">Login as Law Firm</span>
+                                    <span x-show="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </template>
+                        
+                        <!-- ADMIN FORM -->
+                        <template x-if="selectedRole === 'admin' && mode === 'login'">
+                            <div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Admin Email</label>
+                                    <input type="email" x-model="formData.email" class="form-control form-control-premium" placeholder="admin@lexregis.gov.in" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Password</label>
+                                    <input type="password" x-model="formData.password" class="form-control form-control-premium" placeholder="••••••••" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label small fw-bold">2FA Code</label>
+                                    <input type="text" x-model="formData.two_factor" class="form-control form-control-premium text-center tracking-widest fw-bold" placeholder="--- ---" maxlength="6">
+                                </div>
+                                <button type="submit" class="btn btn-danger w-100 py-3 rounded-pill fw-bold mb-3 hover-lift shadow-sm" :disabled="loading">
+                                    <span x-show="!loading"><i class="fa-solid fa-lock me-2"></i> Secure Login</span>
+                                    <span x-show="loading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                        </template>
+                        
+                        <!-- REGISTER FORM REDIRECT (Future Implementation placeholder) -->
+                        <template x-if="mode === 'register'">
+                            <div class="text-center py-4">
+                                <div class="spinner-border text-gold mb-3" role="status"></div>
+                                <h6>Preparing registration flow...</h6>
+                                <p class="text-muted small">Redirecting to full registration page.</p>
+                            </div>
+                        </template>
+                        
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function authModal() {
+    return {
+        mode: 'login', // 'login' or 'register'
+        step: 1, // 1: Role, 2: Form
+        selectedRole: null,
+        loading: false,
+        errorMessage: '',
+        customRedirectUrl: null,
+        formData: {
+            email: '',
+            password: '',
+            two_factor: ''
+        },
+        
+        initModal(mode, specificRole = null, skipStep1 = false, redirectUrl = null) {
+            this.mode = mode;
+            this.customRedirectUrl = redirectUrl;
+            
+            if (skipStep1 && specificRole) {
+                this.selectedRole = specificRole;
+                this.step = 2;
+            } else {
+                this.step = 1;
+                this.selectedRole = null;
+            }
+            this.errorMessage = '';
+            this.resetForm();
+        },
+        
+        resetForm() {
+            this.formData.email = '';
+            this.formData.password = '';
+            this.formData.two_factor = '';
+        },
+        
+        selectRole(role) {
+            this.selectedRole = role;
+            if (this.mode === 'register') {
+                // For now, redirect to the full register page with role query param
+                window.location.href = `/auth/register/?role=${role}`;
+            } else {
+                this.step = 2;
+                this.errorMessage = '';
+                this.resetForm();
+            }
+        },
+        
+        getRoleName() {
+            const names = {
+                'client': 'Client',
+                'lawyer': 'Lawyer',
+                'law_firm': 'Law Firm',
+                'admin': 'Administrator'
+            };
+            return names[this.selectedRole] || '';
+        },
+        
+        getRoleIcon() {
+            const icons = {
+                'client': 'fa-solid fa-user',
+                'lawyer': 'fa-solid fa-scale-balanced',
+                'law_firm': 'fa-solid fa-building',
+                'admin': 'fa-solid fa-shield-halved'
+            };
+            return icons[this.selectedRole] || '';
+        },
+        
+        getRoleColor() {
+            const colors = {
+                'client': 'text-primary',
+                'lawyer': 'text-gold',
+                'law_firm': 'text-navy',
+                'admin': 'text-danger'
+            };
+            return colors[this.selectedRole] || '';
+        },
+        
+        async submitForm() {
+            if (this.mode !== 'login') return;
+            
+            this.loading = true;
+            this.errorMessage = '';
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]') ? 
+                              document.querySelector('[name=csrfmiddlewaretoken]').value : '';
+            
+            try {
+                const response = await fetch(`/auth/${this.selectedRole === 'client' ? 'client' : this.selectedRole === 'law_firm' ? 'law-firm' : this.selectedRole}/login/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({
+                        'username': this.formData.email,
+                        'password': this.formData.password
+                    })
+                });
+                
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        this.errorMessage = data.message || "Login failed. Please try again.";
+                        this.loading = false;
+                    } else {
+                        // Success - use backend provided redirect URL OR custom redirect
+                        if (this.customRedirectUrl) {
+                            window.location.href = this.customRedirectUrl;
+                        } else {
+                            window.location.href = data.redirect_url;
+                        }
+                    }
+                } else {
+                    this.errorMessage = "Login failed. Please try again.";
+                    this.loading = false;
+                }
+            } catch (error) {
+                console.error(error);
+                this.errorMessage = "Network error. Please try again later.";
+                this.loading = false;
+            }
+        }
+    }
+}
+</script>
+
+<!-- RESTRICTION MODAL -->
+{% if user.is_authenticated %}
+<div class="modal fade" id="restrictionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-modal border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title font-serif fw-bold text-navy">Client Feature</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="mb-4">
+                    <i class="fa-solid fa-lock text-gold fs-1"></i>
+                </div>
+                {% if user.role == 'ADVOCATE' %}
+                    <p class="text-muted">The Find a Lawyer service is available only for clients.</p>
+                    <p class="fw-bold mb-4">You are currently signed in as a Lawyer.</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="/portal/lawyer/dashboard/" class="btn btn-navy rounded-pill py-2 fw-bold">Go to Lawyer Dashboard</a>
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill py-2 fw-bold">Switch Account</button>
+                        </form>
+                    </div>
+                {% elif user.role == 'ADMIN' %}
+                    <p class="text-muted">This feature is intended for client accounts.</p>
+                    <p class="fw-bold mb-4">You are currently signed in as an Administrator.</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="/admin/" class="btn btn-danger rounded-pill py-2 fw-bold">Go to Admin Dashboard</a>
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill py-2 fw-bold">Switch Account</button>
+                        </form>
+                    </div>
+                {% else %}
+                    <p class="text-muted">This feature is restricted for your account type.</p>
+                    <div class="d-grid gap-2 mt-4">
+                        <form method="post" action="{% url 'accounts:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-secondary w-100 rounded-pill py-2 fw-bold">Switch Account</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

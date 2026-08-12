@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Hearing Calendar - LEX REGIS{% endblock %}
+
+{% block page_title %}Hearing Calendar{% endblock %}
+{% block breadcrumb_active %}Calendar{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-12 col-xl-8">
+        <div class="card card-premium mb-4">
+            <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold text-dark mb-0"><i class="fa-solid fa-calendar-days text-primary me-2"></i> Upcoming Schedule</h5>
+                <div>
+                    <button class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-chevron-left"></i></button>
+                    <span class="fw-bold mx-3 text-dark">July 2026</span>
+                    <button class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- A placeholder for FullCalendar or similar JS library -->
+                <div class="alert alert-light border border-primary-subtle text-center p-5 mb-0">
+                    <i class="fa-regular fa-calendar-plus fs-1 text-muted mb-3"></i>
+                    <h5 class="fw-bold text-dark">Interactive Calendar Coming Soon</h5>
+                    <p class="text-muted mb-0">The interactive grid view is currently under development. Please see the list view below.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-xl-4">
+        <div class="card card-premium">
+            <div class="card-header bg-transparent border-bottom-0 pt-4 pb-0">
+                <h5 class="fw-bold text-dark"><i class="fa-solid fa-list-check text-primary me-2"></i> Upcoming Hearings</h5>
+            </div>
+            <div class="card-body p-0 mt-3">
+                <div class="list-group list-group-flush">
+                    {% for hearing in hearings %}
+                    <a href="{% url 'hearings_ui:detail' hearing.id %}" class="list-group-item list-group-item-action p-3 border-bottom">
+                        <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0 fw-bold text-dark text-truncate" style="max-width: 200px;">{{ hearing.title }}</h6>
+                            <small class="text-primary fw-bold">{{ hearing.scheduled_time|time:"H:i" }}</small>
+                        </div>
+                        <p class="mb-1 text-muted small"><i class="fa-solid fa-gavel me-1"></i> {{ hearing.presiding_judge }}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <small class="text-secondary"><i class="fa-regular fa-calendar me-1"></i> {{ hearing.scheduled_date|date:"M d, Y" }}</small>
+                            <span class="badge bg-light text-dark border">{{ hearing.get_status_display }}</span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="p-4 text-center">
+                        <p class="text-muted mb-0">No upcoming hearings scheduled.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

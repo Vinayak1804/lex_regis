@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lawyer Registration | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold" style="font-family: var(--font-family-serif); color: var(--royal-navy);">Lawyer Onboarding</h2>
+                <p class="text-muted">Step {{ step }} of 10</p>
+                <div class="progress" style="height: 5px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {% widthratio step 10 100 %}%;"></div>
+                </div>
+            </div>
+
+            <div class="card card-premium border-0 shadow-lg">
+                <div class="card-header bg-white border-bottom p-4">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        {% if step == '1' %}Personal Information
+                        {% elif step == '2' %}Professional Information
+                        {% elif step == '3' %}Education
+                        {% elif step == '4' %}Practice Areas
+                        {% elif step == '5' %}Court Preferences
+                        {% elif step == '6' %}Office Information
+                        {% elif step == '7' %}Consultation Details
+                        {% elif step == '8' %}Fee Structure
+                        {% elif step == '9' %}Verification
+                        {% elif step == '10' %}Review & Submit
+                        {% endif %}
+                    </h5>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="step" value="{{ step }}">
+                        
+                        {% if step != '10' %}
+                            {{ form.as_p }}
+                        {% else %}
+                            <div class="alert alert-success bg-success bg-opacity-10 border-success text-success p-4 rounded-3 text-center">
+                                <i class="fa-solid fa-check-circle fs-1 mb-3"></i>
+                                <h4 class="fw-bold">Almost Done!</h4>
+                                <p class="mb-0">Please review your information. By clicking submit, your profile will be sent to our team for verification. Once verified, you will be onboarded to the Lex Regis Network.</p>
+                            </div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between mt-5">
+                            {% if step > '1' %}
+                                <a href="?step={{ step|add:'-1' }}" class="btn btn-outline-secondary px-4 rounded-pill fw-bold">Back</a>
+                            {% else %}
+                                <div></div>
+                            {% endif %}
+                            
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold shadow-sm">
+                                {% if step == '10' %}Submit Registration{% else %}Save & Continue{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Clean up the form fields automatically */
+    form p { margin-bottom: 1.5rem; }
+    form label { font-weight: bold; font-size: 0.85rem; text-transform: uppercase; color: #6c757d; margin-bottom: 0.5rem; display: block; }
+    form input[type="text"], form input[type="email"], form input[type="number"], form input[type="url"], form input[type="file"], form input[type="date"], form select, form textarea {
+        display: block; width: 100%; padding: 0.75rem 1rem; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; appearance: none; border-radius: 0.5rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    form input[type="text"]:focus, form input[type="email"]:focus, form input[type="number"]:focus, form input[type="url"]:focus, form input[type="file"]:focus, form input[type="date"]:focus, form select:focus, form textarea:focus {
+        border-color: #86b7fe; outline: 0; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.25);
+    }
+    form input[type="checkbox"] { margin-right: 0.5rem; }
+    form ul { list-style: none; padding-left: 0; display: flex; flex-wrap: wrap; gap: 1rem; }
+    form ul li { background: #f8f9fa; border: 1px solid #dee2e6; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; }
+</style>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+      <div>
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          {{ lawyer.user.get_full_name }}
+          {% if lawyer.user.first_name == "Demo" %}
+            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Demo Profile</span>
+          {% endif %}
+        </h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+          {{ lawyer.designation|default:"Advocate" }}
+        </p>
+      </div>
+      <div>
+        <a href="{% url 'communication:request_consultation' lawyer.pk %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+          Request Consultation
+        </a>
+      </div>
+    </div>
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
+      <dl class="sm:divide-y sm:divide-gray-200">
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Experience</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ lawyer.years_of_experience }} years</dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Location</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ lawyer.user.profile.city|default:"-" }}, {{ lawyer.user.profile.state|default:"-" }}</dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">Practice Areas</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            <ul class="border border-gray-200 rounded-md divide-y divide-gray-200">
+              {% for area in lawyer.practice_areas %}
+              <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm">
+                <div class="w-0 flex-1 flex items-center">
+                  <span class="ml-2 flex-1 w-0 truncate">{{ area }}</span>
+                </div>
+              </li>
+              {% empty %}
+              <li class="pl-3 pr-4 py-3 flex items-center justify-between text-sm text-gray-500">None listed</li>
+              {% endfor %}
+            </ul>
+          </dd>
+        </div>
+        <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+          <dt class="text-sm font-medium text-gray-500">About</dt>
+          <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+            {{ lawyer.user.profile.short_bio|default:"No biography provided." }}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document.title|default:document.original_file.name }} - Lex Regis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{% url 'documents_ui:list' %}" class="btn btn-link text-decoration-none p-0 mb-2 text-muted"><i class="fa-solid fa-arrow-left me-1"></i> Back to Documents</a>
+        <h3 class="fw-bold mb-0 text-navy">
+            {{ document.title|default:document.original_file.name }}
+        </h3>
+        <p class="text-muted small mt-1 mb-0">Version {{ document.version_number }} | Uploaded {{ document.created_at|date:"M d, Y" }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'documents_ui:download' pk=document.pk %}" class="btn btn-outline-secondary btn-sm fw-bold"><i class="fa-solid fa-download me-1"></i> Download Original</a>
+        {% if document.signature_status != 'COMPLETED' and document.signature_status != 'PENDING' %}
+        <button class="btn btn-navy btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#requestSignatureModal"><i class="fa-solid fa-file-signature me-1"></i> Request Signature</button>
+        {% elif document.signature_status == 'PENDING' %}
+        <button class="btn btn-warning btn-sm fw-bold" disabled><i class="fa-solid fa-clock me-1"></i> Signature Pending</button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Request Signature Modal -->
+<div class="modal fade" id="requestSignatureModal" tabindex="-1" aria-labelledby="requestSignatureModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="requestSignatureModalLabel">Request Signature</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'documents_ui:request_signature' pk=document.pk %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Send a signature request for version {{ document.version_number }} of this document.</p>
+                    <div class="mb-3">
+                        <label for="signerEmail" class="form-label fw-bold small">Signer Email</label>
+                        <input type="email" class="form-control" id="signerEmail" name="signer_email" required placeholder="name@example.com">
+                    </div>
+                    <div class="mb-3">
+                        <label for="requestMessage" class="form-label fw-bold small">Message (Optional)</label>
+                        <textarea class="form-control" id="requestMessage" name="message" rows="3" placeholder="Please review and sign this document."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-navy fw-bold">Send Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card card-premium shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-header bg-white pt-4 pb-3 border-bottom">
+                <h6 class="fw-bold text-navy mb-0">Document Metadata</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">Related Case</small>
+                        <span class="fw-bold">{{ document.case.title|default:"None" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">Category</small>
+                        <span>{{ document.category.name|default:"Uncategorized" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">Type</small>
+                        <span>{{ document.document_type.name|default:"Unknown" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">Status</small>
+                        <span class="badge bg-light text-dark border">{{ document.status|default:"Active" }}</span>
+                    </div>
+                    <div class="col-12">
+                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">Description</small>
+                        <p class="mb-0">{{ document.description|default:"No description provided." }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card card-premium shadow-sm border-0 rounded-4">
+            <div class="card-header bg-white pt-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold text-navy mb-0">Version History</h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Version</th>
+                            <th>Date</th>
+                            <th>Uploader</th>
+                            <th>Checksum</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for version in document.versions.all|dictsortreversed:"version_number" %}
+                        <tr>
+                            <td class="ps-4"><span class="badge bg-info bg-opacity-10 text-info border border-info rounded-pill">v{{ version.version_number }}</span></td>
+                            <td>{{ version.upload_time|date:"M d, Y h:i A" }}</td>
+                            <td>{{ version.uploaded_by.get_full_name|default:version.uploaded_by.email }}</td>
+                            <td><code class="text-muted small" title="{{ version.checksum }}">{{ version.checksum|truncatechars:12 }}</code></td>
+                            <td class="text-end pe-4">
+                                <button class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-download"></i></button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card card-premium shadow-sm border-0 rounded-4 mb-4 bg-light">
+            <div class="card-body">
+                <h6 class="fw-bold text-navy mb-3"><i class="fa-solid fa-shield-halved text-success me-2"></i> Integrity & Security</h6>
+                <div class="mb-3">
+                    <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">File Hash (SHA-256)</small>
+                    <code class="text-dark small" style="word-break: break-all;">{{ document.checksum }}</code>
+                </div>
+                <div>
+                    <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">Blockchain Verification</small>
+                    {% if document.blockchain_verification_status == 'VERIFIED' %}
+                    <span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Verified on Chain</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">Pending Anchoring</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card card-premium shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body">
+                <h6 class="fw-bold text-navy mb-3"><i class="fa-solid fa-robot text-primary me-2"></i> AI & Processing</h6>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">OCR Status</small>
+                        <span class="fw-bold text-dark">{{ document.ocr_status }}</span>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">AI Analysis</small>
+                        <span class="fw-bold text-dark">{{ document.ai_analysis_status }}</span>
+                    </div>
+                    {% if document.ai_analysis_status != 'COMPLETED' and document.ocr_status == 'COMPLETED' %}
+                    <form method="post" action="{% url 'documents_ui:trigger_ai' pk=document.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-primary fw-bold">Run Analysis</button>
+                    </form>
+                    {% endif %}
+                </div>
+                
+                {% if document.metadata.custom_metadata_json.ai_analysis %}
+                <div class="alert alert-info border-info mb-0">
+                    <h6 class="alert-heading fw-bold text-primary" style="font-size: 0.8rem;">AI Summary</h6>
+                    <p class="small mb-2">{{ document.metadata.custom_metadata_json.ai_analysis.summary }}</p>
+                    <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.65rem;">Detected Document Type</small>
+                    <p class="small mb-0 fw-bold">{{ document.metadata.custom_metadata_json.ai_analysis.document_type }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

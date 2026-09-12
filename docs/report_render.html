@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LEX REGIS - Enterprise LegalTech Project Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'default',
+    themeVariables: {
+      primaryColor: '#0f172a',
+      primaryTextColor: '#ffffff',
+      primaryBorderColor: '#c5a880',
+      lineColor: '#0f172a',
+      secondaryColor: '#f8fafc',
+      tertiaryColor: '#f1f5f9'
+    }
+  });
+</script>
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 18mm 16mm 20mm 16mm;
+    @bottom-center {
+      content: "Page " counter(page) " of " counter(pages);
+      font-family: 'Inter', sans-serif;
+      font-size: 8.5pt;
+      color: #64748b;
+    }
+    @top-right {
+      content: "LEX REGIS | Project Report";
+      font-family: 'Inter', sans-serif;
+      font-size: 8pt;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1e293b;
+    line-height: 1.65;
+    font-size: 10pt;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+  }
+
+  /* Headings */
+  h1, h2, h3, h4, h5, h6 {
+    color: #0f172a;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    margin-top: 1.6em;
+    margin-bottom: 0.6em;
+    line-height: 1.25;
+    page-break-after: avoid;
+  }
+
+  h1 {
+    font-size: 20pt;
+    border-bottom: 2.5px solid #c5a880;
+    padding-bottom: 6px;
+    margin-top: 2em;
+    color: #0f172a;
+  }
+
+  h2 {
+    font-size: 15pt;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 4px;
+    margin-top: 1.8em;
+    color: #1e293b;
+  }
+
+  h3 {
+    font-size: 12pt;
+    color: #334155;
+  }
+
+  h4 {
+    font-size: 10.5pt;
+    color: #475569;
+  }
+
+  p, ul, ol {
+    margin-top: 0;
+    margin-bottom: 0.9em;
+    text-align: justify;
+  }
+
+  li {
+    margin-bottom: 0.35em;
+  }
+
+  strong {
+    color: #0f172a;
+  }
+
+  a {
+    color: #1d4ed8;
+    text-decoration: none;
+  }
+
+  /* Cover Page Styling */
+  .cover-page {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    border: 3px double #c5a880;
+    padding: 40px 30px;
+    margin-bottom: 40px;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    page-break-after: always;
+  }
+
+  .cover-badge {
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    background-color: #0f172a;
+    color: #c5a880;
+    padding: 6px 18px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 25px;
+  }
+
+  .cover-title {
+    font-family: 'Cinzel', 'Playfair Display', Georgia, serif;
+    font-size: 28pt;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: 1.5px;
+    margin: 10px 0;
+    line-height: 1.15;
+  }
+
+  .cover-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 13pt;
+    color: #64748b;
+    font-style: italic;
+    max-width: 650px;
+    margin: 15px auto 35px auto;
+  }
+
+  .cover-divider {
+    width: 120px;
+    height: 3px;
+    background-color: #c5a880;
+    margin: 20px auto;
+  }
+
+  .cover-meta-grid {
+    width: 100%;
+    max-width: 600px;
+    margin: 30px auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    text-align: left;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 18px 24px;
+    font-size: 9pt;
+  }
+
+  .cover-meta-item strong {
+    display: block;
+    color: #475569;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .cover-meta-item span {
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .cover-footer {
+    font-size: 8.5pt;
+    color: #64748b;
+    margin-top: 30px;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.4em 0;
+    font-size: 8.5pt;
+    page-break-inside: avoid;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+
+  th, td {
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background-color: #0f172a;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+
+  /* Code Blocks */
+  pre, code {
+    font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  }
+
+  code {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    padding: 1.5px 4px;
+    border-radius: 3px;
+    font-size: 8.5pt;
+    border: 1px solid #e2e8f0;
+  }
+
+  pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 8pt;
+    line-height: 1.45;
+    margin: 1.2em 0;
+    page-break-inside: avoid;
+    border-left: 4px solid #c5a880;
+  }
+
+  pre code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+    border: none;
+    font-size: inherit;
+  }
+
+  pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.highlight .hll { background-color: #ffffcc }
+.highlight { background: #f0f0f0; }
+.highlight .c { color: #60A0B0; font-style: italic } /* Comment */
+.highlight .err { border: 1px solid #F00 } /* Error */
+.highlight .k { color: #007020; font-weight: bold } /* Keyword */
+.highlight .o { color: #666 } /* Operator */
+.highlight .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.highlight .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.highlight .cp { color: #007020 } /* Comment.Preproc */
+.highlight .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.highlight .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.highlight .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.highlight .gd { color: #A00000 } /* Generic.Deleted */
+.highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.highlight .gr { color: #F00 } /* Generic.Error */
+.highlight .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight .gi { color: #00A000 } /* Generic.Inserted */
+.highlight .go { color: #888 } /* Generic.Output */
+.highlight .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.highlight .gs { font-weight: bold } /* Generic.Strong */
+.highlight .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight .gt { color: #04D } /* Generic.Traceback */
+.highlight .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.highlight .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.highlight .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.highlight .kp { color: #007020 } /* Keyword.Pseudo */
+.highlight .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.highlight .kt { color: #902000 } /* Keyword.Type */
+.highlight .m { color: #40A070 } /* Literal.Number */
+.highlight .s { color: #4070A0 } /* Literal.String */
+.highlight .na { color: #4070A0 } /* Name.Attribute */
+.highlight .nb { color: #007020 } /* Name.Builtin */
+.highlight .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.highlight .no { color: #60ADD5 } /* Name.Constant */
+.highlight .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.highlight .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.highlight .ne { color: #007020 } /* Name.Exception */
+.highlight .nf { color: #06287E } /* Name.Function */
+.highlight .nl { color: #002070; font-weight: bold } /* Name.Label */
+.highlight .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.highlight .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.highlight .nv { color: #BB60D5 } /* Name.Variable */
+.highlight .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.highlight .w { color: #BBB } /* Text.Whitespace */
+.highlight .mb { color: #40A070 } /* Literal.Number.Bin */
+.highlight .mf { color: #40A070 } /* Literal.Number.Float */
+.highlight .mh { color: #40A070 } /* Literal.Number.Hex */
+.highlight .mi { color: #40A070 } /* Literal.Number.Integer */
+.highlight .mo { color: #40A070 } /* Literal.Number.Oct */
+.highlight .sa { color: #4070A0 } /* Literal.String.Affix */
+.highlight .sb { color: #4070A0 } /* Literal.String.Backtick */
+.highlight .sc { color: #4070A0 } /* Literal.String.Char */
+.highlight .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.highlight .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.highlight .s2 { color: #4070A0 } /* Literal.String.Double */
+.highlight .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.highlight .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.highlight .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.highlight .sx { color: #C65D09 } /* Literal.String.Other */
+.highlight .sr { color: #235388 } /* Literal.String.Regex */
+.highlight .s1 { color: #4070A0 } /* Literal.String.Single */
+.highlight .ss { color: #517918 } /* Literal.String.Symbol */
+.highlight .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.highlight .fm { color: #06287E } /* Name.Function.Magic */
+.highlight .vc { color: #BB60D5 } /* Name.Variable.Class */
+.highlight .vg { color: #BB60D5 } /* Name.Variable.Global */
+.highlight .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.highlight .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.highlight .il { color: #40A070 } /* Literal.Number.Integer.Long */
+
+  /* Blockquotes & Callouts */
+  blockquote {
+    margin: 1.4em 0;
+    padding: 10px 18px;
+    background-color: #f8fafc;
+    border-left: 4px solid #c5a880;
+    font-style: italic;
+    color: #334155;
+    page-break-inside: avoid;
+    border-radius: 0 6px 6px 0;
+  }
+
+  /* Mermaid Diagrams */
+  .mermaid {
+    text-align: center;
+    margin: 25px 0;
+    page-break-inside: avoid;
+    background: #ffffff;
+    padding: 15px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+  }
+
+  /* Chapter Breaks */
+  h1 {
+    page-break-before: always;
+  }
+  h1:first-of-type {
+    page-break-before: avoid;
+  }
+
+  /* Print Media Specifics */
+  @media print {
+    body {
+      background: none;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .no-print {
+      display: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="cover-page">
+  <div>
+    <div class="cover-badge">Enterprise Legal Technology Architecture</div>
+    <div class="cover-title">LEX REGIS</div>
+    <div class="cover-subtitle">Enterprise-Grade AI-Powered Legal Practice Management, Judicial Intelligence & Citizen Access Platform</div>
+    <div class="cover-divider"></div>
+  </div>
+
+  <div class="cover-meta-grid">
+    <div class="cover-meta-item">
+      <strong>System Architecture</strong>
+      <span>Modular Monolith & Layered Domain</span>
+    </div>
+    <div class="cover-meta-item">
+      <strong>Core Technology Stack</strong>
+      <span>Python 3.13 / Django 5.x / Daphne ASGI</span>
+    </div>
+    <div class="cover-meta-item">
+      <strong>Artificial Intelligence</strong>
+      <span>Groq Cloud LLM (openai/gpt-oss-120b)</span>
+    </div>
+    <div class="cover-meta-item">
+      <strong>Real-Time Subsystem</strong>
+      <span>Django Channels / Redis WebSockets</span>
+    </div>
+    <div class="cover-meta-item">
+      <strong>Integrity & Cryptography</strong>
+      <span>SHA-256 Checksums / Blockchain Receipts</span>
+    </div>
+    <div class="cover-meta-item">
+      <strong>Jurisdiction Engine</strong>
+      <span>Indian Legal Framework & Global RBAC</span>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <p><strong>Document Classification:</strong> Complete Software Engineering Project Report (Ready for Submission)</p>
+    <p><strong>Date:</strong> August 2026 &nbsp;|&nbsp; <strong>Release Version:</strong> 1.0.0-PROD-READY &nbsp;|&nbsp; <strong>Status:</strong> Validated & Approved</p>
+  </div>
+</div>
+
+<div class="content-container">
+<h1 id="lex-regis-enterprise-grade-ai-powered-legal-technology-platform">LEX REGIS: Enterprise-Grade AI-Powered Legal Technology Platform</h1>
+<h2 id="comprehensive-technical-project-report-system-architecture-specification">Comprehensive Technical Project Report &amp; System Architecture Specification</h2>
+<hr />
+<h3 id="project-metadata">Project Metadata</h3>
+<ul>
+<li><strong>Project Title:</strong> LEX REGIS – Enterprise Legal Practice Management, Judicial Intelligence &amp; Citizen Access System</li>
+<li><strong>Domain:</strong> Legal Technology (LegalTech), Artificial Intelligence, Machine Learning &amp; Cryptographic Distributed Ledger Systems</li>
+<li><strong>Architecture:</strong> Modular Monolithic Architecture with Layered Service-Selector Pattern &amp; Asynchronous Event Engine</li>
+<li><strong>Technology Stack:</strong> Python 3.13+, Django 5.x, Django REST Framework, Django Channels (ASGI/Daphne), Redis, Groq Cloud LLM API, SQLite / PostgreSQL, HTMX, Alpine.js</li>
+<li><strong>Document Classification:</strong> Comprehensive Software Engineering Project Report &amp; System Documentation (Ready for Academic / Industrial Submission)</li>
+<li><strong>Date of Submission:</strong> August 2026</li>
+<li><strong>Version:</strong> 1.0.0-PROD-READY</li>
+</ul>
+<hr />
+<h2 id="executive-summary">Executive Summary</h2>
+<p>The modern legal ecosystem is characterized by overwhelming procedural friction, opaque case tracking, severe judicial backlog, fragmented communication between litigants and advocates, and an absence of verifiable evidentiary integrity. <strong>LEX REGIS</strong> is an enterprise-grade, full-stack LegalTech platform engineered to bridge the critical gap between citizens seeking justice and legal professionals delivering counsel.</p>
+<p>LEX REGIS combines an intuitive citizen intake wizard, an AI-powered legal triage engine, an advocate practice management suite, a court hearing scheduler with conflict detection, a cryptographic document vault with simulated blockchain immutability, and real-time WebSocket communication channels. Built on a modular monolithic Django architecture adhering strictly to the <strong>Service-Selector Pattern</strong>, <strong>BaseModel Mixin inheritance</strong>, and <strong>Role-Based Access Control (RBAC)</strong>, the system maintains strict separation of concerns, enterprise scalability, and compliance with jurisdictional legal standards (including the Indian Legal Framework).</p>
+<p>This comprehensive document serves as the formal project report and complete technical specification, detailing the system requirements, architectural diagrams, domain models, algorithms, security frameworks, API contracts, testing methodologies, and deployment blueprints.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#chapter-1-problem-statement-background--project-objectives">Chapter 1: Problem Statement, Background &amp; Project Objectives</a></li>
+<li><a href="#chapter-2-literature-review--comparative-market-analysis">Chapter 2: Literature Review &amp; Comparative Market Analysis</a></li>
+<li><a href="#chapter-3-system-requirements-specification-srs">Chapter 3: System Requirements Specification (SRS)</a></li>
+<li><a href="#chapter-4-system-architecture--design-philosophy">Chapter 4: System Architecture &amp; Design Philosophy</a></li>
+<li><a href="#chapter-5-detailed-app-by-app-modular-subsystem-decomposition">Chapter 5: Detailed App-by-App Modular Subsystem Decomposition</a></li>
+<li><a href="#chapter-6-comprehensive-database-design--entity-relationship-architecture">Chapter 6: Comprehensive Database Design &amp; Entity Relationship Architecture</a></li>
+<li><a href="#chapter-7-artificial-intelligence--machine-learning-subsystems">Chapter 7: Artificial Intelligence &amp; Machine Learning Subsystems</a></li>
+<li><a href="#chapter-8-cryptographic-document-vault--blockchain-ledger-subsystem">Chapter 8: Cryptographic Document Vault &amp; Blockchain Ledger Subsystem</a></li>
+<li><a href="#chapter-9-real-time-communication--notification-architecture">Chapter 9: Real-Time Communication &amp; Notification Architecture</a></li>
+<li><a href="#chapter-10-security-authorization--legal-regulatory-compliance">Chapter 10: Security, Authorization &amp; Legal Regulatory Compliance</a></li>
+<li><a href="#chapter-11-rest-api--websocket-protocol-specification">Chapter 11: REST API &amp; WebSocket Protocol Specification</a></li>
+<li><a href="#chapter-12-user-experience-workflows--interface-walkthrough">Chapter 12: User Experience, Workflows &amp; Interface Walkthrough</a></li>
+<li><a href="#chapter-13-testing-verification--quality-assurance-report">Chapter 13: Testing, Verification &amp; Quality Assurance Report</a></li>
+<li><a href="#chapter-14-deployment-devops--infrastructure-guide">Chapter 14: Deployment, DevOps &amp; Infrastructure Guide</a></li>
+<li><a href="#chapter-15-conclusion-limitations--future-roadmap">Chapter 15: Conclusion, Limitations &amp; Future Roadmap</a></li>
+<li><a href="#appendix-directory-structure--file-index">Appendix: Directory Structure &amp; File Index</a></li>
+</ol>
+<hr />
+<h2 id="chapter-1-problem-statement-background-project-objectives">Chapter 1: Problem Statement, Background &amp; Project Objectives</h2>
+<h3 id="11-background-context">1.1 Background &amp; Context</h3>
+<p>Across global jurisdictions, particularly in rapidly digitizing legal systems such as India, the legal sector suffers from structural inefficiencies:<br />
+- <strong>Judicial Case Overload:</strong> Millions of cases remain pending across District Courts, High Courts, and the Supreme Court. A significant portion of delays is caused by manual scheduling errors, repeated adjournments, and inefficient docket management.<br />
+- <strong>Asymmetry of Information for Citizens:</strong> Litigants often cannot evaluate the merits, timeline, or cost of their legal matters prior to hiring counsel, leading to exploitation, mismatched legal representation, and unnecessary litigation.<br />
+- <strong>Fragmented Practice Tools for Advocates:</strong> Lawyers and law firms juggle disconnected software tools for drafting, billing, hearing calendars, client communication, and document storage.<br />
+- <strong>Evidentiary Vulnerability:</strong> Legal documents, affidavits, and case timeline logs are susceptible to tampering, loss, and unauthorized alterations in traditional file-storage environments.</p>
+<h3 id="12-problem-statement">1.2 Problem Statement</h3>
+<blockquote>
+<p><em>"To design, architect, and implement an end-to-end, multi-tenant enterprise Legal Technology platform that unifies citizen legal intake, AI-driven preliminary case analysis, intelligent lawyer matchmaking, comprehensive case lifecycle management, automated hearing management, tamper-evident document storage via cryptographic hashing and blockchain verification, and real-time client-lawyer collaboration into a single, highly secure, modular web ecosystem."</em></p>
+</blockquote>
+<h3 id="13-project-objectives">1.3 Project Objectives</h3>
+<ol>
+<li><strong>Intelligent Citizen Intake:</strong> Develop a guided multi-step wizard allowing citizens to articulate legal grievances, submit documents, and receive real-time AI-assisted statutory categorizations, risk scores, and estimated budgets.</li>
+<li><strong>Automated Legal Analysis &amp; Lawyer Matchmaking:</strong> Leverage cutting-edge Large Language Models (Groq API / LLaMA / DeepSeek models) to extract applicable Acts, Sections, keywords, and match matters with verified advocates based on practice domain and geographic jurisdiction.</li>
+<li><strong>Enterprise Case Workspace:</strong> Implement a comprehensive 13-stage state-machine case tracking engine incorporating financial retainers, multi-party details, task delegation, timeline audit logs, and courtroom assignments.</li>
+<li><strong>Hearing Docket Management:</strong> Create a court hearing and calendar engine with automated adjournment tracking, delay metrics for ML training, and participant conflict detection.</li>
+<li><strong>Cryptographic Proof of Authenticity:</strong> Establish a document management vault featuring SHA-256 fingerprinting, versioning, automated metadata extraction, and verifiable ledger logging (<code>BlockchainRecord</code>) to establish non-repudiation.</li>
+<li><strong>Real-Time Synchronous Communication:</strong> Implement WebSocket-based bidirectional chat rooms and real-time push alerts powered by Django Channels, Daphne, and Redis.</li>
+<li><strong>Judicial &amp; Firm Analytics:</strong> Provide high-resolution analytical dashboards visualizing national disposal rates, lawyer performance metrics, and court congestion indices.</li>
+</ol>
+<hr />
+<h2 id="chapter-2-literature-review-comparative-market-analysis">Chapter 2: Literature Review &amp; Comparative Market Analysis</h2>
+<h3 id="21-review-of-existing-systems">2.1 Review of Existing Systems</h3>
+<p>Traditional Legal Practice Management (LPM) and Legal Aid solutions exhibit distinct functional gaps:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Feature / Dimension</th>
+<th style="text-align: left;">Traditional LPM (e.g. Clio / PracticePanther)</th>
+<th style="text-align: left;">e-Courts Portal (Govt of India)</th>
+<th style="text-align: left;">Generic ERP Systems</th>
+<th style="text-align: left;"><strong>LEX REGIS (Proposed Solution)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Target Audience</strong></td>
+<td style="text-align: left;">Law Firms / Solo Lawyers only</td>
+<td style="text-align: left;">Courts &amp; Litigants (Read-only)</td>
+<td style="text-align: left;">General Enterprises</td>
+<td style="text-align: left;"><strong>Unified: Citizens, Advocates, Law Firms, Admins</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Intake AI Triage</strong></td>
+<td style="text-align: left;">❌ No automated AI statutory analysis</td>
+<td style="text-align: left;">❌ None</td>
+<td style="text-align: left;">❌ None</td>
+<td style="text-align: left;"><strong>✅ Groq LLM Zero-Shot Legal Triage &amp; Act Extraction</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Lawyer Matching</strong></td>
+<td style="text-align: left;">❌ None (Internal firm cases only)</td>
+<td style="text-align: left;">❌ None</td>
+<td style="text-align: left;">❌ None</td>
+<td style="text-align: left;"><strong>✅ Dynamic AI Practice-Area &amp; Proximity Matching</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Case State Engine</strong></td>
+<td style="text-align: left;">⚠️ Basic task statuses</td>
+<td style="text-align: left;">⚠️ Fixed procedural stages</td>
+<td style="text-align: left;">⚠️ Generic workflow</td>
+<td style="text-align: left;"><strong>✅ 13-Stage Legal Lifecycle with State Validation</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Document Integrity</strong></td>
+<td style="text-align: left;">⚠️ Basic S3 / Cloud Storage</td>
+<td style="text-align: left;">⚠️ Unsigned PDF attachments</td>
+<td style="text-align: left;">⚠️ Standard blob storage</td>
+<td style="text-align: left;"><strong>✅ SHA-256 Checksums + Blockchain Receipt Ledger</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Real-time Comms</strong></td>
+<td style="text-align: left;">⚠️ Static email notifications</td>
+<td style="text-align: left;">❌ SMS only (One-way)</td>
+<td style="text-align: left;">⚠️ Webhook notifications</td>
+<td style="text-align: left;"><strong>✅ Live WebSocket Messaging + In-App Push Engine</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Jurisdiction Engine</strong></td>
+<td style="text-align: left;">❌ Western / US Law focused</td>
+<td style="text-align: left;">✅ Indian Law specific</td>
+<td style="text-align: left;">❌ Generic</td>
+<td style="text-align: left;"><strong>✅ Built-in Indian &amp; Global Statutory Validators (Aadhaar, PAN, Bar Reg, CNR)</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Predictive ML</strong></td>
+<td style="text-align: left;">❌ None</td>
+<td style="text-align: left;">❌ None</td>
+<td style="text-align: left;">❌ None</td>
+<td style="text-align: left;"><strong>✅ Duration &amp; Risk ML Model Infrastructure</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-feasibility-study">2.2 Feasibility Study</h3>
+<ul>
+<li><strong>Technical Feasibility:</strong> Python 3.13 and Django 5.x offer an optimal combination of ORM maturity, security guarantees, and high-performance asynchronous execution via ASGI (Daphne). Groq Cloud API delivers ultra-low-latency (&lt;1.5s) inference for complex legal analysis.</li>
+<li><strong>Economic Feasibility:</strong> The architecture utilizes open-source components (Django, SQLite/PostgreSQL, Redis, HTMX, Tailwind/Bootstrap) and cost-effective serverless LLM endpoints, eliminating vendor lock-in.</li>
+<li><strong>Operational Feasibility:</strong> Role-specific interfaces ensure minimal learning curves for non-technical citizens while providing high-density workspaces for legal professionals.</li>
+</ul>
+<hr />
+<h2 id="chapter-3-system-requirements-specification-srs">Chapter 3: System Requirements Specification (SRS)</h2>
+<h3 id="31-user-roles-personas">3.1 User Roles &amp; Personas</h3>
+<p>The system strictly distinguishes four primary personas governed by <code>RoleChoices</code>:<br />
+1. <strong>Client / Citizen (<code>CLIENT</code>):</strong> Submits grievances via the AI Intake Wizard, reviews AI legal summaries, books consultations with verified lawyers, tracks case timelines, uploads evidence, and communicates in real time.<br />
+2. <strong>Advocate (<code>ADVOCATE</code>):</strong> Manages assigned matters, conducts case intake evaluations from the marketplace, schedules hearings, tracks billable hours, uploads legal pleadings, and generates invoices.<br />
+3. <strong>Law Firm (<code>LAW_FIRM</code>):</strong> Oversees multiple associate advocates, assigns incoming matters to partners, monitors organizational revenue, and manages institutional corporate clients.<br />
+4. <strong>System Administrator (<code>ADMIN</code>):</strong> Manages user verification (Bar Council verification, ID validation), oversees system security logs, configures master data (Courts, Acts, Sections), and audits AI request telemetry.</p>
+<div class="highlight"><pre><span></span><code>graph TD
+    User([User Registration]) --&gt; RoleDecision{Role Selection}
+    RoleDecision --&gt;|Citizen| ClientPersona[Client / Citizen Workspace]
+    RoleDecision --&gt;|Advocate| LawyerPersona[Lawyer Portal &amp; Marketplace]
+    RoleDecision --&gt;|Law Firm| FirmPersona[Law Firm Enterprise Dashboard]
+    RoleDecision --&gt;|Administrator| AdminPersona[Platform Administration &amp; Audit]
+
+    ClientPersona --&gt; Intake[AI Intake Wizard]
+    Intake --&gt; AIAnalysis[Groq Legal Analysis Engine]
+    AIAnalysis --&gt; LawyerMatching[AI Advocate Recommendations]
+    LawyerMatching --&gt; CaseCreation[Enterprise Case Lifecycle]
+
+    LawyerPersona --&gt; CaseAccept[Case Acceptance &amp; Assignment]
+    CaseAccept --&gt; CaseCreation
+
+    CaseCreation --&gt; DocVault[Cryptographic Document Vault]
+    CaseCreation --&gt; HearingScheduler[Hearing &amp; Adjournment Engine]
+    CaseCreation --&gt; LiveComms[WebSocket Chat Channels]
+    DocVault --&gt; BlockchainLedger[Blockchain Immutability Engine]
+</code></pre></div>
+
+<h3 id="32-functional-requirements-fr">3.2 Functional Requirements (FR)</h3>
+<ul>
+<li><strong>FR-01 (Authentication &amp; Profile Management):</strong> Multi-step user onboarding, email verification, role-specific profile generation (<code>Profile</code>, <code>ProfessionalProfile</code>, <code>Organization</code>), and granular security settings (2FA, session expiry).</li>
+<li><strong>FR-02 (AI Legal Intake Wizard):</strong> Multi-step grievance capture with dynamic file upload, automatic language detection, and background transmission to Groq AI.</li>
+<li><strong>FR-03 (Statutory Analysis &amp; Scoring):</strong> Real-time JSON extraction of legal domain, complexity, suggested documents, applicable Acts/Sections, estimated budget, timeline, and risk level.</li>
+<li><strong>FR-04 (Intelligent Advocate Matchmaking):</strong> Semantic matching algorithm ranking lawyers based on domain expertise, jurisdiction, experience, and fee budget.</li>
+<li><strong>FR-05 (Enterprise Case Workspace):</strong> Complete case docketing with unique alphanumeric case numbers (<code>LR-YYYY-XXXXXX</code>), financial records, opposite party tracking, and audit trails.</li>
+<li><strong>FR-06 (State Transition Management):</strong> Strict 13-stage lifecycle enforcement (<code>DRAFT</code> → <code>AI_ANALYSED</code> → <code>PENDING_ACCEPTANCE</code> → <code>LAWYER_ASSIGNED</code> → <code>CONSULTATION</code> → <code>EVIDENCE</code> → <code>LEGAL_NOTICE</code> → <code>PETITION</code> → <code>FILED</code> → <code>HEARINGS</code> → <code>JUDGEMENT</code> → <code>CLOSED</code> → <code>ARCHIVED</code>).</li>
+<li><strong>FR-07 (Document Integrity Vault):</strong> File upload handler computing SHA-256 digests, extracting MIME types, enforcing size quotas, and maintaining immutable version chains (<code>DocumentVersion</code>).</li>
+<li><strong>FR-08 (Cryptographic Verification Ledger):</strong> Registration of document and event hashes into <code>BlockchainRecord</code> with simulated Ethereum transaction receipts and IPFS CID storage.</li>
+<li><strong>FR-09 (Court Hearing &amp; Adjournment Engine):</strong> Hearing scheduling with court room assignment, judge availability checking, outcome recording, and adjournment reason logging.</li>
+<li><strong>FR-10 (Real-Time Communication):</strong> Authenticated ASGI WebSocket channels for instant client-advocate messaging with typing status and persistence.</li>
+<li><strong>FR-11 (Multi-Channel Notifications):</strong> System-wide event broadcasting for case updates, hearing reminders, consultation requests, and document approvals.</li>
+<li><strong>FR-12 (Judicial &amp; Firm Analytics):</strong> Real-time KPI aggregation for case health, disposal velocity, court congestion indices, and lawyer billing throughput.</li>
+</ul>
+<h3 id="33-non-functional-requirements-nfr">3.3 Non-Functional Requirements (NFR)</h3>
+<ul>
+<li><strong>NFR-01 (Performance &amp; Latency):</strong> Web page load times under 800ms; AI intake analysis completed within 2.5 seconds; WebSocket round-trip message delivery under 50ms.</li>
+<li><strong>NFR-02 (Security &amp; Confidentiality):</strong> Attorney-client privilege safeguarded via object-level permissions, encrypted credentials, CSRF tokens on all modifying requests, parameterized ORM queries, and SHA-256 password hashing (PBKDF2/Argon2).</li>
+<li><strong>NFR-03 (Reliability &amp; Data Integrity):</strong> Zero data loss via database-level transaction atomicity (<code>@transaction.atomic</code>), soft-delete mixin architecture, and automated daily backup scripts.</li>
+<li><strong>NFR-04 (Scalability):</strong> Stateless application tier capable of horizontal scaling behind Nginx load balancers, with Redis-backed session and WebSocket channel layers.</li>
+<li><strong>NFR-05 (Maintainability):</strong> Adherence to PEP8, strong Python 3 type hinting (<code>typing</code>), modular app separation, and the Service-Selector architecture.</li>
+</ul>
+<hr />
+<h2 id="chapter-4-system-architecture-design-philosophy">Chapter 4: System Architecture &amp; Design Philosophy</h2>
+<h3 id="41-modular-monolithic-architecture">4.1 Modular Monolithic Architecture</h3>
+<p>LEX REGIS adopts a <strong>Modular Monolith</strong> pattern. Rather than introducing the network latency and distributed failure modes of microservices prematurely, domain logic is partitioned into self-contained Django applications. Each app encapsulates its own domain models, data selectors, business services, presentation layers, forms, and API serializers.</p>
+<div class="highlight"><pre><span></span><code>c:\Users\vinay\Desktop\Project\lex_regis\
+├── apps/
+│   ├── common/         # Core architectural base models, mixins, validators, exceptions
+│   ├── accounts/       # Authentication, RBAC, User &amp; Profile domain
+│   ├── intake/         # Citizen intake wizard &amp; AI consultation requests
+│   ├── cases/          # Core Case domain, State Machine, Financials, Parties
+│   ├── documents/      # Cryptographic Document Vault, Checksums, Versions
+│   ├── hearings/       # Courtroom docketing, schedules, adjournments
+│   ├── ai/             # Groq LLM integration, prompts, audit logs, AI chat
+│   ├── ml/             # Predictive models (duration, success, court workload)
+│   ├── blockchain/     # Tamper-evident ledger records &amp; verification
+│   ├── communication/  # Django Channels ASGI WebSockets, live chat rooms
+│   ├── notifications/  # Notification dispatch &amp; in-app alerts
+│   ├── dashboard/      # Role-specific analytics, KPI cards, global search
+│   ├── analytics/      # Judicial statistics &amp; national case metrics
+│   ├── lawyer_portal/  # Advocate workspace, 9-step registration wizard
+│   └── public_site/    # Public landing pages, lawyer directory, marketing
+├── config/             # Environment-aware settings, ASGI/WSGI, root routing
+├── templates/          # Global &amp; app-specific semantic HTML templates
+├── static/             # Static assets (CSS, JavaScript, images)
+├── media/              # Encrypted user uploads &amp; evidence documents
+└── tests/              # Comprehensive test suites (unit, integration, API)
+</code></pre></div>
+
+<h3 id="42-the-service-selector-layered-architecture">4.2 The Service-Selector Layered Architecture</h3>
+<p>To prevent "fat models" and "fat views", LEX REGIS enforces strict architectural layering:</p>
+<div class="highlight"><pre><span></span><code>graph TD
+    ClientReq[HTTP Request / WebSocket Frame] --&gt; PresentationLayer[Presentation Layer: Views / Consumers / DRF ViewSets]
+    PresentationLayer --&gt; SecurityLayer[Permission Classes / Role Guards]
+    SecurityLayer --&gt; DecisionFlow{Operation Type}
+
+    DecisionFlow --&gt;|Read Query| SelectorLayer[Selectors Layer: pure functions returning QuerySets / DTOs]
+    DecisionFlow --&gt;|Write / Mutation| ServiceLayer[Services Layer: Business Logic, Atomic Transactions, Third-Party APIs]
+
+    SelectorLayer --&gt; ORM[Django ORM Layer]
+    ServiceLayer --&gt; ORM
+    ServiceLayer --&gt; ExternalServices[External Services: Groq LLM, Redis, Blockchain]
+
+    ORM --&gt; Database[(SQLite / PostgreSQL Database)]
+</code></pre></div>
+
+<ol>
+<li><strong>Presentation Layer (<code>presentation/views.py</code>, <code>api/views.py</code>):</strong> Responsible only for parsing HTTP requests, validating form/serializer input, and returning HTTP/JSON responses.</li>
+<li><strong>Service Layer (<code>services/</code>):</strong> Contains all domain mutation logic, external API calls (e.g., Groq Cloud), transaction boundaries (<code>@transaction.atomic</code>), and business rules.</li>
+<li><strong>Selector Layer (<code>selectors/</code>):</strong> Contains optimized, reusable database read queries, applying filtering, prefetching (<code>select_related</code>, <code>prefetch_related</code>), and complex aggregations.</li>
+<li><strong>Model Layer (<code>models/</code>):</strong> Encapsulates relational schema definitions, constraints, database indexes, and model property methods.</li>
+</ol>
+<h3 id="43-basemodel-mixin-inheritance-hierarchy">4.3 BaseModel &amp; Mixin Inheritance Hierarchy</h3>
+<p>All core domain models inherit from <code>apps.common.models.base.BaseModel</code>, ensuring consistent enterprise behaviors across the entire platform:</p>
+<div class="highlight"><pre><span></span><code>classDiagram
+    class UUIDMixin {
+        +UUID id
+    }
+    class TimestampMixin {
+        +DateTime created_at
+        +DateTime updated_at
+    }
+    class SoftDeleteMixin {
+        +Boolean is_deleted
+        +DateTime deleted_at
+        +User deleted_by
+        +soft_delete(user)
+        +restore()
+    }
+    class OwnershipMixin {
+        +User created_by
+        +User updated_by
+    }
+    class AuditMixin {
+        +Boolean is_active
+    }
+    class BaseModel {
+        +objects Manager
+        +active_objects ActiveManager
+        +available_objects SoftDeleteManager
+        +hard_delete()
+        +restore()
+        +is_recently_updated()
+    }
+
+    UUIDMixin &lt;|-- BaseModel
+    TimestampMixin &lt;|-- BaseModel
+    SoftDeleteMixin &lt;|-- BaseModel
+    OwnershipMixin &lt;|-- BaseModel
+    AuditMixin &lt;|-- BaseModel
+
+    BaseModel &lt;|-- User
+    BaseModel &lt;|-- Case
+    BaseModel &lt;|-- Document
+    BaseModel &lt;|-- Hearing
+    BaseModel &lt;|-- LegalIssue
+    BaseModel &lt;|-- BlockchainRecord
+    BaseModel &lt;|-- CasePrediction
+</code></pre></div>
+
+<hr />
+<h2 id="chapter-5-detailed-app-by-app-modular-subsystem-decomposition">Chapter 5: Detailed App-by-App Modular Subsystem Decomposition</h2>
+<h3 id="51-appsaccounts-identity-rbac-profile-management">5.1 <code>apps.accounts</code>: Identity, RBAC &amp; Profile Management</h3>
+<p>The accounts subsystem manages user identity, role-specific attributes, contact addresses, organizational hierarchies, and security parameters.<br />
+- <strong>Custom User Model (<code>User</code>):</strong> Subclasses <code>AbstractBaseUser</code> and <code>PermissionsMixin</code>. Uses <code>email</code> as the primary unique username field. Stores system attributes such as <code>user_code</code>, <code>failed_login_attempts</code>, <code>login_count</code>, and <code>account_status</code>.<br />
+- <strong>User Roles (<code>RoleChoices</code>):</strong> <code>ADMIN</code>, <code>ADVOCATE</code>, <code>LAW_FIRM</code>, <code>CLIENT</code>.<br />
+- <strong>Profiles Ecosystem:</strong><br />
+  - <code>Profile</code>: General profile storing client type (Individual/Corporate), organization name, Aadhaar/PAN details, and communication preferences.<br />
+  - <code>ProfessionalProfile</code>: Lawyer-specific profile storing Bar Council Registration Number (<code>XX/12345/YYYY</code>), designation, law firm affiliation, years of experience, and practice areas.<br />
+  - <code>Organization</code>: Corporate entity/law firm profile with registration number, tax identifier, and employee rosters.<br />
+  - <code>SecuritySettings</code>: Tracks two-factor authentication, login session limits, and password expiry policies.</p>
+<h3 id="52-appsintake-citizen-ai-grievance-wizard-lawyer-matching">5.2 <code>apps.intake</code>: Citizen AI Grievance Wizard &amp; Lawyer Matching</h3>
+<p>The intake module empowers citizens to navigate legal complexity without initial technical jargon:<br />
+- <strong><code>LegalIssue</code> Model:</strong> Captures citizen narrative, incident date, state, district, matter value, urgency (<code>ROUTINE</code>, <code>URGENT</code>, <code>EMERGENCY</code>), and current analysis status.<br />
+- <strong><code>DocumentUpload</code> Model:</strong> Handles supporting grievance documents (contracts, FIRs, notices).<br />
+- <strong><code>AIAnalysis</code> Model:</strong> Persists the structured evaluation produced by Groq AI, including statutory category, practice area, complexity, suggested documents, applicable Acts, applicable Sections, next steps, cost estimates, and risk level.<br />
+- <strong><code>Recommendation</code> Model &amp; Matchmaker:</strong> Computes match scores between legal issues and verified <code>ProfessionalProfile</code> records, presenting top advocate matches.<br />
+- <strong><code>ConsultationRequest</code> Model:</strong> Manages formal booking requests from citizens to advocates, capturing snapshot pricing and initiating case creation upon lawyer acceptance.</p>
+<h3 id="53-appscases-enterprise-case-management-state-engine">5.3 <code>apps.cases</code>: Enterprise Case Management &amp; State Engine</h3>
+<p>The core domain of LEX REGIS, handling the complete lifecycle of legal matters:<br />
+- <strong><code>Case</code> Model:</strong> Features unique human-readable case numbers (<code>CASE-XXXXXXXX</code>), full case narrative, AI summaries, client references, assigned advocate/firm links, practice classification, case valuation, and court venue.<br />
+- <strong>13-Stage State Machine:</strong><br />
+<code>text
+  [DRAFT] ──&gt; [AI_ANALYSED] ──&gt; [PENDING_ACCEPTANCE] ──&gt; [LAWYER_ASSIGNED]
+                                                               │
+  [PETITION] &lt;── [LEGAL_NOTICE] &lt;── [EVIDENCE] &lt;── [CONSULTATION]
+       │
+       └──&gt; [FILED] ──&gt; [HEARINGS] ──&gt; [JUDGEMENT] ──&gt; [CLOSED] ──&gt; [ARCHIVED]</code><br />
+- <strong><code>CaseParty</code> Model:</strong> Tracks multiple petitioners, respondents, third parties, and opposing legal counsels.<br />
+- <strong><code>CaseFinancial</code> Model:</strong> Manages retainer agreements, consultation fees, court fees, stamp duties, GST calculation, discounts, and payments.<br />
+- <strong><code>CaseTimeline</code> Model:</strong> Immutable event stream recording every lifecycle event, status change, document addition, or hearing result with actor attribution.<br />
+- <strong><code>CaseTask</code> Model:</strong> Task assignment and delegation with deadlines, priority levels, and completion status.</p>
+<h3 id="54-appsdocuments-cryptographic-document-management-vault">5.4 <code>apps.documents</code>: Cryptographic Document Management Vault</h3>
+<p>The document vault ensures file integrity, categorization, and auditability:<br />
+- <strong><code>Document</code> Model:</strong> Links uploaded files to specific cases, owners, and document types.<br />
+- <strong>SHA-256 Checksum Calculation:</strong> Files are processed through <code>hashlib.sha256</code> upon upload to create a unique cryptographic fingerprint, preventing file corruption or silent tampering.<br />
+- <strong><code>DocumentVersion</code> Model:</strong> Maintains complete historical snapshots whenever a document is modified or updated.<br />
+- <strong><code>DocumentMetadata</code> Model:</strong> Stores extracted text, OCR results, and page metrics.<br />
+- <strong>Master Classifications:</strong> <code>DocumentType</code>, <code>DocumentCategory</code>, <code>DocumentStatus</code>, <code>DocumentVisibility</code>.</p>
+<h3 id="55-appshearings-court-docketing-adjournment-management">5.5 <code>apps.hearings</code>: Court Docketing &amp; Adjournment Management</h3>
+<p>Controls court proceedings, calendar schedules, and hearing analytics:<br />
+- <strong><code>Hearing</code> Model:</strong> Docket records with scheduled date, time, court room, presiding judge, estimated duration, actual start/end times, and outcome summary.<br />
+- <strong>Delay &amp; ML Feature Tracking:</strong> Automatically calculates <code>delay_minutes</code> (discrepancy between scheduled and actual start time) and <code>adjournment_count</code> for predictive machine learning models.<br />
+- <strong><code>Adjournment</code> Model:</strong> Formal logs of hearing postponements, capturing requesting party, justification code, and next scheduled date.<br />
+- <strong><code>JudgeSchedule</code> Model:</strong> Courtroom availability and holiday management (<code>CourtHoliday</code>).</p>
+<h3 id="56-appsai-groq-llm-intelligence-diagnostic-telemetry">5.6 <code>apps.ai</code>: Groq LLM Intelligence &amp; Diagnostic Telemetry</h3>
+<p>Integrates high-speed inference for legal analysis and conversational support:<br />
+- <strong>Groq Cloud API Client:</strong> Configured with <code>openai/gpt-oss-120b</code>, temperature 0.1 for deterministic statutory extraction, and temperature 0.3 for conversational legal assistance.<br />
+- <strong><code>Conversation</code> &amp; <code>Message</code> Models:</strong> Multi-turn legal chat history linked optionally to a specific <code>Case</code> or <code>Document</code>.<br />
+- <strong><code>AIRequestLog</code> Model:</strong> Comprehensive observability table recording every API call, prompt tokens, completion tokens, total tokens, latency in milliseconds (<code>latency_ms</code>), status codes, response payloads, and exception tracebacks.</p>
+<h3 id="57-appsml-predictive-analytics-workload-modeling">5.7 <code>apps.ml</code>: Predictive Analytics &amp; Workload Modeling</h3>
+<p>Machine learning feature stores and statistical prediction representations:<br />
+- <strong><code>CasePrediction</code> Model:</strong> Stores machine-generated predictions for case duration in days (<code>duration_days_predicted</code>), success probability percentage (<code>success_probability</code>), risk score (<code>risk_score</code>), and delay likelihood (<code>delay_probability</code>).<br />
+- <strong><code>CourtWorkload</code> Model:</strong> Computes court congestion indices (<code>congestion_index</code>), active case counts, and average disposal turnaround times.</p>
+<h3 id="58-appsblockchain-distributed-ledger-verification-subsystem">5.8 <code>apps.blockchain</code>: Distributed Ledger &amp; Verification Subsystem</h3>
+<p>Provides cryptographic proof of authenticity for sensitive legal records:<br />
+- <strong><code>BlockchainRecord</code> Model:</strong> Utilizes Django's <code>GenericForeignKey</code> framework (<code>ContentType</code>, <code>object_id</code>) to bind to any entity (Document, Case Event, Evidence, Hearing).<br />
+- <strong>Data Payload Serialization:</strong> Generates sorted JSON canonical representations of the target object, computes its SHA-256 fingerprint, generates simulated Ethereum transaction hashes, and records verification timestamps.</p>
+<h3 id="59-appscommunication-live-websocket-messaging-engine">5.9 <code>apps.communication</code>: Live WebSocket Messaging Engine</h3>
+<p>Facilitates real-time, zero-latency interactions between clients and lawyers:<br />
+- <strong>Daphne &amp; ASGI Pipeline:</strong> Handles bidirectional WebSocket connections protocol-upgraded from HTTP.<br />
+- <strong><code>ChatConsumer</code> (<code>AsyncWebsocketConsumer</code>):</strong> Validates user authentication, verifies room participation permissions asynchronously (<code>database_sync_to_async</code>), broadcasts messages to Redis channel groups (<code>channel_layer.group_send</code>), and commits chat logs to the database.</p>
+<h3 id="510-appsnotifications-multi-channel-system-alerts">5.10 <code>apps.notifications</code>: Multi-Channel System Alerts</h3>
+<ul>
+<li><strong><code>Notification</code> Model:</strong> Manages user alerts categorized by type (<code>CASE_UPDATE</code>, <code>HEARING_REMINDER</code>, <code>DOCUMENT_UPLOAD</code>, <code>LAWYER_ASSIGNMENT</code>, <code>PAYMENT</code>, <code>SYSTEM_ALERT</code>).</li>
+<li><strong>In-App &amp; Email Dispatch:</strong> Provides notification badges, unread counts, and direct action links.</li>
+</ul>
+<h3 id="511-appsdashboard-appsanalytics-business-intelligence-judicial-metrics">5.11 <code>apps.dashboard</code> &amp; <code>apps.analytics</code>: Business Intelligence &amp; Judicial Metrics</h3>
+<ul>
+<li><strong><code>DashboardPresenter</code>:</strong> Compiles role-aware KPI cards, upcoming hearings, recent activity feeds, and quick action bars.</li>
+<li><strong><code>AnalyticsService</code>:</strong> Aggregates national legal statistics, state-by-state case distributions, disposal growth rates, and category breakdowns.</li>
+</ul>
+<h3 id="512-appslawyer_portal-advocate-workspace-9-step-registration">5.12 <code>apps.lawyer_portal</code>: Advocate Workspace &amp; 9-Step Registration</h3>
+<ul>
+<li><strong>Lawyer Workspace:</strong> Centralized management of accepted cases, pending intake consultations, calendar dockets, and billing summaries.</li>
+<li><strong>9-Step Registration Wizard:</strong> Comprehensive advocate onboarding capturing personal bio, Bar Council credentials, educational degrees (<code>LawyerEducation</code>), practice areas (<code>LawyerPracticeArea</code>), office locations (<code>LawyerOffice</code>), fee structures (<code>LawyerFees</code>), availability (<code>LawyerAvailability</code>), and verification documents (<code>LawyerVerification</code>).</li>
+</ul>
+<h3 id="513-appscommon-core-infrastructure-utilities-legal-validators">5.13 <code>apps.common</code>: Core Infrastructure, Utilities &amp; Legal Validators</h3>
+<ul>
+<li><strong>Indian Legal Validators (<code>indian_legal.py</code>):</strong></li>
+<li>Aadhaar Validator: 12-digit regex validation (<code>^\d{12}$</code>).</li>
+<li>PAN Card Validator: Alphanumeric format (<code>^[A-Z]{5}[0-9]{4}[A-Z]{1}$</code>).</li>
+<li>Bar Council Registration: State format (<code>^[A-Z]{2}/\d{1,5}/\d{4}$</code>).</li>
+<li>Case Number Validator: Alphanumeric standard (<code>^LR-\d{4}-\d{6}$</code>).</li>
+<li><strong>Error Handlers:</strong> Custom presentation templates for HTTP 403 (Forbidden), 404 (Not Found), and 500 (Internal Server Error).</li>
+</ul>
+<hr />
+<h2 id="chapter-6-comprehensive-database-design-entity-relationship-architecture">Chapter 6: Comprehensive Database Design &amp; Entity Relationship Architecture</h2>
+<h3 id="61-relational-entity-relationship-diagram-erd">6.1 Relational Entity Relationship Diagram (ERD)</h3>
+<div class="highlight"><pre><span></span><code>erDiagram
+    USER ||--o{ PROFILE : has
+    USER ||--o{ PROFESSIONAL_PROFILE : possesses
+    USER ||--o{ ORGANIZATION : manages
+    USER ||--o{ NOTIFICATION : receives
+    USER ||--o{ AI_REQUEST_LOG : triggers
+
+    PROFILE ||--o{ CASE : owns_as_client
+    PROFESSIONAL_PROFILE ||--o{ CASE : assigned_as_lawyer
+    ORGANIZATION ||--o{ CASE : firm_supervision
+
+    USER ||--o{ LEGAL_ISSUE : submits
+    LEGAL_ISSUE ||--o| AI_ANALYSIS : evaluated_by
+    LEGAL_ISSUE ||--o{ DOCUMENT_UPLOAD : attaches
+    LEGAL_ISSUE ||--o{ RECOMMENDATION : matches
+    LEGAL_ISSUE ||--o{ CONSULTATION_REQUEST : generates
+
+    CASE ||--o{ CASE_PARTY : includes
+    CASE ||--o{ CASE_FINANCIAL : records
+    CASE ||--o{ CASE_TIMELINE : audits
+    CASE ||--o{ CASE_TASK : delegates
+    CASE ||--o{ DOCUMENT : contains
+    CASE ||--o{ HEARING : schedules
+    CASE ||--o| CASE_PREDICTION : forecasts
+    CASE ||--o| CONVERSATION : establishes
+
+    DOCUMENT ||--o{ DOCUMENT_VERSION : tracks
+    DOCUMENT ||--o| DOCUMENT_METADATA : analyzes
+    DOCUMENT ||--o{ BLOCKCHAIN_RECORD : notarizes
+
+    HEARING ||--o{ ADJOURNMENT : logs
+    HEARING }|--|| COURT_ROOM : hosted_in
+
+    CONVERSATION ||--o{ MESSAGE : contains
+</code></pre></div>
+
+<h3 id="62-data-dictionaries-for-core-models">6.2 Data Dictionaries for Core Models</h3>
+<h4 id="table-1-accounts_user">Table 1: <code>accounts_user</code></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>id</code></td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">Primary Key, default=uuid4</td>
+<td style="text-align: left;">Unique user identifier</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>email</code></td>
+<td style="text-align: left;">EmailField</td>
+<td style="text-align: left;">Unique, db_index=True</td>
+<td style="text-align: left;">Primary login credential</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>password</code></td>
+<td style="text-align: left;">CharField(128)</td>
+<td style="text-align: left;">Not Null</td>
+<td style="text-align: left;">Cryptographic hash of password</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>first_name</code></td>
+<td style="text-align: left;">CharField(100)</td>
+<td style="text-align: left;">Not Null</td>
+<td style="text-align: left;">User given name</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>last_name</code></td>
+<td style="text-align: left;">CharField(100)</td>
+<td style="text-align: left;">Not Null</td>
+<td style="text-align: left;">User family name</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>phone_number</code></td>
+<td style="text-align: left;">CharField(20)</td>
+<td style="text-align: left;">Nullable, Validated</td>
+<td style="text-align: left;">Contact phone number</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>role</code></td>
+<td style="text-align: left;">CharField(20)</td>
+<td style="text-align: left;">Choices: <code>ADMIN</code>, <code>ADVOCATE</code>, <code>LAW_FIRM</code>, <code>CLIENT</code></td>
+<td style="text-align: left;">Primary authorization role</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>email_verified</code></td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">Default=False</td>
+<td style="text-align: left;">Email confirmation flag</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>is_active</code></td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">Default=True</td>
+<td style="text-align: left;">Soft activation flag</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>created_at</code></td>
+<td style="text-align: left;">DateTime</td>
+<td style="text-align: left;">Auto Now Add, db_index=True</td>
+<td style="text-align: left;">Creation timestamp</td>
+</tr>
+</tbody>
+</table>
+<h4 id="table-2-cases_case">Table 2: <code>cases_case</code></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>id</code></td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">Primary Key, default=uuid4</td>
+<td style="text-align: left;">Unique case identifier</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>case_number</code></td>
+<td style="text-align: left;">CharField(50)</td>
+<td style="text-align: left;">Unique, db_index=True</td>
+<td style="text-align: left;">Alphanumeric case identifier</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>title</code></td>
+<td style="text-align: left;">CharField(255)</td>
+<td style="text-align: left;">Not Null</td>
+<td style="text-align: left;">Brief title of the matter</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>description</code></td>
+<td style="text-align: left;">TextField</td>
+<td style="text-align: left;">Blank allowed</td>
+<td style="text-align: left;">Complete case narrative</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ai_summary</code></td>
+<td style="text-align: left;">TextField</td>
+<td style="text-align: left;">Blank allowed</td>
+<td style="text-align: left;">AI generated synopsis</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>client_id</code></td>
+<td style="text-align: left;">UUID (FK)</td>
+<td style="text-align: left;">References <code>accounts_profile</code>, on_delete=PROTECT</td>
+<td style="text-align: left;">Matter client profile</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>assigned_lawyer_id</code></td>
+<td style="text-align: left;">UUID (FK)</td>
+<td style="text-align: left;">References <code>accounts_professionalprofile</code>, SET_NULL</td>
+<td style="text-align: left;">Assigned advocate</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>matter_category</code></td>
+<td style="text-align: left;">CharField(100)</td>
+<td style="text-align: left;">Blank allowed</td>
+<td style="text-align: left;">Civil, Criminal, Corporate, etc.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>status</code></td>
+<td style="text-align: left;">CharField(50)</td>
+<td style="text-align: left;">Choices: <code>CaseStatus</code> (13 stages), default=<code>DRAFT</code></td>
+<td style="text-align: left;">Current lifecycle state</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>matter_source</code></td>
+<td style="text-align: left;">CharField(20)</td>
+<td style="text-align: left;">Choices: <code>AI_INTAKE</code>, <code>MANUAL</code></td>
+<td style="text-align: left;">Matter origin</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>budget_estimate</code></td>
+<td style="text-align: left;">Decimal(14,2)</td>
+<td style="text-align: left;">Nullable</td>
+<td style="text-align: left;">Estimated total legal cost</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>case_value</code></td>
+<td style="text-align: left;">Decimal(14,2)</td>
+<td style="text-align: left;">Nullable</td>
+<td style="text-align: left;">Financial dispute value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>is_deleted</code></td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">Default=False, db_index=True</td>
+<td style="text-align: left;">Soft-delete status</td>
+</tr>
+</tbody>
+</table>
+<h4 id="table-3-documents_document">Table 3: <code>documents_document</code></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>id</code></td>
+<td style="text-align: left;">UUID</td>
+<td style="text-align: left;">Primary Key, default=uuid4</td>
+<td style="text-align: left;">Unique document identifier</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>document_number</code></td>
+<td style="text-align: left;">CharField(100)</td>
+<td style="text-align: left;">Unique, db_index=True</td>
+<td style="text-align: left;">Systematic document tracking code</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>case_id</code></td>
+<td style="text-align: left;">UUID (FK)</td>
+<td style="text-align: left;">References <code>cases_case</code>, CASCADE</td>
+<td style="text-align: left;">Parent case docket</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>uploaded_by_id</code></td>
+<td style="text-align: left;">UUID (FK)</td>
+<td style="text-align: left;">References <code>accounts_user</code>, SET_NULL</td>
+<td style="text-align: left;">Uploader user account</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>original_file</code></td>
+<td style="text-align: left;">FileField</td>
+<td style="text-align: left;">Dynamic upload path</td>
+<td style="text-align: left;">Stored file binary</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>file_size</code></td>
+<td style="text-align: left;">PositiveInteger</td>
+<td style="text-align: left;">Default=0</td>
+<td style="text-align: left;">Binary size in bytes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>checksum</code></td>
+<td style="text-align: left;">CharField(64)</td>
+<td style="text-align: left;">SHA-256 Hash</td>
+<td style="text-align: left;">Cryptographic integrity hash</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>blockchain_verification_status</code></td>
+<td style="text-align: left;">CharField(50)</td>
+<td style="text-align: left;">Choices: <code>PENDING</code>, <code>VERIFIED</code>, <code>REJECTED</code></td>
+<td style="text-align: left;">Verification state</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>blockchain_transaction_hash</code></td>
+<td style="text-align: left;">CharField(100)</td>
+<td style="text-align: left;">Blank allowed</td>
+<td style="text-align: left;">Ledger transaction identifier</td>
+</tr>
+</tbody>
+</table>
+<h4 id="table-4-ai_airequestlog">Table 4: <code>ai_airequestlog</code></h4>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Field Name</th>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Constraints</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>id</code></td>
+<td style="text-align: left;">BigAutoField</td>
+<td style="text-align: left;">Primary Key</td>
+<td style="text-align: left;">Telemetry record ID</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>user_id</code></td>
+<td style="text-align: left;">UUID (FK)</td>
+<td style="text-align: left;">References <code>accounts_user</code>, SET_NULL</td>
+<td style="text-align: left;">Requesting user</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>endpoint</code></td>
+<td style="text-align: left;">CharField(100)</td>
+<td style="text-align: left;">Not Null</td>
+<td style="text-align: left;">e.g. <code>intake.analysis</code>, <code>chat.completions</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>model_name</code></td>
+<td style="text-align: left;">CharField(100)</td>
+<td style="text-align: left;">Not Null</td>
+<td style="text-align: left;">e.g. <code>openai/gpt-oss-120b</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>prompt_tokens</code></td>
+<td style="text-align: left;">PositiveInteger</td>
+<td style="text-align: left;">Default=0</td>
+<td style="text-align: left;">Input token count</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>completion_tokens</code></td>
+<td style="text-align: left;">PositiveInteger</td>
+<td style="text-align: left;">Default=0</td>
+<td style="text-align: left;">Output token count</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>latency_ms</code></td>
+<td style="text-align: left;">FloatField</td>
+<td style="text-align: left;">Default=0.0</td>
+<td style="text-align: left;">Request round-trip time in ms</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>is_success</code></td>
+<td style="text-align: left;">Boolean</td>
+<td style="text-align: left;">Default=True</td>
+<td style="text-align: left;">Execution success flag</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>created_at</code></td>
+<td style="text-align: left;">DateTime</td>
+<td style="text-align: left;">Auto Now Add</td>
+<td style="text-align: left;">Telemetry timestamp</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="chapter-7-artificial-intelligence-machine-learning-subsystems">Chapter 7: Artificial Intelligence &amp; Machine Learning Subsystems</h2>
+<h3 id="71-groq-cloud-llm-architecture">7.1 Groq Cloud LLM Architecture</h3>
+<p>LEX REGIS integrates with Groq's low-latency inference engine using model endpoints such as <code>openai/gpt-oss-120b</code>. The platform guarantees structural reliability by utilizing JSON-mode prompting and strict schema enforcement.</p>
+<div class="highlight"><pre><span></span><code>sequenceDiagram
+    autonumber
+    actor Citizen as Citizen / Litigant
+    participant View as IntakeWizardView
+    participant Log as AIRequestLog (Telemetry)
+    participant GroqAPI as Groq Cloud Engine
+    participant DB as System Database
+
+    Citizen-&gt;&gt;View: Submit Grievance (Description, Location, Urgency, Docs)
+    View-&gt;&gt;DB: Save LegalIssue Record (status='PENDING_ANALYSIS')
+    View-&gt;&gt;Log: Initialize AIRequestLog Record
+
+    Note over View,GroqAPI: System Prompt enforces structured JSON output schema
+    View-&gt;&gt;GroqAPI: POST /chat/completions (System Prompt + Grievance Text)
+
+    activate GroqAPI
+    GroqAPI--&gt;&gt;View: Return Validated JSON Payload (Statutory Acts, Next Steps, Estimates)
+    deactivate GroqAPI
+
+    View-&gt;&gt;Log: Update Latency, Token Usage, Status Code 200
+    View-&gt;&gt;DB: Create AIAnalysis Record
+    View-&gt;&gt;DB: Update LegalIssue (status='ANALYZED')
+    View--&gt;&gt;Citizen: Redirect to Analysis Dashboard with Next Steps &amp; Lawyer Matches
+</code></pre></div>
+
+<h3 id="72-system-prompts-structured-extraction-schema">7.2 System Prompts &amp; Structured Extraction Schema</h3>
+<p>The system prompt for the AI Legal Triage engine is rigorously engineered:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"category"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Broad legal domain (e.g., Civil, Criminal, Corporate, Family)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"practice_area"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Specific practice area (e.g., Property Dispute, Employment Law)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"subcategory"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Granular issue (e.g., Unlawful Tenant Eviction)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"complexity"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Low | Medium | High | Critical"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"recommended_lawyer_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Designation of counsel required"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"recommended_court"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jurisdictional forum (e.g., District Civil Court)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"suggested_documents"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"List of evidentiary documents needed"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"possible_acts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Relevant statutory enactments (e.g., Transfer of Property Act 1882)"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"possible_sections"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Specific sections (e.g., Section 106)"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"important_keywords"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Extracted legal entities &amp; terms"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"suggested_next_steps"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Procedural recommendations for litigant"</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"timeline_estimate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Predicted duration (e.g., 6-12 Months)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"cost_estimate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Estimated budget (e.g., ₹50,000 - ₹1,00,000)"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"risk_level"</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"confidence_score"</span><span class="p">:</span><span class="w"> </span><span class="mi">92</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="73-machine-learning-predictive-modeling">7.3 Machine Learning Predictive Modeling</h3>
+<p>The <code>apps.ml</code> module establishes the groundwork for continuous judicial machine learning:<br />
+1. <strong>Case Duration Predictor (<code>CasePrediction.duration_days_predicted</code>):</strong> Regression pipeline taking case complexity, court venue, number of parties, and historical practice area disposal times as features.<br />
+2. <strong>Success &amp; Risk Estimators (<code>success_probability</code>, <code>risk_score</code>):</strong> Multi-factor scoring assessing statutory alignment, documentary evidence completeness, and prior judicial precedents.<br />
+3. <strong>Court Workload Indexing (<code>CourtWorkload.congestion_index</code>):</strong> Real-time queuing model evaluating pending dockets against disposal velocity across district court rooms.</p>
+<hr />
+<h2 id="chapter-8-cryptographic-document-vault-blockchain-ledger-subsystem">Chapter 8: Cryptographic Document Vault &amp; Blockchain Ledger Subsystem</h2>
+<h3 id="81-evidentiary-integrity-cryptographic-checksums">8.1 Evidentiary Integrity &amp; Cryptographic Checksums</h3>
+<p>To prevent spoliation of evidence, every uploaded file undergoes an automated checksum generation workflow:</p>
+<p>$$\text{Checksum} = \text{SHA-256}(\text{Binary Content Stream})$$</p>
+<p>The resulting 64-character hexadecimal digest is permanently attached to the <code>Document</code> model. If a document's binary stream is altered on the storage disk, any subsequent verification detects a hash mismatch immediately.</p>
+<h3 id="82-the-blockchain-verification-ledger-blockchainrecord">8.2 The Blockchain Verification Ledger (<code>BlockchainRecord</code>)</h3>
+<p>The blockchain subsystem simulates decentralized, tamper-proof notarization:</p>
+<div class="highlight"><pre><span></span><code>graph LR
+    Doc[Uploaded Legal Document] --&gt; HashGen[SHA-256 Engine]
+    HashGen --&gt; DocHash["Payload Hash: e.g. e3b0c44298fc1c149afbf4..."]
+
+    DocHash --&gt; LedgerService[Blockchain Verification Service]
+    LedgerService --&gt; PayloadJSON[Canonical JSON Stringification]
+
+    PayloadJSON --&gt; MerkleLeaf[Merkle Tree Leaf / Block Entry]
+    MerkleLeaf --&gt; TxGen[Simulate Ethereum Transaction 0x7f9a...]
+
+    TxGen --&gt; RecordDB[(BlockchainRecord Ledger)]
+    RecordDB --&gt; DocUpdate[Update Document with TxHash &amp; Verified Timestamp]
+</code></pre></div>
+
+<ul>
+<li><strong>Generic Foreign Key Binding:</strong> Enables notarizing documents, case timeline events, hearing outcomes, or entire case snapshots.</li>
+<li><strong>Payload Non-Repudiation:</strong> The exact JSON snapshot of the object attributes at the moment of verification is preserved alongside the transaction hash and block number.</li>
+</ul>
+<hr />
+<h2 id="chapter-9-real-time-communication-notification-architecture">Chapter 9: Real-Time Communication &amp; Notification Architecture</h2>
+<h3 id="91-asgi-websocket-channel-pipeline">9.1 ASGI &amp; WebSocket Channel Pipeline</h3>
+<p>Standard HTTP request-response cycles are inadequate for live litigation interactions. LEX REGIS deploys an asynchronous pipeline:</p>
+<div class="highlight"><pre><span></span><code>graph TD
+    BrowserClient[Web Browser Client] &lt;--&gt;|WebSocket wss://.../ws/chat/conversation_id/| DaphneServer[Daphne ASGI Server]
+    DaphneServer &lt;--&gt; AuthMiddleware[Channels Auth &amp; Session Middleware]
+    AuthMiddleware &lt;--&gt; Consumer[ChatConsumer (AsyncWebsocketConsumer)]
+
+    Consumer &lt;--&gt; RedisBus[Redis Channel Layer: chat_room_group]
+    Consumer &lt;--&gt; SyncToAsync[database_sync_to_async Bridge]
+    SyncToAsync &lt;--&gt; DjangoORM[Django ORM / SQLite / PostgreSQL]
+</code></pre></div>
+
+<h3 id="92-real-time-event-dispatch">9.2 Real-Time Event Dispatch</h3>
+<ol>
+<li><strong>Connection Lifecycle:</strong> When a user opens a case discussion, the client establishes a WebSocket connection. <code>ChatConsumer</code> validates whether the user is an assigned participant (<code>is_participant</code>).</li>
+<li><strong>Broadcast Protocol:</strong> Upon receiving a message frame, <code>ChatConsumer</code> commits the <code>Message</code> instance to the database, serializes sender metadata, and broadcasts the frame across the Redis room group.</li>
+<li><strong>Instant Notification Trigger:</strong> Simultaneously, the system dispatches an in-app <code>Notification</code> instance to alert offline participants upon their next login.</li>
+</ol>
+<hr />
+<h2 id="chapter-10-security-authorization-legal-regulatory-compliance">Chapter 10: Security, Authorization &amp; Legal Regulatory Compliance</h2>
+<h3 id="101-role-based-access-control-rbac-object-permissions">10.1 Role-Based Access Control (RBAC) &amp; Object Permissions</h3>
+<p>Access control is implemented across multiple defensive layers:<br />
+- <strong>View-Level Guards:</strong> Class-based mixins (<code>LoginRequiredMixin</code>, <code>RoleRequiredMixin</code>).<br />
+- <strong>REST API Permissions:</strong> Custom DRF permission classes (<code>IsVerifiedLawyer</code>, <code>IsCitizen</code>, <code>IsAdministrator</code>, <code>IsOwner</code>).<br />
+- <strong>Object-Level Isolation:</strong> Selectors explicitly scope queries to the authenticated user (e.g., a citizen can only fetch cases where <code>client__user=request.user</code>, and a lawyer can only view cases where <code>assigned_lawyer__user=request.user</code>).</p>
+<h3 id="102-statutory-indian-regulatory-compliance">10.2 Statutory &amp; Indian Regulatory Compliance</h3>
+<ul>
+<li><strong>Identity &amp; Legal Validations:</strong> Custom regex validators for Indian identity documents (Aadhaar, PAN) and State Bar Council enrollment numbers.</li>
+<li><strong>Session Security:</strong> Strict session settings (<code>SESSION_EXPIRE_AT_BROWSER_CLOSE = True</code>, <code>SESSION_COOKIE_AGE = 28800</code> / 8 hours, <code>SESSION_COOKIE_HTTPONLY = True</code>).</li>
+<li><strong>Data Protection:</strong> Passwords secured with PBKDF2 with SHA-256 hashing. All sensitive files uploaded to structured, protected media subdirectories.</li>
+</ul>
+<hr />
+<h2 id="chapter-11-rest-api-websocket-protocol-specification">Chapter 11: REST API &amp; WebSocket Protocol Specification</h2>
+<h3 id="111-key-rest-endpoints">11.1 Key REST Endpoints</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">HTTP Method</th>
+<th style="text-align: left;">Endpoint URI</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Auth Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/api/v1/accounts/register/</code></td>
+<td style="text-align: left;">Register new user account</td>
+<td style="text-align: left;">Public</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/api/v1/accounts/token/</code></td>
+<td style="text-align: left;">Obtain JWT access/refresh token pair</td>
+<td style="text-align: left;">Public</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/api/v1/cases/</code></td>
+<td style="text-align: left;">List all cases accessible to user</td>
+<td style="text-align: left;">JWT / Session</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/api/v1/cases/</code></td>
+<td style="text-align: left;">Create a new case docket</td>
+<td style="text-align: left;">JWT / Session</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/api/v1/cases/{id}/</code></td>
+<td style="text-align: left;">Retrieve full case details</td>
+<td style="text-align: left;">JWT / Session</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/api/v1/documents/</code></td>
+<td style="text-align: left;">List documents for case</td>
+<td style="text-align: left;">JWT / Session</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/api/v1/documents/upload/</code></td>
+<td style="text-align: left;">Multipart file upload with checksum</td>
+<td style="text-align: left;">JWT / Session</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GET</code></td>
+<td style="text-align: left;"><code>/api/v1/hearings/</code></td>
+<td style="text-align: left;">Retrieve hearing docket</td>
+<td style="text-align: left;">JWT / Session</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/api/v1/hearings/schedule/</code></td>
+<td style="text-align: left;">Schedule a new court hearing</td>
+<td style="text-align: left;">JWT / Session</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>POST</code></td>
+<td style="text-align: left;"><code>/api/v1/ai/chat/</code></td>
+<td style="text-align: left;">Send message to Lex AI Assistant</td>
+<td style="text-align: left;">JWT / Session</td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-websocket-event-contract">11.2 WebSocket Event Contract</h3>
+<h4 id="connection-endpoint">Connection Endpoint:</h4>
+<p><code>ws://&lt;host&gt;/ws/chat/&lt;conversation_id&gt;/</code></p>
+<h4 id="client-outgoing-message-frame">Client Outgoing Message Frame:</h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Please review the updated affidavit draft filed today."</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="server-broadcast-message-frame">Server Broadcast Message Frame:</h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Please review the updated affidavit draft filed today."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"sender_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4b6f12a3-89c0-4e12-b5e1-8829f0123456"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"sender_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Adv. Priya Sharma"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"created_at"</span><span class="p">:</span><span class="w"> </span><span class="s2">"11:45 AM"</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="chapter-12-user-experience-workflows-interface-walkthrough">Chapter 12: User Experience, Workflows &amp; Interface Walkthrough</h2>
+<h3 id="121-citizen-user-journey">12.1 Citizen User Journey</h3>
+<ol>
+<li><strong>Public Landing (<code>/</code>):</strong> The citizen learns about the platform's services and accesses the AI Intake button.</li>
+<li><strong>AI Intake Wizard (<code>/intake/wizard/</code>):</strong> <br />
+   - <em>Step 1:</em> Input legal issue description, incident date, and jurisdiction.<br />
+   - <em>Step 2:</em> Upload supporting evidence documents.<br />
+   - <em>Step 3:</em> View dynamic AI analysis (applicable Acts, timeline, complexity, estimated cost).</li>
+<li><strong>Advocate Selection (<code>/intake/recommendations/&lt;issue_id&gt;/</code>):</strong> The citizen reviews recommended advocates with match percentages and fee structures.</li>
+<li><strong>Consultation Booking:</strong> Citizen clicks "Request Consultation". A <code>ConsultationRequest</code> and preliminary <code>Case</code> docket are automatically created.</li>
+<li><strong>Case Tracking Workspace (<code>/cases/&lt;id&gt;/</code>):</strong> The citizen tracks hearings, views filed documents, monitors payment milestones, and chats with counsel.</li>
+</ol>
+<h3 id="122-advocate-user-journey">12.2 Advocate User Journey</h3>
+<ol>
+<li><strong>Advocate Onboarding (<code>/portal/lawyer/register/</code>):</strong> 9-step registration capturing Bar Council enrollment, practice areas, office location, and fee schedules.</li>
+<li><strong>Lawyer Dashboard (<code>/portal/lawyer/dashboard/</code>):</strong> <br />
+   - View pending consultation requests from the intake marketplace.<br />
+   - Monitor today's court hearings, upcoming client meetings, and active tasks.</li>
+<li><strong>Matter Acceptance:</strong> Clicking "Accept Matter" automatically transitions the case to <code>LAWYER_ASSIGNED</code> and opens a dedicated real-time chat room.</li>
+<li><strong>Case Management:</strong> Upload pleadings, schedule court hearings, record adjournment reasons, and log case financials.</li>
+</ol>
+<hr />
+<h2 id="chapter-13-testing-verification-quality-assurance-report">Chapter 13: Testing, Verification &amp; Quality Assurance Report</h2>
+<h3 id="131-testing-strategy">13.1 Testing Strategy</h3>
+<p>The testing harness combines unit tests, service layer tests, permission guards, and API endpoint validations:</p>
+<div class="highlight"><pre><span></span><code>graph TD
+    TestRunner[Django Test Runner / Pytest] --&gt; UnitTests[Unit Tests: Models, Clean Methods, Validators]
+    TestRunner --&gt; ServiceTests[Service Tests: CaseCreationService, BlockchainVerificationService, AIChatService]
+    TestRunner --&gt; SelectorTests[Selector Tests: CaseSelector, UserSelector, DocumentSelector]
+    TestRunner --&gt; PermissionTests[Permission Tests: RBAC, Role Authorization, Object Ownership]
+    TestRunner --&gt; APITests[API Tests: DRF ViewSets, JWT Authentication, Serializer Validation]
+</code></pre></div>
+
+<h3 id="132-key-test-suites-in-codebase">13.2 Key Test Suites in Codebase</h3>
+<ul>
+<li><code>apps/accounts/tests/test_managers.py</code>: Verifies <code>UserManager.create_user</code> and <code>create_superuser</code> behaviors.</li>
+<li><code>apps/accounts/tests/test_permissions.py</code>: Validates role-based access restrictions.</li>
+<li><code>apps/cases/tests/test_services.py</code>: Tests atomic case creation, state transitions, and timeline generation.</li>
+<li><code>apps/cases/tests/test_selectors.py</code>: Validates optimized querysets and search filters.</li>
+<li><code>apps/documents/tests/test_services.py</code>: Asserts SHA-256 checksum generation and document versioning.</li>
+<li><code>apps/hearings/tests/test_services.py</code>: Validates hearing scheduling, conflict detection, and adjournment counts.</li>
+<li><code>apps/common/tests/test_validators.py</code>: Confirms regex enforcement for Aadhaar, PAN, and Bar Council numbers.</li>
+</ul>
+<hr />
+<h2 id="chapter-14-deployment-devops-infrastructure-guide">Chapter 14: Deployment, DevOps &amp; Infrastructure Guide</h2>
+<h3 id="141-production-architecture-blueprint">14.1 Production Architecture Blueprint</h3>
+<div class="highlight"><pre><span></span><code>graph TD
+    Internet([Public Internet Traffic]) --&gt; Cloudflare[Cloudflare CDN &amp; DDoS Protection]
+    Cloudflare --&gt; Nginx[Nginx Reverse Proxy &amp; SSL Termination]
+
+    Nginx --&gt;|HTTP Requests / Static / Media| StaticMedia[Static &amp; Media Storage]
+    Nginx --&gt;|Dynamic Web / API Traffic| DaphneCluster[Daphne ASGI Server Cluster]
+    Nginx --&gt;|WebSocket Traffic wss://| DaphneCluster
+
+    DaphneCluster &lt;--&gt; RedisInstance[(Redis 7.x: Channels &amp; Cache)]
+    DaphneCluster &lt;--&gt; PostgresDB[(PostgreSQL 16 Enterprise Database)]
+
+    DaphneCluster -.-&gt;|Async Tasks / Reminders| CeleryWorker[Celery Task Workers]
+    CeleryWorker &lt;--&gt; RedisInstance
+
+    DaphneCluster --&gt;|LLM Inference Requests| GroqCloud[Groq Cloud LLM API]
+</code></pre></div>
+
+<h3 id="142-environment-configuration-checklist">14.2 Environment Configuration Checklist</h3>
+<p>Create a production <code>.env</code> file based on <code>.env.example</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="na">SECRET_KEY</span><span class="o">=</span><span class="s">production-crypto-strong-secret-key-32-chars-min</span>
+<span class="na">DEBUG</span><span class="o">=</span><span class="s">False</span>
+<span class="na">ALLOWED_HOSTS</span><span class="o">=</span><span class="s">lexregis.domain.com,api.lexregis.domain.com</span>
+
+<span class="c1"># Database (PostgreSQL)</span>
+<span class="na">DB_ENGINE</span><span class="o">=</span><span class="s">django.db.backends.postgresql</span>
+<span class="na">DB_NAME</span><span class="o">=</span><span class="s">lex_regis_prod</span>
+<span class="na">DB_USER</span><span class="o">=</span><span class="s">lex_admin</span>
+<span class="na">DB_PASSWORD</span><span class="o">=</span><span class="s">secure_production_password</span>
+<span class="na">DB_HOST</span><span class="o">=</span><span class="s">127.0.0.1</span>
+<span class="na">DB_PORT</span><span class="o">=</span><span class="s">5432</span>
+
+<span class="c1"># Redis Channel Layer</span>
+<span class="na">REDIS_URL</span><span class="o">=</span><span class="s">redis://127.0.0.1:6379/0</span>
+
+<span class="c1"># Groq Cloud AI Engine</span>
+<span class="na">GROQ_API_KEY</span><span class="o">=</span><span class="s">gsk_your_groq_production_api_key</span>
+<span class="na">GROQ_MODEL</span><span class="o">=</span><span class="s">openai/gpt-oss-120b</span>
+
+<span class="c1"># Email Subsystem</span>
+<span class="na">EMAIL_HOST</span><span class="o">=</span><span class="s">smtp.sendgrid.net</span>
+<span class="na">EMAIL_PORT</span><span class="o">=</span><span class="s">587</span>
+<span class="na">EMAIL_USE_TLS</span><span class="o">=</span><span class="s">True</span>
+<span class="na">EMAIL_USER</span><span class="o">=</span><span class="s">apikey</span>
+<span class="na">EMAIL_PASSWORD</span><span class="o">=</span><span class="s">your_sendgrid_key</span>
+</code></pre></div>
+
+<h3 id="143-database-backup-recovery-procedures">14.3 Database Backup &amp; Recovery Procedures</h3>
+<p>The platform includes automated maintenance scripts under <code>scripts/</code>:<br />
+- <strong>Database Backup (<code>scripts/backup_database.py</code>):</strong> Dumps database tables and media file archives with timestamped rotation.<br />
+- <strong>Database Restoration (<code>scripts/restore_database.py</code>):</strong> Rebuilds schemas and imports verified snapshots atomically.</p>
+<hr />
+<h2 id="chapter-15-conclusion-limitations-future-roadmap">Chapter 15: Conclusion, Limitations &amp; Future Roadmap</h2>
+<h3 id="151-project-achievements">15.1 Project Achievements</h3>
+<p>LEX REGIS successfully delivers a state-of-the-art, comprehensive LegalTech platform:<br />
+1. <strong>Democratized Legal Access:</strong> Enables citizens to articulate grievances and receive structured, actionable legal intelligence within seconds.<br />
+2. <strong>End-to-End Practice Management:</strong> Provides advocates and law firms with a modern, high-efficiency docket, case state machine, and client collaboration suite.<br />
+3. <strong>Evidentiary Integrity:</strong> Establishes non-repudiation and tamper evidence through SHA-256 cryptographic hashing and immutable ledger recording.<br />
+4. <strong>Architectural Rigor:</strong> Demonstrates enterprise software engineering standards via modular monolithic Django architecture, Service-Selector separation, and complete asynchronous WebSocket support.</p>
+<h3 id="152-current-limitations">15.2 Current Limitations</h3>
+<ul>
+<li><strong>External Blockchain Mainnet Integration:</strong> Currently uses an enterprise simulation of Ethereum/IPFS transactions rather than live public gas-fee mainnet submission.</li>
+<li><strong>OCR Engine Dependency:</strong> Full-text PDF OCR requires server-side Tesseract-OCR binary installation in deployment environments.</li>
+</ul>
+<h3 id="153-future-roadmap">15.3 Future Roadmap</h3>
+<ul>
+<li><strong>Phase II (Q4 2026):</strong> Native integration with the Indian e-Courts API for live CNR status fetching and automatic cause-list synchronizations.</li>
+<li><strong>Phase III (Q1 2027):</strong> Smart Contract legal escrow system for client-advocate fee milestones.</li>
+<li><strong>Phase IV (Q2 2027):</strong> Multilingual voice intake assistant supporting regional languages (Hindi, Tamil, Telugu, Marathi, Bengali).</li>
+</ul>
+<hr />
+<h2 id="appendix-directory-structure-file-index">Appendix: Directory Structure &amp; File Index</h2>
+<div class="highlight"><pre><span></span><code>lex_regis/
+├── apps/
+│   ├── accounts/          # Identity, Profiles, Security Settings, Auth Services
+│   │   ├── models/        # User, Profile, ProfessionalProfile, Organization, Address
+│   │   ├── services/      # Registration, Auth, Profile, Verification Services
+│   │   ├── selectors/     # User and Profile Query Optimizers
+│   │   └── presentation/  # Multi-step Registration, Profile Views, Security Views
+│   ├── intake/            # AI Intake Wizard, LegalIssue, AIAnalysis, Recommendations
+│   ├── cases/             # Core Case Domain, State Machine, Financials, Parties, Timeline
+│   ├── documents/         # Document Vault, Checksums, Versions, Master Classifications
+│   ├── hearings/          # Hearing Schedules, Adjournments, Court Rooms, Sequence Counters
+│   ├── ai/                # Groq LLM Client, Prompt Templates, Telemetry Logs, AI Chat
+│   ├── ml/                # Case Predictions, Court Workload Statistics
+│   ├── blockchain/        # Blockchain Records, Cryptographic Verification Service
+│   ├── communication/     # Channels ASGI WebSockets, ChatConsumer, Conversation Rooms
+│   ├── notifications/     # Multi-Channel In-App Alerts &amp; Notification Services
+│   ├── dashboard/         # Role-Specific Portals, Global Search, KPI Presenters
+│   ├── analytics/         # National &amp; State Judicial Metrics, Demo Data Provider
+│   ├── lawyer_portal/     # 9-Step Advocate Onboarding &amp; Lawyer Operations Workspace
+│   ├── public_site/       # Marketing Landing Page, Public Directory, Legal FAQ
+│   └── common/            # BaseModel, Mixins, Validators, HTMX Helpers, Custom Exceptions
+├── config/                # Settings (base, development, production), ASGI, WSGI, URLs
+├── templates/             # 45+ Production HTML Templates (Bootstrap 5, HTMX, Alpine.js)
+├── static/                # Custom CSS, Glassmorphism Styling, JavaScript Modules
+├── media/                 # Vault file storage (Evidence, Profiles, Certificates)
+└── scripts/               # Backup, Recovery, Superuser Setup &amp; Data Seeders
+</code></pre></div>
+
+<hr />
+<p><em>End of Report — LEX REGIS Enterprise LegalTech Platform</em></p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+<div class="bg-white border-end shadow-sm d-flex flex-column z-1" style="width: 280px; overflow-y: auto;">
+    <div class="p-4 border-bottom bg-lex-ivory">
+        <h6 class="fw-bold text-lex-navy mb-1 text-uppercase tracking-wide" style="font-size: 0.75rem; letter-spacing: 1px;">Consultation</h6>
+        <p class="small text-lex-text-muted mb-0">Follow these steps</p>
+    </div>
+    
+    <div class="flex-grow-1 p-3">
+        <div class="list-group list-group-flush" id="consultProgressList">
+            
+            <!-- Step 1: Problem -->
+            <div class="list-group-item bg-transparent border-0 d-flex align-items-center mb-2 px-2 
+                {% if request.resolver_match.url_name == 'wizard' %}fw-bold text-lex-navy{% elif request.resolver_match.url_name in 'triage_results,consultation_status,room' %}text-lex-text-muted{% else %}text-lex-text-muted{% endif %}">
+                
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 small
+                    {% if request.resolver_match.url_name == 'wizard' %}bg-lex-navy text-white shadow-sm
+                    {% elif request.resolver_match.url_name in 'triage_results,consultation_status,room' %}bg-lex-success text-white
+                    {% else %}bg-lex-surface-light text-lex-text-muted{% endif %}" 
+                    style="width: 28px; height: 28px; font-size: 0.8rem;">
+                    {% if request.resolver_match.url_name in 'triage_results,consultation_status,room' and request.resolver_match.url_name != 'wizard' %}<i class="fa-solid fa-check"></i>{% else %}01{% endif %}
+                </div>
+                <div class="small">Tell Us Your Problem</div>
+            </div>
+            
+            <!-- Step 2: AI Understanding -->
+            <div class="list-group-item bg-transparent border-0 d-flex align-items-center mb-2 px-2 
+                {% if request.resolver_match.url_name == 'triage_results' %}fw-bold text-lex-navy{% elif request.resolver_match.url_name in 'consultation_status,room' %}text-lex-text-muted{% else %}text-lex-text-muted opacity-75{% endif %}">
+                
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 small
+                    {% if request.resolver_match.url_name == 'triage_results' %}bg-lex-navy text-white shadow-sm
+                    {% elif request.resolver_match.url_name in 'consultation_status,room' %}bg-lex-success text-white
+                    {% else %}bg-lex-surface-light text-lex-text-muted{% endif %}" 
+                    style="width: 28px; height: 28px; font-size: 0.8rem;">
+                    {% if request.resolver_match.url_name in 'consultation_status,room' and request.resolver_match.url_name != 'triage_results' %}<i class="fa-solid fa-check"></i>{% else %}02{% endif %}
+                </div>
+                <div class="small">AI Understanding</div>
+            </div>
+            
+            <!-- Step 3: Previous Cases -->
+            <div class="list-group-item bg-transparent border-0 d-flex align-items-center mb-2 px-2 
+                {% if request.resolver_match.url_name == 'triage_results' %}fw-bold text-lex-navy{% elif request.resolver_match.url_name in 'consultation_status,room' %}text-lex-text-muted{% else %}text-lex-text-muted opacity-75{% endif %}">
+                
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 small
+                    {% if request.resolver_match.url_name == 'triage_results' %}bg-lex-navy text-white shadow-sm
+                    {% elif request.resolver_match.url_name in 'consultation_status,room' %}bg-lex-success text-white
+                    {% else %}bg-lex-surface-light text-lex-text-muted{% endif %}" 
+                    style="width: 28px; height: 28px; font-size: 0.8rem;">
+                    {% if request.resolver_match.url_name in 'consultation_status,room' and request.resolver_match.url_name != 'triage_results' %}<i class="fa-solid fa-check"></i>{% else %}03{% endif %}
+                </div>
+                <div class="small">Previous Cases</div>
+            </div>
+            
+            <!-- Step 4: Find a Lawyer -->
+            <div class="list-group-item bg-transparent border-0 d-flex align-items-center mb-2 px-2 
+                {% if request.resolver_match.url_name == 'triage_results' %}fw-bold text-lex-navy{% elif request.resolver_match.url_name in 'consultation_status,room' %}text-lex-text-muted{% else %}text-lex-text-muted opacity-75{% endif %}">
+                
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 small
+                    {% if request.resolver_match.url_name == 'triage_results' %}bg-lex-navy text-white shadow-sm
+                    {% elif request.resolver_match.url_name in 'consultation_status,room' %}bg-lex-success text-white
+                    {% else %}bg-lex-surface-light text-lex-text-muted{% endif %}" 
+                    style="width: 28px; height: 28px; font-size: 0.8rem;">
+                    {% if request.resolver_match.url_name in 'consultation_status,room' and request.resolver_match.url_name != 'triage_results' %}<i class="fa-solid fa-check"></i>{% else %}04{% endif %}
+                </div>
+                <div class="small">Find a Lawyer</div>
+            </div>
+            
+            <!-- Step 5: Consultation -->
+            <div class="list-group-item bg-transparent border-0 d-flex align-items-center mb-2 px-2 
+                {% if request.resolver_match.url_name in 'consultation_status,room' %}fw-bold text-lex-navy{% else %}text-lex-text-muted opacity-75{% endif %}">
+                
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 small
+                    {% if request.resolver_match.url_name in 'consultation_status,room' %}bg-lex-navy text-white shadow-sm
+                    {% else %}bg-lex-surface-light text-lex-text-muted{% endif %}" 
+                    style="width: 28px; height: 28px; font-size: 0.8rem;">
+                    05
+                </div>
+                <div class="small">Consultation</div>
+            </div>
+
+            <!-- Step 6: Full Case -->
+            <div class="list-group-item bg-transparent border-0 d-flex align-items-center mb-2 px-2 text-lex-text-muted opacity-75">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-lex-surface-light text-lex-text-muted small" style="width: 28px; height: 28px; font-size: 0.8rem;">
+                    06
+                </div>
+                <div class="small">Continue as Full Case</div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div class="p-3 border-top mt-auto bg-lex-surface-light">
+        <div class="d-flex align-items-center">
+            <div class="text-lex-gold me-3 flex-shrink-0" style="font-size: 1.5rem;">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div>
+                <p class="mb-0 small fw-bold text-lex-navy">Secure Workspace</p>
+                <p class="mb-0 text-lex-text-muted" style="font-size: 0.7rem;">Your data is encrypted.</p>
+            </div>
+        </div>
+    </div>
+</div>

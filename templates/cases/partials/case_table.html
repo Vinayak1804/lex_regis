@@ -3,11 +3,15 @@
     <div class="col-md-6 col-lg-4">
         <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift">
             <!-- Source Badge -->
-            {% if case.matter_source == 'AI_INTAKE' %}
             <div class="position-absolute top-0 end-0 m-3">
-                <span class="badge bg-gold text-navy rounded-pill"><i class="fa-solid fa-robot me-1"></i> AI Intake</span>
-            </div>
+            {% if case.matter_source == 'AI_INTAKE' %}
+                <span class="badge bg-lex-primary text-white rounded-pill"><i class="fa-solid fa-microchip me-1"></i> AI Legal Intake</span>
+            {% elif case.matter_source == 'TALK_TO_LAWYER' %}
+                <span class="badge bg-lex-gold text-lex-navy-dark rounded-pill"><i class="fa-solid fa-comments me-1"></i> Talk to a Lawyer</span>
+            {% else %}
+                <span class="badge bg-secondary text-white rounded-pill"><i class="fa-solid fa-briefcase me-1"></i> Formal Case</span>
             {% endif %}
+            </div>
             
             <div class="card-body p-4">
                 <div class="d-flex align-items-center mb-3">
@@ -16,6 +20,8 @@
                         {% if case.status == 'DRAFT' %}bg-secondary
                         {% elif case.status == 'AI_ANALYSED' %}bg-info
                         {% elif case.status == 'PENDING_ACCEPTANCE' %}bg-warning text-dark
+                        {% elif case.status == 'LAWYER_ASSIGNED' %}bg-primary
+                        {% elif case.status == 'LAWYER_DECLINED' %}bg-danger
                         {% elif case.status == 'CLOSED' %}bg-success
                         {% else %}bg-primary{% endif %} rounded-pill px-3 py-2">
                         {{ case.get_status_display }}

@@ -66,3 +66,29 @@ class DocumentStorageService:
         
     def delete_file(self, path):
         self.provider.delete(path)
+
+    @classmethod
+    def get_usage(cls):
+        from apps.documents.models import Document, DocumentVersion
+        from django.db.models import Sum
+        
+        # DocumentVersion tracks the physical files. We sum their sizes to prevent double counting.
+        version_size = DocumentVersion.objects.aggregate(total=Sum('file_size'))['total'] or 0
+        
+        total_used_bytes = version_size
+        
+        # Make capacity configurable, default 500GB
+        from django.conf import settings
+        capacity_gb = getattr(settings, 'DMS_STORAGE_CAPACITY_GB', 500)
+        capacity_bytes = capacity_gb * 1024 * 1024 * 1024
+        
+        used_gb = round(total_used_bytes / (1024 * 1024 * 1024), 2)
+        percentage_used = min(100, round((total_used_bytes / capacity_bytes) * 100, 2)) if capacity_bytes > 0 else 0
+        
+        return {
+            'total_bytes': total_used_bytes,
+            'used_gb': used_gb,
+            'available_gb': max(0, capacity_gb - used_gb),
+            'capacity_gb': capacity_gb,
+            'percentage_used': percentage_used
+        }

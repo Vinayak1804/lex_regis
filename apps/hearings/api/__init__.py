@@ -1,1 +1,1 @@
-from .views import HearingViewSet, AdjournmentViewSet
+from .views import HearingViewSet

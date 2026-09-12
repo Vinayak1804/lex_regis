@@ -23,6 +23,8 @@ GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
 if not GROQ_API_KEY:
     raise ImproperlyConfigured("GROQ_API_KEY environment variable is missing.")
 
+GROQ_MODEL = os.environ.get('GROQ_MODEL', 'openai/gpt-oss-120b')
+
 # Application definition
 INSTALLED_APPS = [
     'daphne',
@@ -88,6 +90,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+            ],
+            'builtins': [
+                'apps.cases.templatetags.case_tags',
             ],
         },
     },

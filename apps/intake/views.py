@@ -3,342 +3,548 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.contrib import messages
-from .models import LegalIssue, DocumentUpload, AIAnalysis, Recommendation
+from .models import LegalIssue, DocumentUpload, AIAnalysis, ConsultationRequest
+from apps.ai.services.triage import AITriageService
+from apps.ml.services.historical_context import HistoricalContextService
+from apps.intake.services.matching import LawyerMatchService
 
-class IntakeLandingView(LoginRequiredMixin, TemplateView):
+class IntakeLandingView(TemplateView):
     template_name = 'intake/landing.html'
 
+class LearnMoreView(TemplateView):
+    template_name = 'intake/learn_more.html'
+
 class IntakeWizardView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
     def get(self, request):
-        issue_id = request.GET.get('issue_id')
-        context = {}
-        if issue_id:
-            try:
-                context['issue'] = LegalIssue.objects.get(id=issue_id, user=request.user)
-            except LegalIssue.DoesNotExist:
-                pass
-        return render(request, 'intake/wizard.html', context)
+        return render(request, 'intake/ai_intake.html')
+
+class TalkToLawyerWizardView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
+    def get(self, request):
+        return render(request, 'intake/talk_to_lawyer.html')
     
     def post(self, request):
-        # Handle the form submission from the intake wizard
-        # For now, just create a dummy issue and analysis, then redirect
-        
         description = request.POST.get('description', '')
-        incident_date = request.POST.get('incident_date') or None
+        category = request.POST.get('category', '')
+        city = request.POST.get('city', '')
         state = request.POST.get('state', '')
-        district = request.POST.get('district', '')
         urgency = request.POST.get('urgency', 'ROUTINE')
+        budget = request.POST.get('budget', '')
+        preferred_consultation = request.POST.get('preferred_consultation', '')
         
+        # New optional fields
+        preferred_language = request.POST.get('preferred_language', '')
+        best_time_to_consult = request.POST.get('best_time_to_consult', '')
+        already_have_lawyer_str = request.POST.get('already_have_lawyer', '')
+        hearing_scheduled_str = request.POST.get('hearing_scheduled', '')
+        incident_date = request.POST.get('incident_date', None)
+        
+        already_have_lawyer = True if already_have_lawyer_str.lower() in ['true', 'yes', '1'] else False if already_have_lawyer_str.lower() in ['false', 'no', '0'] else None
+        hearing_scheduled = True if hearing_scheduled_str.lower() in ['true', 'yes', '1'] else False if hearing_scheduled_str.lower() in ['false', 'no', '0'] else None
+        
+        if incident_date == '':
+            incident_date = None
+            
+        extra_context = request.POST.get('extra_context', '')
+        if extra_context:
+            description = description + "\n" + extra_context
+            
         issue = LegalIssue.objects.create(
             user=request.user,
             description=description,
-            incident_date=incident_date,
+            category=category,
+            city=city,
             state=state,
-            district=district,
             urgency=urgency,
+            budget=budget,
+            preferred_consultation=preferred_consultation,
+            preferred_language=preferred_language,
+            best_time_to_consult=best_time_to_consult,
+            already_have_lawyer=already_have_lawyer,
+            hearing_scheduled=hearing_scheduled,
+            incident_date=incident_date,
             status='ANALYZED'
         )
         
-        # Handle files
-        files = request.FILES.getlist('documents')
-        for f in files:
-            DocumentUpload.objects.create(issue=issue, file=f)
-            
-        import json
-        from django.conf import settings
-        from groq import Groq
-        import logging
-        import time
-        import traceback
-        from apps.ai.models import AIRequestLog
-        
-        logger = logging.getLogger('apps')
-        start_time = time.time()
-        
-        log = AIRequestLog(
-            user=request.user,
-            endpoint='intake.analysis',
-            model_name=settings.GROQ_MODEL if hasattr(settings, 'GROQ_MODEL') else 'llama-3.1-8b-instant',
-        )
-        
         try:
-            client = Groq(api_key=settings.GROQ_API_KEY)
-            
-            system_prompt = """You are an expert Indian Legal AI. Analyze the given legal issue and output a valid JSON object matching this exact structure, with no markdown or extra text:
-{
-    "category": "Broad category (e.g., Civil, Criminal, Corporate, Family)",
-    "practice_area": "Specific practice area (e.g., Property Law, Divorce)",
-    "subcategory": "Specific issue (e.g., Breach of Contract, Tenant Eviction)",
-    "complexity": "Low, Medium, or High",
-    "recommended_lawyer_type": "e.g., Civil Litigator, Corporate Counsel",
-    "recommended_court": "e.g., District Court, High Court",
-    "suggested_documents": ["List", "of", "documents"],
-    "possible_acts": ["List", "of", "applicable", "acts"],
-    "possible_sections": ["Specific sections"],
-    "important_keywords": ["Keywords"],
-    "suggested_next_steps": ["Step 1", "Step 2"],
-    "timeline_estimate": "e.g., 6-12 Months",
-    "cost_estimate": "e.g., ₹50,000-₹1,00,000",
-    "risk_level": 50,
-    "confidence_score": 85
-}"""
-            
-            user_prompt = f"Issue Description: {description}\nIncident Date: {incident_date}\nState: {state}\nDistrict: {district}\nUrgency: {urgency}"
-            log.prompt = f"System: {system_prompt}\n\nUser: {user_prompt}"
-            
-            logger.info("Sending Groq request for AI Intake Analysis...")
-            
-            completion = client.chat.completions.create(
-                model=log.model_name,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            
-            latency = time.time() - start_time
-            logger.info(f"Groq intake analysis completed in {latency:.2f}s")
-            
-            response_content = completion.choices[0].message.content
-            
-            # Log metrics
-            log.response = response_content
-            log.status_code = 200
-            log.is_success = True
-            log.latency_ms = latency * 1000
-            if hasattr(completion, 'usage') and completion.usage:
-                log.prompt_tokens = completion.usage.prompt_tokens
-                log.completion_tokens = completion.usage.completion_tokens
-                log.total_tokens = completion.usage.total_tokens
-            log.save()
-            
-            try:
-                ai_data = json.loads(response_content)
-            except json.JSONDecodeError as je:
-                logger.error(f"Failed to parse Groq JSON response: {response_content}")
-                raise Exception("AI returned invalid data format.") from je
-            
-            AIAnalysis.objects.create(
-                issue=issue,
-                category=ai_data.get('category', 'General'),
-                practice_area=ai_data.get('practice_area', 'General Practice'),
-                subcategory=ai_data.get('subcategory', 'Legal Matter'),
-                complexity=ai_data.get('complexity', 'Medium'),
-                recommended_lawyer_type=ai_data.get('recommended_lawyer_type', 'Advocate'),
-                recommended_court=ai_data.get('recommended_court', 'Appropriate Forum'),
-                suggested_documents=ai_data.get('suggested_documents', []),
-                possible_acts=ai_data.get('possible_acts', []),
-                possible_sections=ai_data.get('possible_sections', []),
-                important_keywords=ai_data.get('important_keywords', []),
-                suggested_next_steps=ai_data.get('suggested_next_steps', []),
-                timeline_estimate=ai_data.get('timeline_estimate', 'Unknown'),
-                cost_estimate=ai_data.get('cost_estimate', 'To be determined'),
-                risk_level=int(ai_data.get('risk_level', 50)),
-                confidence_score=int(ai_data.get('confidence_score', 85))
-            )
-            
-            messages.success(request, "Your issue has been dynamically analyzed by our AI.")
-            return redirect(reverse('intake:wizard') + f'?issue_id={issue.id}')
-            
+            AITriageService.analyze_issue(issue)
         except Exception as e:
-            logger.error(f"Groq API Error in Intake: {str(e)}\n{traceback.format_exc()}")
-            log.status_code = getattr(e, 'status_code', 500)
-            log.is_success = False
-            log.latency_ms = (time.time() - start_time) * 1000
-            log.error_message = str(e)
-            log.traceback = traceback.format_exc()
-            log.save()
+            messages.error(request, "AI Analysis is currently unavailable. Please proceed with basic processing.")
             
-            print("="*80)
-            print("FULL AI ERROR")
-            print(type(e))
-            print(str(e))
-            traceback.print_exc()
-            print("="*80)
-            raise
+        return redirect(reverse('intake:triage_results', kwargs={'issue_id': issue.id}))
 
-class LawyerRecommendationView(LoginRequiredMixin, View):
+class TriageResultsView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
     def get(self, request, issue_id):
-        issue = LegalIssue.objects.get(id=issue_id, user=request.user)
-        from apps.accounts.models import ProfessionalProfile
-        import json
-        from django.conf import settings
-        from groq import Groq
-        import logging
-        import time
-        import traceback
-        from apps.ai.models import AIRequestLog
-        
-        logger = logging.getLogger('apps')
-        start_time = time.time()
-        
-        log = AIRequestLog(
-            user=request.user,
-            endpoint='intake.lawyer_match',
-            model_name=settings.GROQ_MODEL if hasattr(settings, 'GROQ_MODEL') else 'llama-3.1-8b-instant',
-        )
-        
-        all_lawyers = list(ProfessionalProfile.objects.all()[:30]) # Limit to 30 for token constraints
-        lawyers_data = []
-        for lw in all_lawyers:
-            lawyers_data.append({
-                "id": str(lw.id),
-                "name": f"{lw.user.first_name} {lw.user.last_name}",
-                "practice_areas": lw.practice_areas,
-                "experience": lw.years_of_experience
-            })
-            
-        ai = getattr(issue, 'ai_analysis', None)
-        issue_context = f"Description: {issue.description}\nPractice Area Needed: {ai.practice_area if ai else 'Unknown'}\nComplexity: {ai.complexity if ai else 'Unknown'}"
-        
         try:
-            client = Groq(api_key=settings.GROQ_API_KEY)
+            issue = LegalIssue.objects.get(id=issue_id, user=request.user)
+        except LegalIssue.DoesNotExist:
+            return redirect('public_site:home')
             
-            system_prompt = """You are an expert Legal Matchmaker AI. Given a legal issue and a list of lawyers, return a JSON array of the top 3 recommended lawyer IDs based on their relevance to the issue. Output ONLY valid JSON matching this structure:
-{
-    "recommended_lawyer_ids": ["id1", "id2", "id3"]
-}"""
-            
-            user_prompt = f"Issue:\n{issue_context}\n\nLawyers:\n{json.dumps(lawyers_data)}"
-            
-            log.prompt = f"System: {system_prompt}\n\nUser: {user_prompt}"
-            logger.info(f"Sending Groq request for Lawyer Recommendation... (Evaluating {len(all_lawyers)} lawyers)")
-            
-            completion = client.chat.completions.create(
-                model=log.model_name,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=0.1,
-                response_format={"type": "json_object"}
-            )
-            
-            latency = time.time() - start_time
-            logger.info(f"Groq lawyer recommendation completed in {latency:.2f}s")
-            
-            response_content = completion.choices[0].message.content
-            
-            # Log metrics
-            log.response = response_content
-            log.status_code = 200
-            log.is_success = True
-            log.latency_ms = latency * 1000
-            if hasattr(completion, 'usage') and completion.usage:
-                log.prompt_tokens = completion.usage.prompt_tokens
-                log.completion_tokens = completion.usage.completion_tokens
-                log.total_tokens = completion.usage.total_tokens
-            log.save()
-            
-            ai_data = json.loads(response_content)
-            recommended_ids = ai_data.get('recommended_lawyer_ids', [])
-            
-            lawyers = []
-            for rid in recommended_ids:
-                lw = next((l for l in all_lawyers if str(l.id) == str(rid)), None)
-                if lw:
-                    lawyers.append(lw)
-                    
-            if not lawyers:
-                lawyers = all_lawyers[:5]
-                
-        except Exception as e:
-            logger.error(f"Groq API Error in Recommendation: {str(e)}\n{traceback.format_exc()}")
-            log.status_code = getattr(e, 'status_code', 500)
-            log.is_success = False
-            log.latency_ms = (time.time() - start_time) * 1000
-            log.error_message = str(e)
-            log.traceback = traceback.format_exc()
-            log.save()
-            
-            print("="*80)
-            print("FULL AI ERROR")
-            print(type(e))
-            print(str(e))
-            traceback.print_exc()
-            print("="*80)
-            raise
+        analysis = getattr(issue, 'ai_analysis', None)
+        
+        if analysis:
+            historical_cases = HistoricalContextService.get_similar_cases(issue, analysis)
+            matched_lawyers = LawyerMatchService.get_matched_lawyers(issue, analysis)
+        else:
+            historical_cases = []
+            matched_lawyers = []
             
         context = {
             'issue': issue,
-            'lawyers': lawyers
+            'analysis': analysis,
+            'historical_cases': historical_cases,
+            'matched_lawyers': matched_lawyers
         }
-        return render(request, 'intake/recommendations.html', context)
+        return render(request, 'intake/triage_results.html', context)
 
 class BookLawyerView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
     def post(self, request, issue_id):
-        issue = LegalIssue.objects.get(id=issue_id, user=request.user)
+        try:
+            issue = LegalIssue.objects.get(id=issue_id, user=request.user)
+        except LegalIssue.DoesNotExist:
+            return redirect('public_site:home')
+            
         lawyer_id = request.POST.get('lawyer_id')
         from apps.accounts.models import ProfessionalProfile
-        lawyer = ProfessionalProfile.objects.get(id=lawyer_id)
         
-        from .models import ConsultationRequest
+        try:
+            lawyer = ProfessionalProfile.objects.get(id=lawyer_id)
+        except ProfessionalProfile.DoesNotExist:
+            messages.error(request, "Lawyer not found.")
+            return redirect(reverse('intake:triage_results', kwargs={'issue_id': issue.id}))
+            
+        # Prevent duplicate submissions
+        existing_request = ConsultationRequest.objects.filter(
+            issue=issue, 
+            lawyer=lawyer
+        ).first()
+        
+        if existing_request:
+            return redirect(reverse('intake:consultation_status', kwargs={'request_id': existing_request.id}))
+            
+        # Create lightweight case
         from apps.cases.models.case import Case, CaseStatus, MatterSource
-        
-        # Grab snapshot data
         ai = getattr(issue, 'ai_analysis', None)
-        
-        ConsultationRequest.objects.create(
-            client=request.user,
-            lawyer=lawyer,
-            issue=issue,
-            status='PENDING',
-            matter_category=ai.category if ai else '',
-            practice_area=ai.practice_area if ai else '',
-            estimated_budget=ai.cost_estimate if ai else '',
-            timeline=ai.timeline_estimate if ai else ''
-        )
-        
-        # Create persistent Case object from AI Intake
         new_case = Case.objects.create(
-            title=f"{ai.subcategory if ai else 'Legal Matter'} - {issue.district}",
+            title=f"Lawyer Request: {(lawyer.user.first_name + ' ' + lawyer.user.last_name).strip()} - {issue.city}",
             description=issue.description,
-            ai_summary=", ".join(ai.important_keywords) if ai and ai.important_keywords else '',
             client=request.user.profile,
             assigned_lawyer=lawyer,
             matter_category=ai.category if ai else '',
             practice_area=ai.practice_area if ai else '',
             sub_category=ai.subcategory if ai else '',
-            complexity=ai.complexity if ai else '',
-            risk_level=str(ai.risk_level) if ai else '',
-            timeline_estimate=ai.timeline_estimate if ai else '',
-            priority=issue.urgency,
-            court=ai.recommended_court if ai else '',
-            location=f"{issue.district}, {issue.state}" if issue.district else issue.state,
             status=CaseStatus.PENDING_ACCEPTANCE,
-            matter_source=MatterSource.AI_INTAKE,
-            ai_confidence=ai.confidence_score if ai else None,
-            incident_date=issue.incident_date,
-            ai_analysis_id=ai.id if ai else None
+            matter_source=MatterSource.TALK_TO_LAWYER,
+            ai_analysis_id=ai.id if ai else None,
+            location=issue.city
+        )
+
+        # Create Consultation Request
+        cr = ConsultationRequest.objects.create(
+            client=request.user,
+            lawyer=lawyer,
+            issue=issue,
+            case=new_case,
+            status=ConsultationRequest.StatusChoices.PENDING
         )
         
-        issue.status = 'LAWYER_BOOKED'
-        issue.save()
-        
-        from apps.communication.models import Conversation, Message
+        # Notifications
         from apps.notifications.models import Notification
-
-        # Create Conversation
-        conv = Conversation.objects.create(case=new_case)
-        conv.participants.add(request.user, lawyer.user)
-        
-        # Initial Message
-        Message.objects.create(
-            conversation=conv,
-            sender=request.user,
-            content=f"Consultation requested for issue: {issue.description[:100]}..."
-        )
-
-        # Create Notification
         Notification.objects.create(
             user=lawyer.user,
-            title="New Case Request",
-            message=f"You have a new consultation request for a {ai.practice_area if ai else 'legal matter'}.",
+            title="New Consultation Request",
+            message=f"You have a new consultation request from {request.user.first_name}.",
             notification_type='LAWYER_ASSIGNMENT',
             target_url=reverse('lawyer_portal:dashboard')
         )
         
-        messages.success(request, f"Consultation requested and Case {new_case.case_number} has been created!")
-        return redirect('dashboard:index')
+        Notification.objects.create(
+            user=request.user,
+            title="Consultation Requested",
+            message=f"Your request has been sent to {lawyer.user.first_name}. You will be notified when they respond.",
+            notification_type='CONSULTATION_SENT',
+            target_url=reverse('intake:consultation_status', kwargs={'request_id': cr.id})
+        )
+        
+        return redirect(reverse('intake:consultation_status', kwargs={'request_id': cr.id}))
+
+class ClientConsultationStatusView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
+    def get(self, request, request_id):
+        try:
+            consultation = ConsultationRequest.objects.get(id=request_id, client=request.user)
+        except ConsultationRequest.DoesNotExist:
+            return redirect('public_site:home')
+            
+        context = {
+            'consultation': consultation
+        }
+        return render(request, 'intake/consultation_status.html', context)
+        
+class ConvertConsultationView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
+    def post(self, request, request_id):
+        from apps.cases.models.case import Case, CaseStatus, MatterSource
+        from django.db import transaction
+        from apps.communication.models import Conversation
+        
+        try:
+            consultation = ConsultationRequest.objects.get(id=request_id)
+        except ConsultationRequest.DoesNotExist:
+            return redirect('dashboard:index')
+            
+        # Check authorization (Client or Lawyer involved)
+        if request.user != consultation.client and request.user != consultation.lawyer.user:
+            messages.error(request, "Unauthorized")
+            return redirect('dashboard:index')
+            
+        if consultation.status != ConsultationRequest.StatusChoices.COMPLETED and consultation.status != ConsultationRequest.StatusChoices.ACTIVE:
+            messages.error(request, "Consultation must be active or completed to convert.")
+            return redirect(reverse('intake:consultation_status', kwargs={'request_id': consultation.id}))
+            
+        with transaction.atomic():
+            ai = getattr(consultation.issue, 'ai_analysis', None)
+            
+            # Upgrade existing case or create if missing
+            case = consultation.case
+            if case:
+                case.status = CaseStatus.ACTIVE
+                case.title = f"{ai.subcategory if ai else 'Legal Matter'} - {consultation.issue.city or consultation.issue.district}"
+                case.matter_category = ai.category if ai else ''
+                case.practice_area = ai.practice_area if ai else ''
+                # Keep matter_source as TALK_TO_LAWYER since it originated there
+                case.save()
+            else:
+                case = Case.objects.create(
+                    title=f"{ai.subcategory if ai else 'Legal Matter'} - {consultation.issue.city or consultation.issue.district}",
+                    description=consultation.issue.description,
+                    client=consultation.client.profile,
+                    assigned_lawyer=consultation.lawyer,
+                    matter_category=ai.category if ai else '',
+                    practice_area=ai.practice_area if ai else '',
+                    status=CaseStatus.ACTIVE,
+                    matter_source=MatterSource.TALK_TO_LAWYER
+                )
+                consultation.case = case
+                consultation.save()
+            
+            # Migrate Conversation
+            conversation = Conversation.objects.filter(
+                participants=consultation.client
+            ).filter(participants=consultation.lawyer.user).first()
+            
+            if conversation:
+                conversation.case = case
+                conversation.save()
+                
+        messages.success(request, f"Consultation successfully converted to Case {case.case_number}.")
+        if request.user == consultation.client:
+            return redirect('dashboard:index')
+        else:
+            return redirect('lawyer_portal:dashboard')
+
+class ConsultationChatbotAPIView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
+    def post(self, request):
+        import json
+        from django.http import JsonResponse
+        from django.conf import settings
+        from groq import Groq
+        from apps.ai.models import AIRequestLog
+        
+        try:
+            data = json.loads(request.body)
+            query = data.get('message', '')
+            history = data.get('history', [])
+            issue_id = data.get('issue_id', None)
+            
+            if not query:
+                return JsonResponse({'error': 'Message is required'}, status=400)
+                
+            client = Groq(api_key=settings.GROQ_API_KEY)
+            
+            system_prompt = "You are Lex AI, a highly advanced, professional, and knowledgeable legal assistant for the Lex Regis platform. You answer questions accurately, reference Indian Law context where applicable, and maintain a highly professional tone. You are currently assisting a user in a consultation intake phase."
+            
+            if issue_id:
+                try:
+                    issue = LegalIssue.objects.get(id=issue_id, user=request.user)
+                    ai_analysis = getattr(issue, 'ai_analysis', None)
+                    system_prompt += f"\n\nUser's Intake Description:\n{issue.description}"
+                    if ai_analysis:
+                        system_prompt += f"\n\nAI Triage Information:\n- Practice Area: {ai_analysis.practice_area}\n- Category: {ai_analysis.category}\n- Complexity: {ai_analysis.complexity}\n- Identified Facts: {', '.join(ai_analysis.important_keywords)}"
+                except LegalIssue.DoesNotExist:
+                    pass
+                    
+            messages = [{"role": "system", "content": system_prompt}]
+            
+            for msg in history:
+                if msg.get('role') in ['user', 'ai']:
+                    role = 'assistant' if msg.get('role') == 'ai' else 'user'
+                    messages.append({"role": role, "content": msg.get('content')})
+                    
+            messages.append({"role": "user", "content": query})
+            
+            log = AIRequestLog.objects.create(
+                user=request.user,
+                endpoint='consultation_chat',
+                model_name=getattr(settings, 'GROQ_MODEL', 'openai/gpt-oss-120b'),
+                prompt=str(messages)
+            )
+            
+            completion = client.chat.completions.create(
+                model=log.model_name,
+                messages=messages,
+                temperature=0.3,
+                max_tokens=1024,
+            )
+            
+            reply = completion.choices[0].message.content
+            
+            log.response = reply
+            log.status_code = 200
+            log.is_success = True
+            log.save()
+            
+            return JsonResponse({'reply': reply})
+            
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+class ConsultationRoomView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
+    def get(self, request, request_id):
+        from apps.communication.models import Conversation
+        
+        try:
+            consultation = ConsultationRequest.objects.get(id=request_id)
+        except ConsultationRequest.DoesNotExist:
+            return redirect('public_site:home')
+            
+        # Ensure user is part of it
+        if request.user != consultation.client and request.user != consultation.lawyer.user:
+            return redirect('public_site:home')
+            
+        if consultation.status not in ['ACTIVE', 'ACCEPTED']:
+            return redirect(reverse('intake:consultation_status', kwargs={'request_id': consultation.id}))
+            
+        # Get or create conversation between them
+        conversation = Conversation.objects.filter(
+            participants=consultation.client
+        ).filter(participants=consultation.lawyer.user).first()
+        
+        if not conversation:
+            conversation = Conversation.objects.create(title=f"Consultation #{consultation.id}")
+            conversation.participants.add(consultation.client, consultation.lawyer.user)
+            
+        context = {
+            'consultation': consultation,
+            'conversation': conversation,
+            'issue': consultation.issue
+        }
+        return render(request, 'intake/consultation_room.html', context)
+
+
+# AI LEGAL INTAKE API VIEWS
+
+import json
+from django.http import JsonResponse
+from apps.ai.services.clarification import AIClarificationService
+from apps.cases.models.case import Case, CaseStatus, MatterSource
+
+class AILegalIntakeClarifyAPIView(LoginRequiredMixin, View):
+    login_url = '/auth/client/login/'
+    
+    def post(self, request):
+        data = json.loads(request.body)
+        description = data.get('description', '')
+        urgency = data.get('urgency', 'ROUTINE')
+        category = data.get('category', '')
+        
+        issue = LegalIssue.objects.create(
+            user=request.user,
+            description=description,
+            urgency=urgency,
+            category=category,
+            status='DRAFT'
+        )
+        
+        clarification_data = AIClarificationService.generate_questions(issue)
+        
+        return JsonResponse({
+            'issue_id': str(issue.id),
+            'understanding_summary': clarification_data.get('understanding_summary', ''),
+            'questions': clarification_data.get('questions', [])
+        })
+
+class AILegalIntakeSaveClarificationAPIView(LoginRequiredMixin, View):
+    def post(self, request):
+        data = json.loads(request.body)
+        issue_id = data.get('issue_id')
+        answers = data.get('answers', {})
+        
+        issue = LegalIssue.objects.get(id=issue_id, user=request.user)
+        issue.clarification_data = answers
+        issue.save()
+        
+        return JsonResponse({'status': 'success'})
+
+class AILegalIntakeUploadAPIView(LoginRequiredMixin, View):
+    def post(self, request):
+        issue_id = request.POST.get('issue_id')
+        issue = LegalIssue.objects.get(id=issue_id, user=request.user)
+        
+        for f in request.FILES.getlist('files'):
+            DocumentUpload.objects.create(
+                issue=issue,
+                file=f,
+                document_type='Intake_Evidence'
+            )
+            
+        return JsonResponse({'status': 'success'})
+
+class AILegalIntakeAnalyzeAPIView(LoginRequiredMixin, View):
+    def post(self, request):
+        data = json.loads(request.body)
+        issue_id = data.get('issue_id')
+        issue = LegalIssue.objects.get(id=issue_id, user=request.user)
+        
+        AITriageService.analyze_issue(issue)
+        issue.refresh_from_db()
+        
+        ai = getattr(issue, 'ai_analysis', None)
+        historical_cases = HistoricalContextService.get_similar_cases(issue, ai) if ai else []
+        
+        # Serialize historical cases
+        hc_serialized = []
+        for hc in historical_cases:
+            hc_serialized.append({
+                'id': hc.id,
+                'legal_issue': hc.legal_issue,
+                'similarity': getattr(hc, 'similarity', 85),
+                'court': hc.court_name,
+                'year': hc.year,
+                'duration': hc.duration,
+                'disposition': hc.disposition
+            })
+            
+        from apps.intake.services.matching import LawyerMatchService
+        matched_lawyers_raw = LawyerMatchService.get_matched_lawyers(issue, ai) if ai else []
+        matched_lawyers = []
+        for ml in matched_lawyers_raw:
+            lawyer = ml['lawyer']
+            profile = getattr(lawyer.user, 'profile', None)
+            matched_lawyers.append({
+                'id': lawyer.id,
+                'name': f"{lawyer.user.first_name} {lawyer.user.last_name}".strip(),
+                'practice_area': lawyer.practice_areas[0] if getattr(lawyer, 'practice_areas', None) else '',
+                'experience': lawyer.years_of_experience,
+                'region': profile.city if profile else '',
+                'match_score': ml['score'],
+                'reasons': ml['reasons']
+            })
+            
+        return JsonResponse({
+            'analysis': {
+                'category': ai.category if ai else 'Unknown',
+                'subcategory': ai.subcategory if ai else 'Unknown',
+                'urgency': issue.urgency,
+                'complexity': ai.complexity if ai else 'Routine',
+                'complexity_reasoning': 'Based on initial assessment',
+                'required_documents': ai.suggested_documents if ai else [],
+                'preliminary_assessment': ai.preliminary_assessment if ai else '',
+                'assessment_reasoning': ai.assessment_reasoning if ai else '',
+                'missing_information': ai.missing_information if ai else [],
+                'suggested_next_steps': ai.suggested_next_steps if ai else [],
+            },
+            'historical_cases': hc_serialized,
+            'matched_lawyers': matched_lawyers
+        })
+
+class AILegalIntakeSaveCaseAPIView(LoginRequiredMixin, View):
+    def post(self, request):
+        data = json.loads(request.body)
+        issue_id = data.get('issue_id')
+        lawyer_id = data.get('lawyer_id')
+        issue = LegalIssue.objects.get(id=issue_id, user=request.user)
+        
+        from apps.accounts.models import ProfessionalProfile
+        lawyer = ProfessionalProfile.objects.filter(id=lawyer_id).first() if lawyer_id else None
+        
+        ai = getattr(issue, 'ai_analysis', None)
+        
+        from django.db import transaction
+        with transaction.atomic():
+            # Idempotency: Check if Case already exists for this AI Analysis
+            existing_case = Case.objects.filter(ai_analysis_id=ai.id).first() if ai else None
+            if existing_case:
+                return JsonResponse({
+                    'status': 'success',
+                    'redirect_url': reverse('cases_ui:detail', kwargs={'pk': existing_case.id})
+                })
+            
+            new_case = Case.objects.create(
+                title=f"AI Intake: {ai.category if ai else 'Legal Issue'} - {issue.city}",
+                description=issue.description,
+                client=request.user.profile,
+                assigned_lawyer=lawyer,
+                matter_category=ai.category if ai else '',
+                practice_area=ai.practice_area if ai else '',
+                sub_category=ai.subcategory if ai else '',
+                complexity=ai.complexity if ai else '',
+                status=CaseStatus.PENDING_ACCEPTANCE,
+                matter_source=MatterSource.AI_INTAKE,
+                ai_analysis_id=ai.id if ai else None,
+                incident_date=issue.incident_date,
+                location=issue.city
+            )
+            
+            if lawyer:
+                from apps.notifications.models import Notification
+                Notification.objects.create(
+                    user=lawyer.user,
+                    title="New AI Legal Intake Case",
+                    message=f"You have a new AI Legal Intake case from {(request.user.first_name + ' ' + request.user.last_name).strip()}.",
+                    notification_type='LAWYER_ASSIGNMENT',
+                    target_url=reverse('lawyer_portal:dashboard')
+                )
+        
+        # Transfer documents to Case without duplicating files
+        from apps.documents.models import Document, DocumentType, DocumentCategory, DocumentStatus, DocumentVisibility
+        
+        dt, _ = DocumentType.objects.get_or_create(name='Evidence')
+        dc, _ = DocumentCategory.objects.get_or_create(name='Client Upload')
+        ds, _ = DocumentStatus.objects.get_or_create(name='Uploaded')
+        dv, _ = DocumentVisibility.objects.get_or_create(name='Client Only')
+        
+        for upload in issue.documents.all():
+            doc = Document.objects.create(
+                document_number=f"DOC-{new_case.id}-{upload.id}",
+                case=new_case,
+                uploaded_by=request.user,
+                owner=request.user,
+                document_type=dt,
+                category=dc,
+                status=ds,
+                visibility=dv,
+                original_file=upload.file.name, # Pointing to same path!
+                file_size=upload.file.size if upload.file else 0,
+            )
+        
+        issue.status = 'ANALYZED'
+        issue.save()
+        
+        return JsonResponse({
+            'status': 'success',
+            'redirect_url': reverse('cases_ui:detail', kwargs={'pk': new_case.id})
+        })

@@ -1,0 +1,147 @@
+{% extends 'consult_base.html' %}
+{% load static %}
+
+{% block title %}Consultation Room | Lex Regis{% endblock %}
+
+{% block content %}
+<!-- Hidden Issue ID for AI context -->
+<meta name="issue_id" content="{{ issue.id }}">
+
+<div class="d-flex flex-column h-100" x-data="consultationChat('{{ conversation.id }}', '{{ request.user.id }}', '{{ request.user.get_full_name }}')">
+    
+    <!-- Room Header -->
+    <div class="lex-card p-3 mb-3 d-flex justify-content-between align-items-center bg-white" style="border-radius: var(--lex-radius-lg);">
+        <div class="d-flex align-items-center">
+            <div class="bg-lex-navy text-white rounded-circle d-flex justify-content-center align-items-center fs-5 me-3 shadow-sm" style="width: 48px; height: 48px;">
+                {% if request.user == consultation.client %}
+                    <i class="fa-solid fa-scale-balanced text-lex-gold"></i>
+                {% else %}
+                    <i class="fa-solid fa-user text-lex-gold"></i>
+                {% endif %}
+            </div>
+            <div>
+                {% if request.user == consultation.client %}
+                    <h5 class="fw-bold mb-0 text-lex-navy" style="font-family: var(--font-family-serif);">{{ consultation.lawyer.user.get_full_name }}</h5>
+                    <div class="small text-lex-text-muted"><i class="fa-solid fa-circle-check text-lex-success me-1"></i> Verified • {{ consultation.lawyer.designation|default:"Advocate" }}</div>
+                {% else %}
+                    <h5 class="fw-bold mb-0 text-lex-navy" style="font-family: var(--font-family-serif);">{{ consultation.client.get_full_name }}</h5>
+                    <div class="small text-lex-text-muted">Client • {{ consultation.issue.category }} Issue</div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <button class="btn btn-lex-secondary" onclick="alert('Calling service is not configured.')">
+                <i class="fa-solid fa-phone"></i>
+            </button>
+            <button class="btn btn-lex-secondary" onclick="alert('Calling service is not configured.')">
+                <i class="fa-solid fa-video"></i>
+            </button>
+            {% if request.user == consultation.client %}
+            <form method="POST" action="{% url 'intake:convert_consultation' consultation.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-lex-primary fw-bold shadow-sm">
+                    Continue as Full Case <i class="fa-solid fa-arrow-right ms-1"></i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="flex-grow-1 lex-card d-flex flex-column overflow-hidden bg-white" style="border-radius: var(--lex-radius-lg);">
+        
+        <!-- Messages -->
+        <div class="flex-grow-1 p-4 overflow-auto" id="roomMessages" style="background-color: var(--lex-surface-light);">
+            <!-- System Message -->
+            <div class="text-center mb-4">
+                <span class="lex-badge border px-3 py-2" style="background: var(--lex-white); color: var(--lex-text-muted);">
+                    <i class="fa-solid fa-lock me-1 text-lex-gold"></i> End-to-end encrypted consultation started
+                </span>
+            </div>
+            
+            <template x-for="msg in messages" :key="msg.id">
+                <div class="d-flex mb-3" :class="msg.sender_id == currentUserId ? 'justify-content-end' : ''">
+                    <div class="shadow-sm p-3 small" 
+                         :class="msg.sender_id == currentUserId ? 'bg-lex-navy text-white rounded-3 ms-2' : 'bg-white border text-lex-text rounded-3 me-2'"
+                         :style="msg.sender_id == currentUserId ? 'max-width: 75%; border-bottom-right-radius: 0 !important; border-color: var(--lex-navy-dark) !important;' : 'max-width: 75%; border-top-left-radius: 0 !important; border-color: var(--lex-border) !important;'">
+                        <div class="fw-bold mb-1" style="font-size: 0.7rem; opacity: 0.8;" x-show="msg.sender_id != currentUserId" :class="msg.sender_id == currentUserId ? 'text-white' : 'text-lex-navy'" x-text="msg.sender_name"></div>
+                        <span x-html="msg.content.replace(/\n/g, '<br>')"></span>
+                    </div>
+                </div>
+            </template>
+        </div>
+        
+        <!-- Input -->
+        <div class="p-3 border-top bg-white">
+            <form @submit.prevent="sendMessage">
+                <div class="input-group">
+                    <button class="btn btn-lex-secondary border-end-0" type="button" onclick="alert('Attachment service is not configured.')">
+                        <i class="fa-solid fa-paperclip text-lex-text-muted"></i>
+                    </button>
+                    <input type="text" class="form-control lex-input border-start-0" placeholder="Type a message..." x-model="inputText" autocomplete="off" required>
+                    <button class="btn btn-lex-primary px-4 fw-bold shadow-sm ms-2 rounded" type="submit" :disabled="inputText.trim() === ''">
+                        Send <i class="fa-solid fa-paper-plane ms-1"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('consultationChat', (conversationId, currentUserId, currentUserName) => ({
+            conversationId: conversationId,
+            currentUserId: parseInt(currentUserId),
+            currentUserName: currentUserName,
+            messages: [],
+            inputText: '',
+            socket: null,
+            
+            init() {
+                // Determine websocket protocol
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/ws/chat/${this.conversationId}/`;
+                
+                this.socket = new WebSocket(wsUrl);
+                
+                this.socket.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    if (data.type === 'new_message') {
+                        this.messages.push(data.message);
+                        this.scrollToBottom();
+                    }
+                };
+                
+                this.socket.onclose = (e) => {
+                    console.error('Chat socket closed unexpectedly');
+                };
+            },
+            
+            sendMessage() {
+                const text = this.inputText.trim();
+                if(!text) return;
+                
+                if(this.socket && this.socket.readyState === WebSocket.OPEN) {
+                    this.socket.send(JSON.stringify({
+                        'action': 'send_message',
+                        'content': text
+                    }));
+                    this.inputText = '';
+                }
+            },
+            
+            scrollToBottom() {
+                setTimeout(() => {
+                    const box = document.getElementById('roomMessages');
+                    if(box) box.scrollTop = box.scrollHeight;
+                }, 50);
+            }
+        }));
+    });
+</script>
+{% endblock %}
+
+{% endblock %}

@@ -1,314 +1,353 @@
-{% extends 'base.html' %}
+{% extends 'consult_base.html' %}
 {% load static %}
 
-{% block title %}AI Legal Intake | Lex Regis{% endblock %}
+{% block title %}Talk to a Lawyer | Lex Regis{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4" x-data="aiIntake()">
-    <!-- Top Header Bar -->
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-        <div>
-            <h3 class="mb-0 fw-bold" style="font-family: var(--font-family-serif); color: var(--royal-navy);">
-                <i class="fa-solid fa-robot me-2 text-warning"></i> AI Legal Intake
-            </h3>
-            <p class="text-muted small mb-0 mt-1">Describe your issue in your own words, and let AI analyze the legal framework.</p>
-        </div>
-        
-        <div class="d-flex align-items-center gap-3">
-            <div class="progress" style="width: 150px; height: 10px;" title="Progress">
-                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" role="progressbar" :style="'width: ' + completionPercentage + '%'"></div>
-            </div>
-            <span class="fw-bold small text-primary" x-text="step + '/3 Steps'"></span>
-        </div>
-    </div>
-
-    {% if request.GET.issue_id %}
-    <!-- RESULT STATE (AI Analyzed) -->
-    <div class="row g-4">
-        <!-- Center Panel: Results -->
-        <div class="col-xl-9 col-lg-8">
-            <div class="alert alert-success bg-success text-white shadow-sm border-0 d-flex align-items-center p-4 rounded-3 mb-4">
-                <i class="fa-solid fa-check-circle fs-2 me-4"></i>
-                <div>
-                    <h5 class="fw-bold mb-1">Analysis Complete</h5>
-                    <p class="mb-0 small opacity-75">Our AI has processed your legal issue and generated the following assessment.</p>
-                </div>
-            </div>
-
-            <!-- AI Output Sections -->
-            <div class="card card-premium mb-4 border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold text-primary border-bottom pb-2 mb-4"><i class="fa-solid fa-sitemap me-2"></i> Matter Classification</h5>
-                    <div class="row g-4">
-                        <div class="col-md-4">
-                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Matter Category</h6>
-                            <h5 class="fw-bold text-dark">{{ issue.ai_analysis.category }}</h5>
-                        </div>
-                        <div class="col-md-4">
-                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Practice Area</h6>
-                            <h5 class="fw-bold text-dark">{{ issue.ai_analysis.practice_area }}</h5>
-                        </div>
-                        <div class="col-md-4">
-                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Subcategory</h6>
-                            <h5 class="fw-bold text-dark">{{ issue.ai_analysis.subcategory }}</h5>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Recommended Lawyer Type</h6>
-                            <span class="badge bg-primary fs-6 p-2"><i class="fa-solid fa-user-tie me-1"></i> {{ issue.ai_analysis.recommended_lawyer_type }}</span>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-muted small text-uppercase fw-bold mb-1">Recommended Court</h6>
-                            <span class="badge bg-secondary fs-6 p-2"><i class="fa-solid fa-building-columns me-1"></i> {{ issue.ai_analysis.recommended_court }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-6">
-                    <div class="card card-premium h-100 border-0 shadow-sm bg-light">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-scale-balanced text-primary me-2"></i> Applicable Acts</h6>
-                            <ul class="list-group list-group-flush bg-transparent">
-                                {% for act in issue.ai_analysis.possible_acts %}
-                                <li class="list-group-item bg-transparent px-0 text-muted fw-bold"><i class="fa-solid fa-caret-right me-2 text-primary"></i> {{ act }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card card-premium h-100 border-0 shadow-sm bg-light">
-                        <div class="card-body p-4">
-                            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-file-contract text-primary me-2"></i> Required Documents</h6>
-                            <ul class="list-group list-group-flush bg-transparent">
-                                {% for doc in issue.ai_analysis.suggested_documents %}
-                                <li class="list-group-item bg-transparent px-0 text-muted fw-bold"><i class="fa-solid fa-paperclip me-2 text-primary"></i> {{ doc }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card card-premium mb-4 border-0 shadow-sm border-start border-warning border-4">
-                <div class="card-body p-4">
-                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-forward-step me-2"></i> Suggested Next Steps</h5>
-                    <div class="d-flex flex-wrap gap-3">
-                        {% for step in issue.ai_analysis.suggested_next_steps %}
-                        <span class="badge bg-light text-dark border p-3 fs-6 rounded shadow-sm">{{ forloop.counter }}. {{ step }}</span>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <p class="text-muted small text-center px-5">
-                <i class="fa-solid fa-circle-info me-1"></i> These are AI-generated recommendations intended to assist users and should not be considered legal advice.
-            </p>
-            
-            <div class="text-center mt-4">
-                <a href="{% url 'intake:lawyers' issue_id=request.GET.issue_id %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow"><i class="fa-solid fa-magnifying-glass me-2"></i> Find a Lawyer Now</a>
-            </div>
-        </div>
-        
-        <!-- Right Sidebar: Metrics -->
-        <div class="col-xl-3 col-lg-4">
-            <div class="card card-premium border-0 shadow-sm mb-4">
-                <div class="card-body text-center p-4">
-                    <h6 class="fw-bold text-muted text-uppercase small mb-3">AI Confidence</h6>
-                    <h2 class="fw-bold text-success display-5 mb-0">{{ issue.ai_analysis.confidence_score|default:"85" }}%</h2>
-                    <div class="progress mt-3" style="height: 6px;">
-                        <div class="progress-bar bg-success" style="width: {{ issue.ai_analysis.confidence_score|default:'85' }}%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card card-premium border-0 shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold text-muted text-uppercase small mb-3 text-center">Complexity Meter</h6>
-                    <div class="d-flex justify-content-between text-muted small mb-1 fw-bold">
-                        <span class="{% if issue.ai_analysis.complexity == 'Low' %}text-warning{% endif %}">Low</span>
-                        <span class="{% if issue.ai_analysis.complexity == 'Medium' %}text-warning{% endif %}">Medium</span>
-                        <span class="{% if issue.ai_analysis.complexity == 'High' %}text-warning{% endif %}">High</span>
-                    </div>
-                    <div class="progress" style="height: 10px;">
-                        {% if issue.ai_analysis.complexity == 'Low' %}
-                            <div class="progress-bar bg-warning" style="width: 25%;"></div>
-                        {% elif issue.ai_analysis.complexity == 'High' %}
-                            <div class="progress-bar bg-danger" style="width: 90%;"></div>
-                        {% else %}
-                            <div class="progress-bar bg-warning" style="width: 50%;"></div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <div class="card card-premium border-0 shadow-sm mb-4 border-info border-start border-4 bg-info bg-opacity-10">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold text-info text-uppercase small mb-2"><i class="fa-solid fa-timeline me-2"></i> Estimated Timeline</h6>
-                    <h4 class="fw-bold text-dark mb-0">{{ issue.ai_analysis.timeline_estimate }}</h4>
-                </div>
-            </div>
-
-            <div class="card card-premium border-0 shadow-sm mb-4 border-success border-start border-4 bg-success bg-opacity-10">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold text-success text-uppercase small mb-2"><i class="fa-solid fa-indian-rupee-sign me-2"></i> Estimated Cost Range</h6>
-                    <h4 class="fw-bold text-dark mb-0">{{ issue.ai_analysis.cost_estimate }}</h4>
-                    <small class="text-muted opacity-75">*Estimates vary by lawyer</small>
-                </div>
-            </div>
-            
-            <div class="card card-premium border-0 shadow-sm mb-4">
-                <div class="card-header bg-white border-bottom pt-3 pb-2">
-                    <h6 class="fw-bold text-uppercase small text-muted mb-0"><i class="fa-solid fa-tags me-1"></i> Keywords Detected</h6>
-                </div>
-                <div class="card-body p-3 d-flex flex-wrap gap-2">
-                    {% for kw in issue.ai_analysis.important_keywords %}
-                    <span class="badge bg-light text-dark border">{{ kw }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
+<style>
+    .question-card {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .question-card.fade-out {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    .question-card.fade-in {
+        opacity: 0;
+        transform: translateY(15px);
+    }
     
-    {% else %}
-    <!-- FORM WIZARD -->
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row justify-content-center">
-            <div class="col-xl-8 col-lg-10">
-                <div class="card card-premium border-0 shadow-lg">
-                    <div class="card-body p-5">
+    .choice-card {
+        border: 1px solid var(--lex-border);
+        border-radius: var(--lex-radius-md);
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: var(--lex-white);
+        text-align: center;
+        font-weight: 500;
+        color: var(--lex-text);
+        box-shadow: var(--lex-shadow-sm);
+    }
+    .choice-card:hover {
+        border-color: rgba(201, 162, 77, 0.4);
+        background: var(--lex-surface-light);
+        transform: translateY(-2px);
+        box-shadow: var(--lex-shadow-md);
+    }
+    .choice-card.selected {
+        border-color: var(--lex-gold);
+        background: rgba(201, 162, 77, 0.05);
+        color: var(--lex-navy);
+        font-weight: 600;
+    }
+</style>
+
+<div class="h-100 d-flex flex-column" x-data="intakeEngine()">
+    
+    <!-- Dynamic Microcopy -->
+    <div class="text-center mt-4 mb-2" style="height: 24px;">
+        <span class="text-lex-text-muted small fw-bold text-uppercase tracking-wide transition-all" style="letter-spacing: 1px;" x-text="currentMicrocopy"></span>
+    </div>
+
+    <!-- Main Conversational Area -->
+    <div class="flex-grow-1 d-flex align-items-center justify-content-center p-4">
+        <div class="w-100" style="max-width: 700px;">
+            
+            <!-- Questions Flow -->
+            <div x-show="!showReview" class="question-card lex-card p-5" :class="{ 'fade-out': transitioningOut, 'fade-in': transitioningIn }">
+                <template x-if="currentQuestion">
+                    <div>
+                        <h2 class="fw-bold mb-2" style="font-size: 2.5rem;" x-text="currentQuestion.text"></h2>
+                        <p class="text-lex-text-muted fs-5 mb-5" x-text="currentQuestion.subtext"></p>
                         
-                        <!-- Step 1: Legal Issue -->
-                        <div x-show="step === 1" x-transition>
-                            <div class="text-center mb-5">
-                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 60px; height: 60px;">
-                                    <i class="fa-solid fa-comment-dots fs-3"></i>
-                                </div>
-                                <h4 class="fw-bold" style="color: var(--royal-navy);">Describe Your Issue</h4>
-                                <p class="text-muted">Tell us what happened in plain English. Include as many facts as possible.</p>
+                        <!-- Free Text / Textarea -->
+                        <template x-if="currentQuestion.type === 'textarea'">
+                            <div>
+                                <textarea class="form-control lex-input w-100" 
+                                          rows="5" 
+                                          style="resize: none; font-size: 1.1rem;" 
+                                          x-model="answers[currentQuestion.id]" 
+                                          @keydown.shift.enter="return"
+                                          @keydown.enter.prevent="next()"
+                                          placeholder="Type your answer here... (Shift+Enter for new line)"
+                                          x-ref="currentInput"></textarea>
                             </div>
-                            
-                            <div class="mb-4 position-relative">
-                                <textarea name="description" class="form-control form-control-lg bg-light border-primary border-opacity-25 shadow-sm p-4" rows="8" placeholder="E.g., I signed an employment contract with my company 2 years ago. Yesterday they fired me without any notice..." minlength="50" maxlength="5000" x-model="description" required style="border-radius: 1rem;"></textarea>
-                                
-                                <div class="position-absolute bottom-0 end-0 p-3 text-muted small fw-bold">
-                                    <span x-text="description.length"></span> / 5000 chars
-                                </div>
-                                <button type="button" class="btn btn-primary rounded-circle position-absolute bottom-0 start-0 m-3 shadow" title="Voice Input" style="width: 45px; height: 45px;">
-                                    <i class="fa-solid fa-microphone"></i>
-                                </button>
-                            </div>
-                        </div>
+                        </template>
 
-                        <!-- Step 2: Basic Details -->
-                        <div x-show="step === 2" x-transition style="display: none;">
-                            <div class="text-center mb-5">
-                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 60px; height: 60px;">
-                                    <i class="fa-solid fa-map-location-dot fs-3"></i>
-                                </div>
-                                <h4 class="fw-bold" style="color: var(--royal-navy);">Basic Details</h4>
-                                <p class="text-muted">Where and when did this occur? This helps determine jurisdiction.</p>
+                        <!-- Short Text -->
+                        <template x-if="currentQuestion.type === 'text'">
+                            <div>
+                                <input type="text" class="form-control lex-input w-100" 
+                                       style="font-size: 1.25rem; padding: 1rem;"
+                                       x-model="answers[currentQuestion.id]"
+                                       @keydown.enter.prevent="next()"
+                                       x-ref="currentInput"
+                                       placeholder="Type here...">
                             </div>
-                            
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted small text-uppercase">Incident Date</label>
-                                    <input type="date" name="incident_date" class="form-control form-control-lg">
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold text-muted small text-uppercase">Urgency</label>
-                                    <select name="urgency" class="form-select form-select-lg border-warning">
-                                        <option value="ROUTINE">Routine / Standard</option>
-                                        <option value="URGENT">Urgent (Action needed this week)</option>
-                                        <option value="EMERGENCY">Emergency (Immediate action)</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold text-muted small text-uppercase">State</label>
-                                    <input type="text" name="state" class="form-control form-control-lg" placeholder="e.g. Maharashtra">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold text-muted small text-uppercase">District / City</label>
-                                    <input type="text" name="district" class="form-control form-control-lg" placeholder="e.g. Mumbai">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold text-muted small text-uppercase">Est. Financial Value (Optional)</label>
-                                    <input type="number" name="matter_value" class="form-control form-control-lg" placeholder="Amount involved (₹)">
-                                </div>
+                        </template>
+                        
+                        <!-- Date -->
+                        <template x-if="currentQuestion.type === 'date'">
+                            <div>
+                                <input type="date" class="form-control lex-input w-100" 
+                                       style="font-size: 1.25rem; padding: 1rem;"
+                                       x-model="answers[currentQuestion.id]"
+                                       @keydown.enter.prevent="next()"
+                                       x-ref="currentInput">
                             </div>
-                        </div>
+                        </template>
 
-                        <!-- Step 3: Documents -->
-                        <div x-show="step === 3" x-transition style="display: none;">
-                            <div class="text-center mb-5">
-                                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 60px; height: 60px;">
-                                    <i class="fa-solid fa-cloud-arrow-up fs-3"></i>
-                                </div>
-                                <h4 class="fw-bold" style="color: var(--royal-navy);">Supporting Documents</h4>
-                                <p class="text-muted">Upload contracts, notices, emails, or FIRs to help AI give a better assessment.</p>
-                            </div>
-                            
-                            <div class="border-2 border-dashed border-primary bg-primary bg-opacity-10 rounded-4 p-5 text-center mb-4 cursor-pointer" onclick="document.getElementById('docUpload').click()">
-                                <i class="fa-solid fa-file-pdf fs-1 text-primary mb-3"></i>
-                                <h5 class="fw-bold">Drag & Drop Files Here</h5>
-                                <p class="text-muted small mb-0">Supported: PDF, JPG, PNG, DOCX (Max 100MB)</p>
-                                <input type="file" id="docUpload" name="documents" multiple class="d-none" @change="handleFiles">
-                            </div>
-                            
-                            <ul class="list-group list-group-flush mb-4 shadow-sm rounded-3">
-                                <template x-for="(f, i) in files" :key="i">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center p-3 border-light bg-light mb-1 rounded">
-                                        <div>
-                                            <i class="fa-solid fa-file text-muted me-2"></i>
-                                            <span class="fw-bold" x-text="f.name"></span>
+                        <!-- Choice Cards -->
+                        <template x-if="currentQuestion.type === 'choice'">
+                            <div class="row g-3">
+                                <template x-for="option in currentQuestion.options" :key="option">
+                                    <div class="col-sm-6">
+                                        <div class="choice-card h-100" 
+                                             :class="{ 'selected': answers[currentQuestion.id] === option }"
+                                             @click="answers[currentQuestion.id] = option; if(currentQuestion.autoAdvance) next();">
+                                            <span x-text="option"></span>
+                                            <i class="fa-solid fa-check ms-2 text-lex-success" x-show="answers[currentQuestion.id] === option"></i>
                                         </div>
-                                        <button type="button" class="btn btn-sm text-danger" @click="removeFile(i)"><i class="fa-solid fa-times"></i></button>
-                                    </li>
+                                    </div>
                                 </template>
-                            </ul>
-                        </div>
-
+                            </div>
+                        </template>
+                        
                     </div>
-                    
-                    <div class="card-footer bg-white border-top p-4 d-flex justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary px-4 fw-bold rounded-pill" @click="step--" :disabled="step === 1">
-                            <i class="fa-solid fa-arrow-left me-2"></i> Back
-                        </button>
-                        
-                        <button type="button" class="btn btn-primary px-5 fw-bold rounded-pill shadow-sm" @click="step++" x-show="step < 3" :disabled="step === 1 && description.length < 50">
-                            Continue <i class="fa-solid fa-arrow-right ms-2"></i>
-                        </button>
-                        
-                        <button type="submit" class="btn btn-success px-5 fw-bold rounded-pill shadow-lg" x-show="step === 3" onclick="this.innerHTML='<i class=\'fa-solid fa-circle-notch fa-spin me-2\'></i> AI is Processing...'; this.classList.add('disabled')">
-                            <i class="fa-solid fa-bolt me-2"></i> Analyze My Case
-                        </button>
+                </template>
+            </div>
+            
+            <!-- Final Review State -->
+            <div x-show="showReview" class="question-card" style="display: none;">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold mb-2">Review Your Details</h2>
+                    <p class="text-lex-text-muted fs-5">Please ensure everything is correct before we analyze your situation.</p>
+                </div>
+                
+                <div class="lex-card p-4 mb-4">
+                    <div class="row g-4">
+                        <template x-for="q in visibleQuestions" :key="q.id">
+                            <div class="col-12 border-bottom pb-3 last:border-0" style="border-color: var(--lex-border) !important;">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="d-block text-lex-text-muted small fw-bold text-uppercase mb-1" x-text="q.text"></span>
+                                        <span class="fs-6 text-lex-text" x-text="answers[q.id] || 'Not answered'"></span>
+                                    </div>
+                                    <button class="btn btn-sm btn-lex-tertiary rounded-circle" @click="editQuestion(q.id)" title="Edit">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
+
+            <!-- Navigation Controls -->
+            <div class="d-flex justify-content-between align-items-center mt-5">
+                <button class="btn btn-lex-tertiary px-3 fw-bold" @click="back()" :style="currentQuestionIndex === 0 && !showReview ? 'visibility: hidden;' : ''">
+                    <i class="fa-solid fa-arrow-left me-2"></i> Back
+                </button>
+                
+                <button x-show="!showReview" class="btn btn-lex-primary px-5 py-3 fw-bold shadow-lg fs-5 d-flex align-items-center" 
+                        @click="next()" 
+                        :disabled="!canContinue">
+                    Continue <i class="fa-solid fa-arrow-right ms-3"></i>
+                </button>
+                
+                <form x-show="showReview" method="POST" @submit="submitIntake" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="description" :value="answers['description'] || ''">
+                    <input type="hidden" name="category" :value="answers['category'] || ''">
+                    <input type="hidden" name="city" :value="answers['city'] || ''">
+                    <input type="hidden" name="state" :value="answers['state'] || ''">
+                    <input type="hidden" name="incident_date" :value="answers['incident_date'] || ''">
+                    <input type="hidden" name="urgency" :value="mapUrgency(answers['urgency'])">
+                    <input type="hidden" name="budget" :value="answers['budget'] || ''">
+                    <input type="hidden" name="preferred_consultation" :value="answers['preferred_consultation'] || ''">
+                    <input type="hidden" name="hearing_scheduled" :value="answers['hearing_scheduled'] === 'Yes' ? 'true' : 'false'">
+                    
+                    <input type="hidden" name="extra_context" :value="generateExtraContext()">
+                    
+                    <button type="submit" class="btn btn-lex-primary px-5 py-3 fw-bold shadow-sm fs-5 d-flex align-items-center" :disabled="submitting">
+                        <span x-show="!submitting">Analyze My Situation <i class="fa-solid fa-bolt ms-3"></i></span>
+                        <span x-show="submitting"><i class="fa-solid fa-circle-notch fa-spin me-2"></i> Processing...</span>
+                    </button>
+                </form>
+            </div>
+            
+            <div class="text-center mt-4" x-show="!showReview">
+                <span class="small text-lex-text-muted fw-bold">Press <kbd class="bg-lex-surface-light border text-lex-text px-2 py-1 rounded">Enter</kbd> to continue</span>
+            </div>
+
         </div>
-    </form>
-    {% endif %}
+    </div>
 </div>
 
 <script>
     document.addEventListener('alpine:init', () => {
-        Alpine.data('aiIntake', () => ({
-            step: 1,
-            description: '',
-            files: [],
-            get completionPercentage() {
-                return Math.round((this.step / 3) * 100);
+        Alpine.data('intakeEngine', () => ({
+            currentQuestionIndex: 0,
+            answers: {},
+            showReview: false,
+            transitioningOut: false,
+            transitioningIn: false,
+            submitting: false,
+            
+            microcopies: [
+                "Take your time.",
+                "You don't need legal terminology.",
+                "We'll organize the details for you.",
+                "Your information stays secure.",
+                "Almost there."
+            ],
+            
+            init() {
+                const saved = sessionStorage.getItem('lexIntakeAnswers');
+                if (saved) {
+                    try { this.answers = JSON.parse(saved); } catch(e) {}
+                }
+                
+                setTimeout(() => { this.focusInput(); }, 100);
             },
-            handleFiles(e) {
-                const newFiles = Array.from(e.target.files);
-                this.files = [...this.files, ...newFiles];
+            
+            get currentMicrocopy() {
+                if (this.showReview) return "Final Review";
+                return this.microcopies[this.currentQuestionIndex % this.microcopies.length];
             },
-            removeFile(index) {
-                this.files.splice(index, 1);
+            
+            get visibleQuestions() {
+                let q = [];
+                q.push({ id: 'description', text: 'What happened?', subtext: 'Tell us in your own words. You don\'t need to know the legal terminology.', type: 'textarea' });
+                q.push({ id: 'category', text: 'What type of issue is this?', type: 'choice', options: ['Property', 'Family', 'Criminal', 'Employment', 'Consumer', 'Corporate', 'I Don\'t Know'] });
+                
+                const cat = this.answers.category;
+                if (cat === 'Employment') {
+                    q.push({ id: 'emp_terminated', text: 'Were you terminated?', type: 'choice', options: ['Yes', 'No'] });
+                    if (this.answers.emp_terminated === 'Yes') {
+                        q.push({ id: 'emp_notice', text: 'Did you receive notice?', type: 'choice', options: ['Yes', 'No'] });
+                    }
+                    q.push({ id: 'emp_contract', text: 'Do you have an employment contract?', type: 'choice', options: ['Yes', 'No', 'I\'m not sure'] });
+                } else if (cat === 'Property') {
+                    q.push({ id: 'prop_type', text: 'Is this regarding ownership or rental?', type: 'choice', options: ['Ownership', 'Rental', 'Other'] });
+                    q.push({ id: 'prop_notice', text: 'Have you received any legal notice?', type: 'choice', options: ['Yes', 'No'] });
+                } else if (cat === 'Family') {
+                    q.push({ id: 'fam_type', text: 'What type of family matter is this?', type: 'choice', options: ['Divorce', 'Custody', 'Maintenance', 'Domestic Violence', 'Other'] });
+                } else if (cat === 'Criminal') {
+                    q.push({ id: 'crim_fir', text: 'Has an FIR been filed?', type: 'choice', options: ['Yes', 'No', 'I\'m not sure'] });
+                }
+                
+                q.push({ id: 'city', text: 'Where are you located?', subtext: 'City name', type: 'text' });
+                q.push({ id: 'state', text: 'State', type: 'text' });
+                q.push({ id: 'incident_date', text: 'When did this happen?', type: 'date' });
+                q.push({ id: 'urgency', text: 'How urgent is it?', type: 'choice', options: ['Exploring', 'This Week', 'Urgent', 'Emergency'] });
+                q.push({ id: 'hearing_scheduled', text: 'Do you have any upcoming hearing or deadline?', type: 'choice', options: ['Yes', 'No', 'I\'m not sure'] });
+                q.push({ id: 'preferred_consultation', text: 'What consultation mode do you prefer?', type: 'choice', options: ['Video', 'Audio', 'Chat'] });
+                q.push({ id: 'budget', text: 'What is your approximate budget?', type: 'choice', options: ['₹500–₹2,000', '₹2,000–₹5,000', '₹5,000–₹10,000', '₹10,000+', 'Flexible'] });
+                
+                return q;
+            },
+            
+            get currentQuestion() {
+                return this.visibleQuestions[this.currentQuestionIndex];
+            },
+            
+            get canContinue() {
+                if (!this.currentQuestion) return false;
+                const val = this.answers[this.currentQuestion.id];
+                if (this.currentQuestion.type === 'textarea' || this.currentQuestion.type === 'text') {
+                    return val && val.trim().length > 0;
+                }
+                return val !== undefined && val !== '';
+            },
+            
+            next() {
+                if (!this.canContinue) return;
+                
+                sessionStorage.setItem('lexIntakeAnswers', JSON.stringify(this.answers));
+                
+                window.dispatchEvent(new CustomEvent('update-progress', { 
+                    detail: { step: this.currentQuestionIndex + 1, total: this.visibleQuestions.length }
+                }));
+
+                this.transitioningOut = true;
+                this.transitioningIn = false;
+                
+                setTimeout(() => {
+                    if (this.currentQuestionIndex < this.visibleQuestions.length - 1) {
+                        this.currentQuestionIndex++;
+                    } else {
+                        this.showReview = true;
+                    }
+                    this.transitioningOut = false;
+                    this.transitioningIn = true;
+                    
+                    setTimeout(() => {
+                        this.transitioningIn = false;
+                        this.focusInput();
+                    }, 50);
+                }, 300);
+            },
+            
+            back() {
+                this.transitioningOut = true;
+                setTimeout(() => {
+                    if (this.showReview) {
+                        this.showReview = false;
+                    } else if (this.currentQuestionIndex > 0) {
+                        this.currentQuestionIndex--;
+                    }
+                    this.transitioningOut = false;
+                    this.transitioningIn = true;
+                    
+                    setTimeout(() => {
+                        this.transitioningIn = false;
+                        this.focusInput();
+                    }, 50);
+                }, 300);
+            },
+            
+            editQuestion(id) {
+                const idx = this.visibleQuestions.findIndex(q => q.id === id);
+                if (idx !== -1) {
+                    this.showReview = false;
+                    this.currentQuestionIndex = idx;
+                    setTimeout(() => { this.focusInput(); }, 100);
+                }
+            },
+            
+            focusInput() {
+                if (this.$refs.currentInput) {
+                    this.$refs.currentInput.focus();
+                }
+            },
+            
+            submitIntake(e) {
+                this.submitting = true;
+                sessionStorage.removeItem('lexIntakeAnswers');
+            },
+            
+            mapUrgency(val) {
+                if(val === 'Urgent') return 'URGENT';
+                if(val === 'Emergency') return 'EMERGENCY';
+                return 'ROUTINE';
+            },
+            
+            generateExtraContext() {
+                let ctx = "\n--- Additional Context ---\n";
+                for(let q of this.visibleQuestions) {
+                    if(!['description', 'category', 'city', 'state', 'incident_date', 'urgency', 'budget', 'preferred_consultation'].includes(q.id)) {
+                        if(this.answers[q.id]) {
+                            ctx += `${q.text}: ${this.answers[q.id]}\n`;
+                        }
+                    }
+                }
+                return ctx;
             }
-        }))
+        }));
     });
 </script>
 {% endblock %}

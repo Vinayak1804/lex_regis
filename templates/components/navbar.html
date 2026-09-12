@@ -1,12 +1,12 @@
-<header class="bg-white shadow-sm py-2 px-4 d-flex justify-content-between align-items-center">
+<header class="shadow-sm py-2 px-4 d-flex justify-content-between align-items-center" style="background-color: #FAF7F0;">
     <div class="d-flex align-items-center">
-        <button class="btn btn-link text-dark p-0 me-3" @click="toggle()">
+        <button class="btn btn-link text-navy p-0 me-3" @click="toggle()">
             <i class="fa-solid fa-bars fs-5"></i>
         </button>
         <!-- Search Bar -->
         <div class="position-relative d-none d-md-block" x-data="{ searchOpen: false }">
-            <i class="fa-solid fa-search position-absolute text-muted" style="top: 50%; transform: translateY(-50%); left: 12px;"></i>
-            <input type="text" name="q" class="form-control bg-light border-0 ps-5 rounded-pill" placeholder="Search cases, documents..." style="width: 300px;"
+            <i class="fa-solid fa-search position-absolute text-navy" style="top: 50%; transform: translateY(-50%); left: 12px;"></i>
+            <input type="text" name="q" class="form-control bg-white border-0 ps-5 rounded-pill shadow-sm" placeholder="Search cases, documents..." style="width: 300px;"
                 hx-get="{% url 'dashboard:search' %}"
                 hx-trigger="keyup changed delay:300ms, search"
                 hx-target="#search-results"
@@ -22,23 +22,28 @@
         </div>
     </div>
     
+    <!-- Center Motto -->
+    <div class="d-none d-lg-block position-absolute start-50 translate-middle-x text-center">
+
+    </div>
+    
     <div class="d-flex align-items-center gap-3">
         <!-- Theme Toggle -->
-        <button class="btn btn-link text-secondary p-0" @click="toggle()" title="Toggle Theme">
+        <button class="btn btn-link text-navy p-0" @click="toggle()" title="Toggle Theme">
             <i class="fa-solid" :class="theme === 'dark' ? 'fa-sun' : 'fa-moon'"></i>
         </button>
         
         {% if request.user.is_authenticated %}
         <!-- Notifications Dropdown -->
         <div class="dropdown" x-data="{ open: false }">
-            <button class="btn btn-link text-secondary position-relative p-0" @click="open = !open" @click.outside="open = false">
+            <button class="btn btn-link text-navy position-relative p-0" @click="open = !open" @click.outside="open = false">
                 <i class="fa-regular fa-bell fs-5"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-lex-gold text-lex-navy-dark" style="font-size: 0.6rem;">
                     3
                 </span>
             </button>
-            <div x-show="open" class="dropdown-menu dropdown-menu-end shadow-lg border-0 show glass-panel mt-2" style="width: 300px; display: none;">
-                <h6 class="dropdown-header text-primary fw-bold">Notifications</h6>
+            <div x-show="open" class="dropdown-menu dropdown-menu-end shadow-lg border-0 show mt-2" style="width: 300px; display: none;">
+                <h6 class="dropdown-header text-navy fw-bold">Notifications</h6>
                 <a class="dropdown-item py-2 border-bottom" href="#">
                     <small class="text-muted d-block">10 mins ago</small>
                     Hearing HR-2026-00001 scheduled.
@@ -53,9 +58,9 @@
         
         <!-- Profile Dropdown -->
         <div class="dropdown" x-data="{ open: false }">
-            <button class="btn btn-light rounded-pill px-3 py-1 shadow-sm border d-flex align-items-center gap-2" @click="open = !open" @click.outside="open = false">
-                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
-                    <span class="fw-bold fs-6">{{ request.user.email|default:"U"|slice:":1"|upper }}</span>
+            <button class="btn bg-white rounded-pill px-3 py-1 shadow-sm border d-flex align-items-center gap-2" @click="open = !open" @click.outside="open = false">
+                <div class="bg-navy text-gold rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                    <span class="fw-bold fs-6" style="font-family: var(--font-family-serif);">{{ request.user.email|default:"U"|slice:":1"|upper }}</span>
                 </div>
                 <span class="d-none d-md-inline text-dark">{{ request.user.get_full_name|default:request.user.email|default:"Admin User" }}</span>
                 <i class="fa-solid fa-chevron-down text-muted small"></i>
@@ -73,7 +78,7 @@
         </div>
         {% else %}
         <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-primary rounded-pill px-4 py-1 text-decoration-none" data-bs-toggle="modal" data-bs-target="#authModal" @click="window.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { mode: 'login' } }))">Login</button>
+            <a href="{% url 'accounts:login' %}" class="btn btn-primary rounded-pill px-4 py-1 text-decoration-none">Login</a>
         </div>
         {% endif %}
     </div>

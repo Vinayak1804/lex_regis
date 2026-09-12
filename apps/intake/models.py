@@ -15,9 +15,20 @@ class LegalIssue(BaseModel):
     country = models.CharField(max_length=100, default='India')
     state = models.CharField(max_length=100, blank=True)
     district = models.CharField(max_length=100, blank=True)
+    city = models.CharField(max_length=100, blank=True)
     people_involved = models.IntegerField(default=1)
     matter_value = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
     urgency = models.CharField(max_length=20, choices=UrgencyLevels.choices, default=UrgencyLevels.ROUTINE)
+    budget = models.CharField(max_length=100, blank=True)
+    preferred_consultation = models.CharField(max_length=50, blank=True)
+    
+    # New Optional Details
+    category = models.CharField(max_length=100, blank=True)
+    preferred_language = models.CharField(max_length=100, blank=True)
+    best_time_to_consult = models.CharField(max_length=100, blank=True)
+    already_have_lawyer = models.BooleanField(null=True, blank=True)
+    hearing_scheduled = models.BooleanField(null=True, blank=True)
+    clarification_data = models.JSONField(default=list, blank=True)
     
     status = models.CharField(max_length=50, default='PENDING_ANALYSIS') # PENDING_ANALYSIS, ANALYZED, LAWYER_BOOKED
 
@@ -42,14 +53,18 @@ class AIAnalysis(BaseModel):
     recommended_court = models.CharField(max_length=100, blank=True)
     
     # Text arrays / lists stored as JSON
-    suggested_documents = models.JSONField(default=list)
-    possible_acts = models.JSONField(default=list)
-    possible_sections = models.JSONField(default=list)
-    important_keywords = models.JSONField(default=list)
-    suggested_next_steps = models.JSONField(default=list)
+    suggested_documents = models.JSONField(default=list, blank=True)
+    possible_acts = models.JSONField(default=list, blank=True)
+    possible_sections = models.JSONField(default=list, blank=True)
+    important_keywords = models.JSONField(default=list, blank=True)
+    suggested_next_steps = models.JSONField(default=list, blank=True)
+    missing_information = models.JSONField(default=list, blank=True)
     
-    timeline_estimate = models.CharField(max_length=100, blank=True)
-    cost_estimate = models.CharField(max_length=100, blank=True)
+    timeline_estimate = models.CharField(max_length=255, blank=True)
+    cost_estimate = models.CharField(max_length=255, blank=True)
+    
+    preliminary_assessment = models.CharField(max_length=100, blank=True)
+    assessment_reasoning = models.TextField(blank=True)
     
     risk_level = models.IntegerField(default=50) # 0 to 100
     confidence_score = models.IntegerField(default=85) # 0 to 100
@@ -78,21 +93,19 @@ class SearchHistory(BaseModel):
 class ConsultationRequest(BaseModel):
     class StatusChoices(models.TextChoices):
         PENDING = 'PENDING', 'Pending'
+        WAITING = 'WAITING', 'Waiting'
         ACCEPTED = 'ACCEPTED', 'Accepted'
-        REJECTED = 'REJECTED', 'Rejected'
-        INFO_REQUESTED = 'INFO_REQUESTED', 'Information Requested'
+        ACTIVE = 'ACTIVE', 'Active'
+        COMPLETED = 'COMPLETED', 'Completed'
+        DECLINED = 'DECLINED', 'Declined'
+        CANCELLED = 'CANCELLED', 'Cancelled'
 
     client = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='consultation_requests')
     lawyer = models.ForeignKey(ProfessionalProfile, on_delete=models.CASCADE, related_name='incoming_consultations')
     issue = models.ForeignKey(LegalIssue, on_delete=models.CASCADE, related_name='consultations')
+    case = models.ForeignKey('cases.Case', on_delete=models.SET_NULL, null=True, blank=True, related_name='consultation_requests')
     
     status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.PENDING)
-    
-    # Store snapshot data in case AI Analysis changes or gets deleted
-    matter_category = models.CharField(max_length=100, blank=True)
-    practice_area = models.CharField(max_length=100, blank=True)
-    estimated_budget = models.CharField(max_length=100, blank=True)
-    timeline = models.CharField(max_length=100, blank=True)
     
     def __str__(self):
         return f"Request {self.id} from {self.client.email} to {self.lawyer.user.email}"

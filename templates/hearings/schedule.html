@@ -33,23 +33,33 @@
                 </div>
                 
                 <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">Title</label>
+                    {{ form.title }}
+                </div>
+
+                <div class="col-12 col-md-4">
                     <label class="form-label fw-bold text-dark">Hearing Type</label>
                     {{ form.hearing_type }}
                 </div>
-                
-                <div class="col-12 col-md-6">
-                    <label class="form-label fw-bold text-dark">Scheduled Date</label>
-                    {{ form.scheduled_date }}
-                </div>
-                
-                <div class="col-12 col-md-6">
-                    <label class="form-label fw-bold text-dark">Scheduled Time</label>
-                    {{ form.scheduled_time }}
+
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-bold text-dark">Mode</label>
+                    {{ form.mode }}
                 </div>
 
+                <div class="col-12 col-md-4">
+                    <label class="form-label fw-bold text-dark">Priority</label>
+                    {{ form.priority }}
+                </div>
+                
                 <div class="col-12 col-md-6">
-                    <label class="form-label fw-bold text-dark">Estimated Duration (minutes)</label>
-                    {{ form.estimated_duration_minutes }}
+                    <label class="form-label fw-bold text-dark">Start Time</label>
+                    {{ form.start_time }}
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold text-dark">End Time</label>
+                    {{ form.end_time }}
                 </div>
                 
                 <div class="col-12 col-md-6">
@@ -60,6 +70,11 @@
                 <div class="col-12 col-md-6">
                     <label class="form-label fw-bold text-dark">Presiding Judge</label>
                     {{ form.presiding_judge }}
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-bold text-dark">Notes</label>
+                    {{ form.notes }}
                 </div>
             </div>
             

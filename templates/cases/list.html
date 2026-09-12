@@ -18,6 +18,35 @@
     </div>
 </div>
 
+<div class="mb-4">
+    <ul class="nav nav-pills nav-fill bg-white shadow-sm rounded-pill p-1">
+        <li class="nav-item">
+            <a class="nav-link rounded-pill fw-bold {% if current_filter == 'ALL' %}active bg-lex-primary text-white{% else %}text-muted{% endif %}" 
+               href="?source=ALL{% if search_query %}&q={{ search_query }}{% endif %}">
+                All Records
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link rounded-pill fw-bold {% if current_filter == 'AI_INTAKE' %}active bg-lex-primary text-white{% else %}text-muted{% endif %}" 
+               href="?source=AI_INTAKE{% if search_query %}&q={{ search_query }}{% endif %}">
+                AI Legal Intake
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link rounded-pill fw-bold {% if current_filter == 'TALK_TO_LAWYER' %}active bg-lex-gold text-lex-navy-dark{% else %}text-muted{% endif %}" 
+               href="?source=TALK_TO_LAWYER{% if search_query %}&q={{ search_query }}{% endif %}">
+                Talk to a Lawyer
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link rounded-pill fw-bold {% if current_filter == 'MANUAL' %}active bg-lex-primary text-white{% else %}text-muted{% endif %}" 
+               href="?source=MANUAL{% if search_query %}&q={{ search_query }}{% endif %}">
+                Formal Cases
+            </a>
+        </li>
+    </ul>
+</div>
+
 <div class="collapse mb-4" id="filterCollapse">
     <div class="card card-premium shadow-sm border-0">
         <div class="card-body">

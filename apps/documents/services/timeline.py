@@ -3,12 +3,11 @@ from apps.cases.services.timeline import CaseTimelineService
 class DocumentTimelineService:
     @staticmethod
     def log_upload(document, user):
-        CaseTimelineService.log_event(
+        CaseTimelineService.add_event(
             case=document.case,
-            actor=user,
-            event_code='DOCUMENT_UPLOADED',
-            category='DOCUMENT',
-            description=f"Document {document.document_number} uploaded.",
+            event_type='DOCUMENT_ADDED',
+            description=f"{user.first_name} {user.last_name} uploaded document '{document.original_file.name}'",
+            user=user,
             metadata={
                 'document_id': str(document.id),
                 'document_number': document.document_number,

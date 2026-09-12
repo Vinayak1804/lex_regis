@@ -23,14 +23,30 @@ class RoleSelectionView(TemplateView):
 
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
+from django.utils.http import url_has_allowed_host_and_scheme
 import json
 
 class LexRegisLoginView(View):
     def get(self, request, *args, **kwargs):
-        return redirect('public_site:home')
+        role_expected = kwargs.get('role', 'client')
+        
+        role_titles = {
+            'client': 'Client Login',
+            'lawyer': 'Lawyer Login',
+            'law_firm': 'Law Firm Login',
+            'admin': 'Admin Login'
+        }
+        
+        context = {
+            'role': role_expected,
+            'title': role_titles.get(role_expected, 'Sign In') + ' | Lex Regis',
+        }
+        return render(request, 'authentication/login.html', context)
 
     def post(self, request, *args, **kwargs):
-        role_expected = kwargs.get('role')
+        role_expected = kwargs.get('role', 'client')
+        
+        is_ajax = request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json'
         
         # AJAX form submission via fetch handles URLSearchParams or JSON
         email = request.POST.get('username')
@@ -46,13 +62,19 @@ class LexRegisLoginView(View):
                 pass
                 
         if not email or not password:
-            return JsonResponse({'success': False, 'message': 'Missing email or password'})
+            msg = 'Missing email or password'
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg})
+            return render(request, 'authentication/login.html', {'error': msg, 'role': role_expected})
 
         user = authenticate(request, username=email, password=password)
         
         if user is not None:
             if not user.is_active:
-                return JsonResponse({'success': False, 'message': 'Inactive account'})
+                msg = 'Your account is inactive.'
+                if is_ajax:
+                    return JsonResponse({'success': False, 'message': msg})
+                return render(request, 'authentication/login.html', {'error': msg, 'role': role_expected})
             
             # Map role URL param to RoleChoices
             role_map = {
@@ -65,24 +87,43 @@ class LexRegisLoginView(View):
             expected_role = role_map.get(role_expected)
             
             if expected_role and user.role != expected_role:
-                return JsonResponse({'success': False, 'message': 'Role mismatch. Please select the correct role.'})
+                msg = 'Role mismatch. Please select the correct role.'
+                if is_ajax:
+                    return JsonResponse({'success': False, 'message': msg})
+                return render(request, 'authentication/login.html', {'error': msg, 'role': role_expected})
                 
             login(request, user)
             
-            # Determine redirect
-            if user.role == RoleChoices.ADVOCATE:
-                redirect_url = '/portal/lawyer/dashboard/'
-            elif user.role == RoleChoices.ADMIN:
-                redirect_url = '/admin/'
-            elif user.role == RoleChoices.LAW_FIRM:
-                redirect_url = '/lawfirm/dashboard/'
+            
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if not next_url and is_ajax:
+                try:
+                    data = json.loads(request.body)
+                    next_url = data.get('next')
+                except:
+                    pass
+                    
+            if next_url and url_has_allowed_host_and_scheme(url=next_url, allowed_hosts={request.get_host()}):
+                redirect_url = next_url
             else:
-                redirect_url = '/client/dashboard/'
+                if user.role == RoleChoices.ADVOCATE:
+                    redirect_url = '/portal/lawyer/dashboard/'
+                elif user.role == RoleChoices.ADMIN:
+                    redirect_url = '/admin/'
+                elif user.role == RoleChoices.LAW_FIRM:
+                    redirect_url = '/law-firm/dashboard/'
+                else:
+                    redirect_url = '/client/dashboard/'
                 
-            return JsonResponse({'success': True, 'redirect_url': redirect_url})
+            if is_ajax:
+                return JsonResponse({'success': True, 'redirect_url': redirect_url})
+            return redirect(redirect_url)
             
         else:
-            return JsonResponse({'success': False, 'message': 'Incorrect email or password'})
+            msg = 'Invalid email or password.'
+            if is_ajax:
+                return JsonResponse({'success': False, 'message': msg})
+            return render(request, 'authentication/login.html', {'error': msg, 'role': role_expected})
 
 class LexRegisLogoutView(LogoutView):
     next_page = reverse_lazy('public_site:home')

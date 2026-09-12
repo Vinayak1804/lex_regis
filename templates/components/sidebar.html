@@ -1,131 +1,131 @@
 {% if request.user.is_authenticated %}
-<aside class="sidebar p-3 shadow-lg" :class="{'d-none': !open, 'd-block': open}" style="width: 250px; transition: width 0.3s;">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h4 class="text-white mb-0" style="font-family: var(--font-family-serif);">
-            <i class="fa-solid fa-scale-balanced text-warning me-2"></i> Lex Regis
-        </h4>
-        <button class="btn btn-link text-white d-md-none" @click="toggle()">
+<aside class="sidebar sidebar-premium shadow-lg d-flex flex-column" :class="{'d-none': !open, 'd-block': open}" style="width: 260px; transition: width 0.3s; z-index: 1040;">
+    
+    <!-- Logo Header -->
+    <div class="text-center py-4 mb-2 position-relative">
+        <i class="fa-solid fa-scale-balanced text-lex-gold fs-1 mb-2"></i>
+        <h3 class="fw-bold mb-0 text-lex-gold" style="font-family: 'Cinzel', var(--font-family-serif); letter-spacing: 2px;">LEX REGIS</h3>
+        <p class="text-white-50 small mb-0" style="letter-spacing: 1px; font-size: 0.65rem;">LEGALTECH PLATFORM</p>
+        
+        <button class="btn btn-link text-white position-absolute top-0 end-0 mt-2 me-2 d-md-none" @click="toggle()">
             <i class="fa-solid fa-times"></i>
         </button>
     </div>
     
-    <ul class="nav flex-column gap-2">
+    <!-- Navigation -->
+    <ul class="nav flex-column gap-1 flex-grow-1 overflow-auto px-0">
         {% if request.user.role == 'ADVOCATE' %}
             <li class="nav-item">
-                <a href="{% url 'lawyer_portal:dashboard' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'lawyer_portal' %}active{% endif %}">
-                    <i class="fa-solid fa-gauge me-2"></i> Dashboard
+                <a href="{% url 'lawyer_portal:dashboard' %}" class="nav-link sidebar-link {% if request.resolver_match.app_name == 'lawyer_portal' %}active{% endif %}">
+                    <i class="fa-solid fa-house"></i> Dashboard
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link sidebar-link rounded">
-                    <i class="fa-solid fa-store me-2"></i> Marketplace
+                <a href="{% url 'public_site:lawyer_list' %}" class="nav-link sidebar-link">
+                    <i class="fa-solid fa-store"></i> Marketplace
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{% url 'dashboard:messages' %}" class="nav-link sidebar-link rounded">
-                    <i class="fa-solid fa-inbox me-2"></i> Incoming Requests
+                <a href="{% url 'cases_ui:list' %}" class="nav-link sidebar-link">
+                    <i class="fa-solid fa-briefcase"></i> Cases
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{% url 'cases_ui:list' %}" class="nav-link sidebar-link rounded">
-                    <i class="fa-solid fa-briefcase me-2"></i> My Cases
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'dashboard:search' %}" class="nav-link sidebar-link rounded">
-                    <i class="fa-solid fa-users me-2"></i> Clients
+                <a href="{% url 'dashboard:search' %}" class="nav-link sidebar-link">
+                    <i class="fa-solid fa-users"></i> Clients
                 </a>
             </li>
         {% else %}
             <!-- Client links -->
             <li class="nav-item">
-                <a href="{% url 'dashboard:index' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
-                    <i class="fa-solid fa-gauge me-2"></i> Dashboard
+                <a href="{% url 'dashboard:index' %}" class="nav-link sidebar-link {% if request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-gauge"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item mt-2 mb-2 px-3">
+                <a href="{% url 'intake:wizard' %}" class="btn btn-lex-primary w-100 rounded-pill fw-bold text-start ps-3 py-2 shadow-sm {% if request.resolver_match.url_name == 'wizard' %}active{% endif %}">
+                    <i class="fa-solid fa-microchip me-2"></i> AI Legal Intake
+                </a>
+            </li>
+            <li class="nav-item mb-2 px-3">
+                <a href="{% url 'intake:talk_wizard' %}" class="btn bg-white text-lex-navy border border-lex-gold w-100 rounded-pill fw-bold text-start ps-3 py-2 shadow-sm hover-bg-light {% if request.resolver_match.url_name == 'talk_wizard' %}active{% endif %}">
+                    <i class="fa-solid fa-comments me-2 text-lex-gold"></i> Talk to a Lawyer
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{% url 'intake:landing' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'intake' %}active{% endif %}" style="background-color: rgba(255, 193, 7, 0.15); border-left: 3px solid #ffc107;">
-                    <i class="fa-solid fa-wand-magic-sparkles text-warning me-2"></i> AI Legal Intake
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{% url 'cases_ui:list' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'cases_ui' %}active{% endif %}">
-                    <i class="fa-solid fa-briefcase me-2"></i> Cases
+                <a href="{% url 'cases_ui:list' %}" class="nav-link sidebar-link {% if request.resolver_match.app_name == 'cases_ui' %}active{% endif %}">
+                    <i class="fa-solid fa-briefcase"></i> Cases
                 </a>
             </li>
         {% endif %}
         
         <li class="nav-item">
-            <a href="{% url 'hearings_ui:list' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'hearings_ui' %}active{% endif %}">
-                <i class="fa-solid fa-gavel me-2"></i> Hearings
+            <a href="{% url 'documents_ui:list' %}" class="nav-link sidebar-link {% if request.resolver_match.app_name == 'documents_ui' %}active{% endif %}">
+                <i class="fa-solid fa-file-contract"></i> Documents
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'documents_ui:list' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'documents_ui' %}active{% endif %}">
-                <i class="fa-solid fa-file-contract me-2"></i> Documents
+            <a href="{% url 'ai:chat' %}" class="nav-link sidebar-link {% if request.resolver_match.app_name == 'ai' %}active{% endif %}">
+                <i class="fa-solid fa-robot"></i> AI Assistant
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'dashboard:calendar' %}" class="nav-link sidebar-link rounded">
-                <i class="fa-regular fa-calendar-days me-2"></i> Calendar
+            <a href="{% url 'dashboard:blockchain' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'dashboard:blockchain' %}active{% endif %}">
+                <i class="fa-brands fa-ethereum"></i> Blockchain
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'dashboard:messages' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.view_name == 'dashboard:messages' %}active{% endif %}">
-                <i class="fa-solid fa-comments me-2"></i> Messages
-            </a>
-        </li>
-        
-        <hr class="text-white border-2 border-top border-white opacity-25">
-        
-        <li class="nav-item">
-            <a href="{% url 'analytics:national' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}" target="_blank">
-                <i class="fa-solid fa-chart-pie me-2"></i> Statistics Portal
+            <a href="{% url 'hearings_ui:list' %}" class="nav-link sidebar-link {% if request.resolver_match.app_name == 'hearings_ui' %}active{% endif %}">
+                <i class="fa-solid fa-scale-balanced"></i> Hearings
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'dashboard:analytics' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.view_name == 'dashboard:analytics' %}active{% endif %}">
-                <i class="fa-solid fa-chart-line me-2"></i> Enterprise Analytics
+            <a href="{% url 'dashboard:calendar' %}" class="nav-link sidebar-link">
+                <i class="fa-regular fa-calendar-days"></i> Calendar
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="{% url 'dashboard:messages' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'dashboard:messages' %}active{% endif %}">
+                <i class="fa-solid fa-comments"></i> Messages
             </a>
         </li>
         
-        <hr class="text-white border-2 border-top border-white opacity-25">
+        <hr class="text-white border-2 border-top border-white opacity-25 mx-3">
         
         <li class="nav-item">
-            <a href="{% url 'ai:chat' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'ai' %}active{% endif %}">
-                <i class="fa-solid fa-robot me-2"></i> AI Assistant
+            <a href="{% url 'analytics:national' %}" class="nav-link sidebar-link {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}" target="_blank">
+                <i class="fa-solid fa-chart-pie"></i> Statistics Portal
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'dashboard:blockchain' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.view_name == 'dashboard:blockchain' %}active{% endif %}">
-                <i class="fa-brands fa-ethereum me-2"></i> Blockchain
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a href="{% url 'accounts:preferences' %}" class="nav-link sidebar-link rounded">
-                <i class="fa-solid fa-gear me-2"></i> Settings
+            <a href="{% url 'dashboard:analytics' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'dashboard:analytics' %}active{% endif %}">
+                <i class="fa-solid fa-chart-line"></i> Enterprise Analytics
             </a>
         </li>
         
-        <hr class="text-white border-2 border-top border-white opacity-25">
-        <small class="text-white-50 text-uppercase fw-bold px-3 mb-1">System</small>
-
+        <hr class="text-white border-2 border-top border-white opacity-25 mx-3">
+        
+        <li class="nav-item mt-4">
+            <div class="px-3 mb-2 text-white-50 small fw-bold text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px;">Preferences</div>
+        </li>
         <li class="nav-item">
-            <a href="{% url 'dashboard:payments' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.view_name == 'dashboard:payments' %}active{% endif %}">
-                <i class="fa-solid fa-credit-card me-2"></i> Payments
+            <a href="{% url 'notifications:list' %}" class="nav-link sidebar-link position-relative {% if request.resolver_match.app_name == 'notifications' %}active{% endif %}">
+                <i class="fa-solid fa-bell"></i> Notifications
+                <span class="position-absolute badge rounded-pill bg-lex-gold text-lex-navy-dark ms-2" style="top: 12px; font-size: 0.6rem;">5</span>
             </a>
         </li>
         <li class="nav-item">
-            <a href="{% url 'accounts:profile' %}" class="nav-link sidebar-link rounded">
-                <i class="fa-solid fa-user-circle me-2"></i> Profile
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="{% url 'notifications:list' %}" class="nav-link sidebar-link rounded {% if request.resolver_match.app_name == 'notifications' %}active{% endif %}">
-                <i class="fa-solid fa-bell me-2"></i> Notifications
+            <a href="{% url 'accounts:preferences' %}" class="nav-link sidebar-link">
+                <i class="fa-solid fa-gear"></i> Settings
             </a>
         </li>
     </ul>
+    
+    <!-- Footer Quote -->
+    <div class="mt-auto p-4 text-center border-top border-white border-opacity-10">
+        <i class="fa-solid fa-gavel text-lex-gold mb-2 fs-5"></i>
+        <h6 class="text-lex-gold mb-1" style="font-family: var(--font-family-serif);">धर्मी रक्षति रक्षित:</h6>
+        <p class="text-white-50 small mb-0" style="font-size: 0.7rem; font-style: italic;">Dharma protects those who protect it.</p>
+    </div>
 </aside>
 {% endif %}

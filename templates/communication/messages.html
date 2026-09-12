@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enterprise Messaging | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0 d-flex flex-column" style="height: calc(100vh - 100px);">
+    <!-- Top Header Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+            <h3 class="mb-0 fw-bold font-serif text-navy">
+                <i class="fa-solid fa-comments me-2 text-info"></i> Secure Communications
+            </h3>
+            <p class="text-muted small mb-0 mt-1">End-to-End Encrypted messaging for clients and legal counsel.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-navy btn-sm rounded-pill px-4 fw-bold hover-lift">
+                <i class="fa-solid fa-video me-1"></i> Start Video Call
+            </button>
+            <button class="btn btn-info btn-sm rounded-pill px-4 fw-bold hover-lift text-white ms-2 shadow-sm">
+                <i class="fa-solid fa-pen-to-square me-1"></i> New Message
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="row g-0 flex-grow-1 card card-premium shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+        <!-- Sidebar: Chat List -->
+        <div class="col-md-4 col-lg-3 border-end bg-light d-flex flex-column h-100">
+            <div class="p-3 border-bottom bg-white">
+                <div class="position-relative">
+                    <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 15px; top: 12px;"></i>
+                    <input type="text" class="form-control rounded-pill ps-5 bg-light border-0" placeholder="Search messages...">
+                </div>
+            </div>
+            <div class="flex-grow-1 overflow-auto" id="conversation-list">
+                {% for conv in conversations %}
+                <div class="d-flex align-items-center p-3 border-bottom cursor-pointer hover-bg-light conv-item" 
+                     id="conv-item-{{ conv.id }}"
+                     onclick="loadConversation({{ conv.id }})">
+                    <div class="position-relative me-3">
+                        <div class="bg-navy text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm" style="width: 45px; height: 45px;">
+                            <span class="fw-bold"><i class="fa-solid fa-user"></i></span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0 fw-bold text-navy text-truncate">
+                                {% if conv.case %}{{ conv.case.title }}{% else %}Conversation #{{ conv.id }}{% endif %}
+                            </h6>
+                            <small class="text-info fw-bold" style="font-size: 0.7rem;">{{ conv.last_message_at|date:"M d"|default:"" }}</small>
+                        </div>
+                        <p class="mb-0 text-dark small text-truncate fw-bold">Click to view messages...</p>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="p-4 text-center text-muted small">
+                    No active conversations.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="col-md-8 col-lg-9 d-flex flex-column h-100 bg-white position-relative">
+            
+            <!-- Placeholder when no chat is selected -->
+            <div id="chat-placeholder" class="w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-light">
+                <i class="fa-regular fa-comments text-muted mb-3" style="font-size: 80px; opacity: 0.2;"></i>
+                <h5 class="fw-bold text-muted">Select a conversation</h5>
+                <p class="text-muted small">Choose a chat from the sidebar to start messaging.</p>
+            </div>
+            
+            <!-- Active Chat Window -->
+            <div id="chat-window" class="d-none flex-column h-100 w-100">
+                <!-- Chat Header -->
+                <div class="p-3 border-bottom bg-white d-flex justify-content-between align-items-center shadow-sm z-1">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-navy text-white rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 45px; height: 45px;">
+                            <span class="fw-bold"><i class="fa-solid fa-user"></i></span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-navy" id="chat-header-title">Conversation</h6>
+                            <small class="text-secondary fw-bold d-flex align-items-center">
+                                <i id="chat-status-indicator" class="fa-solid fa-circle me-1" style="font-size: 6px; color: gray;"></i> 
+                                <span id="chat-status-text">Offline</span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 text-muted">
+                        <button class="btn btn-light rounded-circle"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        <button class="btn btn-light rounded-circle"><i class="fa-solid fa-phone"></i></button>
+                        <button class="btn btn-light rounded-circle"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                    </div>
+                </div>
+                
+                <!-- Chat Messages -->
+                <div class="flex-grow-1 p-4 overflow-auto" id="messages-container" style="background-color: #f8f9fc;">
+                    <div class="text-center mb-4"><span class="badge bg-white text-muted border px-3 py-1 shadow-sm rounded-pill"><i class="fa-solid fa-lock text-warning me-1"></i> Messages are E2E Encrypted</span></div>
+                    
+                    <!-- Dynamic Messages injected here -->
+                </div>
+                
+                <!-- Typing Indicator -->
+                <div class="px-4 py-2 bg-light text-muted small d-none fst-italic" id="typing-indicator">
+                    Someone is typing...
+                </div>
+
+                <!-- Chat Input -->
+                <div class="p-3 bg-white border-top shadow-sm z-1">
+                    <form class="d-flex align-items-end gap-2" onsubmit="sendMessage(event)">
+                        <button type="button" class="btn btn-light rounded-circle text-muted"><i class="fa-solid fa-paperclip"></i></button>
+                        <div class="flex-grow-1">
+                            <input type="text" id="chat-input" class="form-control bg-light border-0" placeholder="Type a secure message..." autocomplete="off">
+                        </div>
+                        <button type="submit" class="btn btn-info text-white rounded-circle shadow-sm" style="width: 40px; height: 40px;"><i class="fa-solid fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* Module specific styles can go here if needed */
+</style>
+
+<script>
+  let currentConversationId = null;
+  let chatSocket = null;
+  let currentUserId = {{ request.user.id }};
+  let typingTimeout = null;
+
+  async function loadConversation(id) {
+    if (chatSocket) {
+      chatSocket.close();
+    }
+    
+    // UI selection state
+    document.querySelectorAll('.conv-item').forEach(el => {
+        el.classList.remove('bg-info', 'bg-opacity-10', 'border-info', 'border-start', 'border-4');
+    });
+    document.getElementById(`conv-item-${id}`).classList.add('bg-info', 'bg-opacity-10', 'border-info', 'border-start', 'border-4');
+    
+    currentConversationId = id;
+    document.getElementById('chat-placeholder').classList.remove('d-flex');
+    document.getElementById('chat-placeholder').classList.add('d-none');
+    
+    document.getElementById('chat-window').classList.remove('d-none');
+    document.getElementById('chat-window').classList.add('d-flex');
+    
+    const container = document.getElementById('messages-container');
+    container.innerHTML = '<div class="text-center mb-4"><span class="badge bg-white text-muted border px-3 py-1 shadow-sm rounded-pill"><i class="fa-solid fa-lock text-warning me-1"></i> Messages are E2E Encrypted</span></div>';
+    
+    // Fetch initial messages
+    try {
+      const response = await fetch(`/communication/api/conversations/${id}/`);
+      if (response.ok) {
+        const data = await response.json();
+        data.messages.forEach(msg => appendMessage(msg));
+        scrollToBottom();
+        markAsRead(data.messages);
+      }
+    } catch (err) {
+      console.error("Failed to load messages", err);
+    }
+    
+    // Connect WebSocket
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    chatSocket = new WebSocket(`${wsScheme}://${window.location.host}/ws/chat/${id}/`);
+    
+    chatSocket.onopen = function(e) {
+      updatePresence('online');
+    };
+
+    chatSocket.onmessage = function(e) {
+      const data = JSON.parse(e.data);
+      
+      if (data.type === 'new_message') {
+        appendMessage(data.message);
+        scrollToBottom();
+        
+        if (data.message.sender_id !== currentUserId) {
+          markAsRead([data.message]);
+        }
+      } else if (data.type === 'typing') {
+        const indicator = document.getElementById('typing-indicator');
+        if (data.is_typing) {
+          indicator.classList.remove('d-none');
+        } else {
+          indicator.classList.add('d-none');
+        }
+      } else if (data.type === 'presence') {
+        updatePresence(data.status);
+      } else if (data.type === 'read_receipt') {
+        data.message_ids.forEach(id => {
+          const el = document.getElementById(`msg-status-${id}`);
+          if (el) el.innerText = 'Read';
+        });
+      }
+    };
+
+    chatSocket.onclose = function(e) {
+      updatePresence('offline');
+    };
+  }
+  
+  function updatePresence(status) {
+    const indicator = document.getElementById('chat-status-indicator');
+    const text = document.getElementById('chat-status-text');
+    if (status === 'online') {
+      indicator.style.color = '#198754'; // Bootstrap success green
+      text.innerText = 'Online';
+      text.className = 'text-success ms-1';
+    } else {
+      indicator.style.color = 'gray';
+      text.innerText = 'Offline';
+      text.className = 'text-secondary ms-1';
+    }
+  }
+
+  function appendMessage(msg) {
+    const container = document.getElementById('messages-container');
+    const isMe = msg.sender_id === currentUserId;
+    
+    const div = document.createElement('div');
+    div.className = `d-flex mb-3 ${isMe ? 'justify-content-end' : ''}`;
+    
+    let html = '';
+    
+    if (isMe) {
+        html = `
+        <div class="bg-info text-white rounded-3 p-3 shadow-sm" style="max-width: 75%; border-bottom-right-radius: 4px !important;">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="text-white-50 ms-3" style="font-size: 0.7rem;">${msg.created_at}</span>
+                <span class="fw-bold small text-white">You <span id="msg-status-${msg.id}" class="ms-1 fw-normal" style="font-size: 0.65rem;">(${msg.is_read ? 'Read' : msg.status})</span></span>
+            </div>
+            <p class="mb-0 small">${msg.content}</p>
+        </div>
+        `;
+    } else {
+        const initials = msg.sender_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        html = `
+        <div class="bg-navy text-white rounded-circle d-flex justify-content-center align-items-center me-2 mt-auto" style="width: 28px; height: 28px; font-size: 10px;">
+            <span class="fw-bold">${initials}</span>
+        </div>
+        <div class="bg-white border rounded-3 p-3 shadow-sm" style="max-width: 75%; border-bottom-left-radius: 4px !important;">
+            <div class="d-flex justify-content-between mb-1">
+                <span class="fw-bold small text-navy">${msg.sender_name}</span>
+                <span class="text-muted ms-3" style="font-size: 0.7rem;">${msg.created_at}</span>
+            </div>
+            <p class="mb-0 text-dark small">${msg.content}</p>
+        </div>
+        `;
+    }
+    
+    div.innerHTML = html;
+    container.appendChild(div);
+  }
+  
+  function scrollToBottom() {
+    const container = document.getElementById('messages-container');
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function sendMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('chat-input');
+    const content = input.value;
+    
+    if (content.trim() && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+      chatSocket.send(JSON.stringify({
+        'action': 'send_message',
+        'content': content
+      }));
+      input.value = '';
+      
+      chatSocket.send(JSON.stringify({
+        'action': 'typing_stop'
+      }));
+    }
+  }
+  
+  function markAsRead(messages) {
+    const unreadIds = messages.filter(m => !m.is_read && m.sender_id !== currentUserId).map(m => m.id);
+    if (unreadIds.length > 0 && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+      chatSocket.send(JSON.stringify({
+        'action': 'read_messages',
+        'message_ids': unreadIds
+      }));
+    }
+  }
+
+  document.getElementById('chat-input').addEventListener('input', function() {
+    if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) return;
+    
+    chatSocket.send(JSON.stringify({
+      'action': 'typing_start'
+    }));
+    
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      chatSocket.send(JSON.stringify({
+        'action': 'typing_stop'
+      }));
+    }, 1500);
+  });
+</script>
+{% endblock %}

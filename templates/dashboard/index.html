@@ -3,11 +3,10 @@
 {% block title %}Dashboard | Lex Regis{% endblock %}
 
 {% block content %}
-<!-- Top Header / Greeting -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="fw-bold mb-1" style="color: var(--color-primary); font-family: var(--font-family-serif);">
-            Welcome back, {{ request.user.first_name|default:request.user.email }} <i class="fa-solid fa-crown text-warning"></i>
+        <h2 class="fw-bold mb-1 text-lex-navy" style="font-family: var(--font-family-serif);">
+            Welcome back, {{ request.user.first_name|default:request.user.email }} <i class="fa-solid fa-crown text-lex-gold"></i>
         </h2>
         <p class="text-muted mb-0">{{ request.user.get_role_display|default:"Advocate" }} Dashboard</p>
     </div>
@@ -218,15 +217,15 @@
     <div class="col-12 col-xl-4 d-flex flex-column gap-4">
         
         <!-- AI Legal Assistant -->
-        <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background-color: var(--color-primary-dark); color: white;">
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background-color: var(--lex-navy-dark); color: white;">
             <div class="card-header bg-transparent border-bottom border-light border-opacity-25 pt-4 pb-3">
-                <h6 class="fw-bold text-accent mb-0"><i class="fa-solid fa-scale-balanced me-2"></i> AI Legal Assistant</h6>
+                <h6 class="fw-bold text-lex-gold mb-0"><i class="fa-solid fa-scale-balanced me-2"></i> AI Legal Assistant</h6>
             </div>
             <div class="card-body p-4">
                 <p class="mb-4">Hello {{ request.user.first_name|default:"Vinayak" }}, how can I assist you today?</p>
-                <form action="{% url 'ai:chat' %}" method="GET" class="input-group mb-4">
+                <form action="{% url 'ai:chat' %}" method="GET" class="input-group mb-4 shadow-sm">
                     <input type="text" name="q" class="form-control border-0 py-2 ps-3" placeholder="Ask a legal question..." style="border-radius: 8px 0 0 8px;" required>
-                    <button type="submit" class="btn btn-accent px-3" style="border-radius: 0 8px 8px 0;"><i class="fa-solid fa-paper-plane text-primary-dark"></i></button>
+                    <button type="submit" class="btn bg-lex-gold text-lex-navy-dark px-3" style="border-radius: 0 8px 8px 0;"><i class="fa-solid fa-paper-plane"></i></button>
                 </form>
                 
                 <p class="text-white-50 small mb-2">Try asking:</p>

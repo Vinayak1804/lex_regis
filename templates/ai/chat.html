@@ -7,9 +7,9 @@
     
     <!-- Sidebar / Conversation History -->
     <div class="col-12 col-md-4 col-xl-3 mb-4 mb-md-0 d-flex flex-column">
-        <div class="card border-0 shadow-sm rounded-4 flex-grow-1">
+        <div class="card border-0 shadow-sm flex-grow-1">
             <div class="card-header bg-transparent border-bottom pt-4 pb-3">
-                <h6 class="fw-bold text-dark text-uppercase mb-0">Chat History</h6>
+                <h6 class="fw-bold text-lex-navy text-uppercase mb-0">Chat History</h6>
             </div>
             <div class="card-body p-0 overflow-auto">
                 <div class="list-group list-group-flush">
@@ -31,24 +31,24 @@
 
     <!-- Main Chat Area -->
     <div class="col-12 col-md-8 col-xl-9 d-flex flex-column">
-        <div class="card border-0 shadow-sm rounded-4 flex-grow-1 d-flex flex-column overflow-hidden">
+        <div class="card border-0 shadow-sm flex-grow-1 d-flex flex-column overflow-hidden" style="background-color: var(--lex-navy-dark); color: var(--lex-ivory);">
             
             <!-- Chat Header -->
-            <div class="card-header bg-white border-bottom pt-3 pb-3 d-flex justify-content-between align-items-center z-1 shadow-sm">
+            <div class="card-header bg-lex-navy border-bottom border-light border-opacity-10 pt-3 pb-3 d-flex justify-content-between align-items-center z-1 shadow-sm">
                 <div>
-                    <h5 class="fw-bold mb-1 text-primary"><i class="fa-solid fa-scale-balanced me-2 text-accent"></i> Lex AI Assistant</h5>
-                    <p class="text-muted mb-0 small">
+                    <h5 class="fw-bold mb-1 text-lex-gold"><i class="fa-solid fa-scale-balanced me-2"></i> Lex AI Assistant</h5>
+                    <p class="text-white-50 mb-0 small">
                         {% if conversation.case %}Case: {{ conversation.case.title }}{% elif conversation.document %}Doc: {{ conversation.document.original_file.name }}{% else %}General Legal Assistant{% endif %}
                     </p>
                 </div>
                 <div>
-                    <button class="btn btn-sm btn-outline-secondary rounded-pill me-2"><i class="fa-solid fa-file-export me-1"></i> Export</button>
+                    <button class="btn btn-sm btn-outline-light rounded-pill me-2"><i class="fa-solid fa-file-export me-1"></i> Export</button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill"><i class="fa-solid fa-trash me-1"></i> Clear</button>
                 </div>
             </div>
 
             <!-- Chat Messages (Scrollable) -->
-            <div class="card-body p-4 overflow-auto flex-grow-1" id="chat-messages" style="background-color: #f8f9fa;">
+            <div class="card-body p-4 overflow-auto flex-grow-1" id="chat-messages">
                 {% include 'ai/partials/message_list.html' with messages=messages %}
                 
                 <div id="typing-indicator" class="d-none">
@@ -68,20 +68,20 @@
             </div>
 
             <!-- Chat Input Area -->
-            <div class="card-footer bg-white border-top p-4 z-1 shadow-sm">
+            <div class="card-footer bg-lex-navy border-top border-light border-opacity-10 p-4 z-1 shadow-sm">
                 <form id="chat-form" hx-post="{% url 'ai:chat_send' %}" hx-target="#chat-messages" hx-swap="beforeend" hx-indicator="#typing-indicator" onsubmit="setTimeout(() => { document.getElementById('chat-input').value = ''; scrollToBottom(); }, 10);">
                     {% csrf_token %}
                     <input type="hidden" name="conversation_id" value="{{ conversation.id }}">
                     
-                    <div class="input-group input-group-lg bg-white border rounded-pill p-1 shadow-sm focus-ring">
-                        <input type="text" id="chat-input" name="content" class="form-control border-0 bg-transparent shadow-none" placeholder="Ask a legal question, request a summary, or analyze a clause..." autocomplete="off" required>
-                        <button type="submit" class="btn btn-accent rounded-circle ms-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
-                            <i class="fa-solid fa-paper-plane text-primary-dark"></i>
+                    <div class="input-group input-group-lg bg-lex-cream border-0 rounded-pill p-1 shadow-sm focus-ring" style="background-color: var(--lex-cream);">
+                        <input type="text" id="chat-input" name="content" class="form-control border-0 bg-transparent shadow-none text-lex-navy" placeholder="Ask a legal question, request a summary, or analyze a clause..." autocomplete="off" required>
+                        <button type="submit" class="btn btn-primary rounded-circle ms-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 46px; height: 46px;">
+                            <i class="fa-solid fa-paper-plane text-lex-navy-dark"></i>
                         </button>
                     </div>
                 </form>
                 <div class="text-center mt-2">
-                    <small class="text-muted" style="font-size: 0.7rem;">Lex AI can make mistakes. Verify important information.</small>
+                    <small class="text-white-50" style="font-size: 0.7rem;">Lex AI can make mistakes. Verify important information.</small>
                 </div>
             </div>
 

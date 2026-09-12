@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Consultation | Lex Regis{% endblock %}</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Custom Theme -->
+    <link rel="stylesheet" href="/static/css/theme.css">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    {% csrf_token %}
+</head>
+<body class="bg-lex-ivory lex-regis-app" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column;">
+
+    <!-- Top Header Bar (Premium Light) -->
+    <header class="bg-white px-4 py-3 d-flex justify-content-between align-items-center shadow-sm z-2 border-bottom">
+        <div class="d-flex align-items-center">
+            <h4 class="mb-0 fw-bold font-serif me-3 text-lex-navy">LEX REGIS</h4>
+            {% if request.resolver_match.url_name == 'wizard' %}
+                <span class="badge lex-badge lex-badge-primary">AI Legal Intake</span>
+            {% else %}
+                <span class="badge lex-badge lex-badge-gold">Talk to a Lawyer</span>
+            {% endif %}
+        </div>
+        
+        <!-- Progress Bar for Wizard -->
+        {% if request.resolver_match.url_name == 'talk_wizard' %}
+        <div class="d-none d-md-flex align-items-center" id="wizardProgressContainer" style="width: 300px;">
+            <div class="progress flex-grow-1 me-3" style="height: 6px; background-color: var(--lex-surface-light);">
+                <div class="progress-bar bg-lex-gold" id="wizardProgressBar" role="progressbar" style="width: 0%; background-color: var(--lex-gold);"></div>
+            </div>
+            <span class="small fw-bold text-lex-text-muted" id="wizardProgressText">1 of ?</span>
+        </div>
+        {% endif %}
+
+        <div class="d-flex align-items-center gap-4">
+            <a href="/" class="btn btn-lex-secondary btn-sm px-3">Exit <i class="fa-solid fa-right-from-bracket ms-1"></i></a>
+        </div>
+    </header>
+
+    <!-- Layout Container -->
+    <div class="d-flex flex-grow-1" style="height: calc(100vh - 65px);">
+        
+        <!-- LEFT PANEL: Consultation Progress -->
+        {% if request.resolver_match.url_name != 'wizard' %}
+            {% include 'intake/components/consult_sidebar.html' %}
+        {% endif %}
+        
+        <!-- CENTER PANEL: Main Content -->
+        <main class="flex-grow-1 overflow-auto position-relative" style="min-width: 0;">
+            {% block content %}
+            {% endblock %}
+        </main>
+        
+        <!-- RIGHT PANEL: Lex AI Assistant Offcanvas -->
+        {% include 'intake/components/consult_ai_assistant.html' %}
+        
+    </div>
+    
+    <!-- Floating AI Button -->
+    <button class="btn btn-lex-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center position-fixed" 
+            style="bottom: 30px; right: 30px; width: 60px; height: 60px; z-index: 1050;"
+            data-bs-toggle="offcanvas" data-bs-target="#aiAssistantDrawer" aria-controls="aiAssistantDrawer">
+        <i class="fa-solid fa-robot fs-4"></i>
+    </button>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Listen for progress updates from the wizard
+        window.addEventListener('update-progress', (e) => {
+            const bar = document.getElementById('wizardProgressBar');
+            const text = document.getElementById('wizardProgressText');
+            if (bar && text) {
+                const percentage = (e.detail.step / e.detail.total) * 100;
+                bar.style.width = percentage + '%';
+                text.textContent = 'Step ' + e.detail.step + ' of ' + e.detail.total;
+            }
+        });
+    </script>
+
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>

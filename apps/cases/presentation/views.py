@@ -9,8 +9,9 @@ class CaseListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         search_query = self.request.GET.get('q')
+        source_filter = self.request.GET.get('source')
         presenter = CasePresenter(self.request.user)
-        context.update(presenter.build_list_context(search_query))
+        context.update(presenter.build_list_context(search_query, source_filter))
         
         if is_htmx(self.request):
             self.template_name = 'cases/partials/case_table.html'

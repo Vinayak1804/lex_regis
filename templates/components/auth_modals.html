@@ -26,50 +26,54 @@
                         
                         <!-- Client Role -->
                         <div class="col-md-6">
-                            <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center"
-                                 @click="selectRole('client')">
-                                <div class="role-icon-wrapper bg-primary bg-opacity-10 text-primary">
-                                    <i class="fa-solid fa-user"></i>
+                            <a href="{% url 'accounts:client_login' %}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-block h-100">
+                                <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center">
+                                    <div class="role-icon-wrapper bg-primary bg-opacity-10 text-primary">
+                                        <i class="fa-solid fa-user"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Client</h5>
+                                    <p class="text-muted small mb-0">I am looking for legal assistance or managing my case.</p>
                                 </div>
-                                <h5 class="fw-bold mb-2">Client</h5>
-                                <p class="text-muted small mb-0">I am looking for legal assistance or managing my case.</p>
-                            </div>
+                            </a>
                         </div>
                         
                         <!-- Lawyer Role -->
                         <div class="col-md-6">
-                            <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center"
-                                 @click="selectRole('lawyer')">
-                                <div class="role-icon-wrapper bg-gold bg-opacity-10 text-gold">
-                                    <i class="fa-solid fa-scale-balanced"></i>
+                            <a href="{% url 'accounts:lawyer_login' %}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-block h-100">
+                                <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center">
+                                    <div class="role-icon-wrapper bg-gold bg-opacity-10 text-gold">
+                                        <i class="fa-solid fa-scale-balanced"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Lawyer</h5>
+                                    <p class="text-muted small mb-0">I am an advocate offering legal services.</p>
                                 </div>
-                                <h5 class="fw-bold mb-2">Lawyer</h5>
-                                <p class="text-muted small mb-0">I am an advocate offering legal services.</p>
-                            </div>
+                            </a>
                         </div>
                         
                         <!-- Law Firm Role -->
                         <div class="col-md-6">
-                            <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center"
-                                 @click="selectRole('law_firm')">
-                                <div class="role-icon-wrapper bg-navy bg-opacity-10 text-navy">
-                                    <i class="fa-solid fa-building"></i>
+                            <a href="{% url 'accounts:law_firm_login' %}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-block h-100">
+                                <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center">
+                                    <div class="role-icon-wrapper bg-navy bg-opacity-10 text-navy">
+                                        <i class="fa-solid fa-building"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Law Firm</h5>
+                                    <p class="text-muted small mb-0">I represent an organization of legal professionals.</p>
                                 </div>
-                                <h5 class="fw-bold mb-2">Law Firm</h5>
-                                <p class="text-muted small mb-0">I represent an organization of legal professionals.</p>
-                            </div>
+                            </a>
                         </div>
                         
                         <!-- Administrator Role -->
                         <div class="col-md-6" x-show="mode === 'login'">
-                            <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center"
-                                 @click="selectRole('admin')">
-                                <div class="role-icon-wrapper bg-secondary bg-opacity-10 text-secondary">
-                                    <i class="fa-solid fa-shield-halved"></i>
+                            <a href="{% url 'accounts:admin_login' %}" target="_blank" rel="noopener noreferrer" class="text-decoration-none text-dark d-block h-100">
+                                <div class="role-card h-100 p-4 text-center d-flex flex-column align-items-center">
+                                    <div class="role-icon-wrapper bg-secondary bg-opacity-10 text-secondary">
+                                        <i class="fa-solid fa-shield-halved"></i>
+                                    </div>
+                                    <h5 class="fw-bold mb-2">Administrator</h5>
+                                    <p class="text-muted small mb-0">System management and oversight.</p>
                                 </div>
-                                <h5 class="fw-bold mb-2">Administrator</h5>
-                                <p class="text-muted small mb-0">System management and oversight.</p>
-                            </div>
+                            </a>
                         </div>
                         
                     </div>

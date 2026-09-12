@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talk to a Lawyer | Lex Regis</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Custom Theme -->
+    <link rel="stylesheet" href="/static/css/theme.css">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    
+    <style>
+        .question-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .question-card.fade-out {
+            opacity: 0;
+            transform: translateY(-15px);
+        }
+        .question-card.fade-in {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        
+        .choice-card {
+            border: 1px solid var(--lex-border, #e2e8f0);
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #ffffff;
+            text-align: center;
+            font-weight: 500;
+            color: var(--lex-text, #333);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .choice-card:hover {
+            border-color: rgba(201, 162, 77, 0.4);
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .choice-card.selected {
+            border-color: #c5a059;
+            background: rgba(201, 162, 77, 0.05);
+            color: #0a192f;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 1px #c5a059;
+        }
+        
+        .conversational-input {
+            border-radius: 12px;
+            border: 1px solid var(--lex-border, #e2e8f0);
+            background-color: #ffffff;
+            padding: 20px;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            transition: all 0.2s;
+            resize: none;
+            width: 100%;
+        }
+        .conversational-input:focus {
+            background-color: #ffffff;
+            border-color: #c5a059;
+            box-shadow: 0 0 0 3px rgba(201, 162, 77, 0.15);
+            outline: none;
+        }
+        
+        .progress-compact {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            transition: all 0.3s;
+        }
+        .progress-dot.active {
+            background-color: #c5a059;
+            transform: scale(1.2);
+        }
+        .progress-line {
+            height: 2px;
+            width: 30px;
+            background-color: #e2e8f0;
+            transition: all 0.3s;
+        }
+        .progress-line.active {
+            background-color: #c5a059;
+        }
+        
+        body {
+            background-color: #fbfaf9; /* warm ivory / very light neutral */
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .question-card {
+                transition: opacity 0.3s ease !important;
+                transform: none !important;
+            }
+            .question-card.fade-out, .question-card.fade-in {
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="lex-regis-app" style="height: 100vh; overflow: hidden; display: flex; flex-direction: column;" x-data="intakeEngine()">
+
+    <!-- Header -->
+    <header class="bg-white px-4 py-3 d-flex justify-content-between align-items-center shadow-sm z-2 border-bottom">
+        <div class="d-flex align-items-center">
+            <h4 class="mb-0 fw-bold font-serif me-3" style="color: #0a192f;">LEX REGIS</h4>
+            <span class="badge" style="background-color: #c5a059; color: #fff;">Talk to a Lawyer</span>
+        </div>
+        
+        <!-- Compact Progress -->
+        <div class="d-none d-md-flex progress-compact" x-show="!showReview">
+            <template x-for="i in Math.min(6, visibleQuestions.length)" :key="i">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="progress-dot" :class="{'active': (i-1) <= currentQuestionIndex}"></div>
+                    <div class="progress-line" x-show="i < Math.min(6, visibleQuestions.length)" :class="{'active': (i-1) < currentQuestionIndex}"></div>
+                </div>
+            </template>
+        </div>
+        
+        <!-- Mobile Progress -->
+        <div class="d-md-none text-muted small fw-bold" x-show="!showReview">
+            <span x-text="(currentQuestionIndex + 1) + ' of ' + visibleQuestions.length"></span>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <span class="small fw-bold d-none d-sm-block" style="color: #6c757d;">
+                <span x-show="hasSavedData">Draft saved locally ✓</span>
+                <span x-show="!hasSavedData"></span>
+            </span>
+            <a href="/" class="btn btn-sm px-3 rounded-pill" style="border: 1px solid #0a192f; color: #0a192f; background-color: transparent;">Exit <i class="fa-solid fa-arrow-right ms-1"></i></a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="d-flex flex-grow-1 position-relative overflow-auto">
+        <!-- Main Area -->
+        <main class="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4">
+            
+            <div class="w-100" style="max-width: 800px;">
+                
+                <!-- Microcopy -->
+                <div class="text-center mb-4" style="height: 24px;" x-show="!showReview">
+                    <span class="small fw-bold text-uppercase transition-all" style="letter-spacing: 1.5px; color: #6c757d;" x-text="currentMicrocopy"></span>
+                </div>
+
+                <!-- Questions Flow -->
+                <div x-show="!showReview" class="question-card text-center" :class="{ 'fade-out': transitioningOut, 'fade-in': transitioningIn }">
+                    <template x-if="currentQuestion">
+                        <div>
+                            <h2 class="fw-bold mb-3 font-serif" style="font-size: 2.75rem; color: #0a192f; line-height: 1.2;" x-text="currentQuestion.text"></h2>
+                            <p class="fs-5 mb-5 mx-auto" style="max-width: 600px; color: #6c757d;" x-show="currentQuestion.subtext" x-text="currentQuestion.subtext"></p>
+                            
+                            <!-- Textarea -->
+                            <template x-if="currentQuestion.type === 'textarea'">
+                                <div class="text-start">
+                                    <textarea class="conversational-input" 
+                                              rows="4"
+                                              x-model="answers[currentQuestion.id]" 
+                                              @keydown.shift.enter="return"
+                                              @keydown.enter.prevent="next()"
+                                              @input="autoGrow($el); saveDraft()"
+                                              :placeholder="currentQuestion.placeholder || 'Type here...'"
+                                              x-ref="currentInput"></textarea>
+                                </div>
+                            </template>
+
+                            <!-- Short Text -->
+                            <template x-if="currentQuestion.type === 'text'">
+                                <div class="text-start">
+                                    <input type="text" class="conversational-input" 
+                                           x-model="answers[currentQuestion.id]"
+                                           @keydown.enter.prevent="next()"
+                                           @input="saveDraft()"
+                                           x-ref="currentInput"
+                                           :placeholder="currentQuestion.placeholder || 'Type here...'">
+                                </div>
+                            </template>
+                            
+                            <!-- Date -->
+                            <template x-if="currentQuestion.type === 'date'">
+                                <div class="text-start">
+                                    <input type="date" class="conversational-input" 
+                                           x-model="answers[currentQuestion.id]"
+                                           @keydown.enter.prevent="next()"
+                                           @change="saveDraft()"
+                                           x-ref="currentInput">
+                                </div>
+                            </template>
+
+                            <!-- Choice Cards -->
+                            <template x-if="currentQuestion.type === 'choice'">
+                                <div class="row justify-content-center g-3 mt-4">
+                                    <template x-for="option in currentQuestion.options" :key="option">
+                                        <div class="col-6 col-md-4">
+                                            <div class="choice-card" 
+                                                 :class="{ 'selected': answers[currentQuestion.id] === option }"
+                                                 @click="answers[currentQuestion.id] = option; saveDraft(); if(currentQuestion.autoAdvance) next();">
+                                                <span x-text="option"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            
+                        </div>
+                    </template>
+                    
+                    <div class="d-flex justify-content-between align-items-center mt-5">
+                        <button type="button" class="btn btn-link text-decoration-none fw-bold" style="color: #6c757d;" @click="back()" :style="currentQuestionIndex === 0 ? 'visibility: hidden;' : ''">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Back
+                        </button>
+                        
+                        <div class="d-flex flex-column align-items-center">
+                            <button type="button" class="btn px-5 py-3 fw-bold rounded-pill fs-5 d-flex align-items-center shadow-sm border-0" 
+                                    style="transition: all 0.3s;"
+                                    @click="next()" 
+                                    :disabled="!canContinue"
+                                    :style="canContinue ? 'background-color: #c5a059; color: #0a192f; cursor: pointer;' : 'background-color: #e2e8f0; color: #6c757d; cursor: not-allowed;'">
+                                Continue <i class="fa-solid fa-arrow-right ms-3"></i>
+                            </button>
+                            <span class="small mt-2" style="font-size: 0.8rem; color: #6c757d;" x-show="canContinue && (currentQuestion.type === 'textarea' || currentQuestion.type === 'text')">Press Enter to continue</span>
+                        </div>
+                        
+                        <div style="width: 80px;"></div> <!-- Spacer for centering -->
+                    </div>
+                </div>
+
+                <!-- Final Review State -->
+                <div x-show="showReview" class="question-card" style="display: none;">
+                    <div class="text-center mb-5">
+                        <h2 class="fw-bold mb-2 font-serif" style="color: #0a192f;">Let's organize what you've told us.</h2>
+                        <p class="fs-5" style="color: #6c757d;">We have enough information. Please review before we proceed to AI Triage.</p>
+                    </div>
+                    
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-5" style="background: #fff;">
+                        <div class="row g-4">
+                            <template x-for="q in visibleQuestions" :key="q.id">
+                                <div class="col-12 border-bottom pb-3">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="d-block small fw-bold text-uppercase mb-1" style="color: #6c757d;" x-text="q.text"></span>
+                                            <span class="fs-5 text-dark" x-text="answers[q.id] || 'Not answered'"></span>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-light rounded-circle" @click="editQuestion(q.id)" title="Edit">
+                                            <i class="fa-solid fa-pen" style="color: #6c757d;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button type="button" class="btn btn-link text-decoration-none fw-bold" style="color: #6c757d;" @click="back()">
+                            <i class="fa-solid fa-arrow-left me-2"></i> Back
+                        </button>
+                        
+                        <form method="POST" @submit="submitIntake" action="{% url 'intake:talk_wizard' %}" class="m-0">
+                            {% csrf_token %}
+                            <input type="hidden" name="description" :value="answers['description'] || ''">
+                            <input type="hidden" name="category" :value="answers['category'] || ''">
+                            <input type="hidden" name="city" :value="answers['city'] || ''">
+                            <input type="hidden" name="state" :value="answers['state'] || ''">
+                            <input type="hidden" name="incident_date" :value="answers['incident_date'] || ''">
+                            <input type="hidden" name="urgency" :value="mapUrgency(answers['urgency'])">
+                            <input type="hidden" name="budget" :value="answers['budget'] || ''">
+                            <input type="hidden" name="preferred_consultation" :value="answers['preferred_consultation'] || ''">
+                            <input type="hidden" name="preferred_language" :value="answers['preferred_language'] || ''">
+                            <input type="hidden" name="already_have_lawyer" :value="answers['already_have_lawyer'] || ''">
+                            <input type="hidden" name="hearing_scheduled" :value="answers['hearing_scheduled'] === 'Yes' ? 'true' : 'false'">
+                            <input type="hidden" name="extra_context" :value="generateExtraContext()">
+                            
+                            <button type="submit" class="btn px-5 py-3 fw-bold shadow rounded-pill fs-5 d-flex align-items-center" 
+                                    style="background-color: #c5a059; color: #0a192f;"
+                                    :disabled="submitting">
+                                <span x-show="!submitting">Find Lawyers <i class="fa-solid fa-bolt ms-2"></i></span>
+                                <span x-show="submitting"><i class="fa-solid fa-circle-notch fa-spin me-2"></i> Understanding your situation...</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+        
+        <!-- Right Panel: AI Assistant Drawer -->
+        {% include 'intake/components/consult_ai_assistant.html' %}
+    </div>
+
+    <!-- Floating AI Button -->
+    <button class="btn rounded-circle shadow-lg d-flex align-items-center justify-content-center position-fixed" 
+            style="bottom: 30px; right: 30px; width: 64px; height: 64px; z-index: 1050; background-color: #0a192f; border: 2px solid #c5a059; color: #c5a059; transition: transform 0.2s;"
+            onmouseover="this.style.transform='scale(1.1)'"
+            onmouseout="this.style.transform='scale(1)'"
+            data-bs-toggle="offcanvas" data-bs-target="#aiAssistantDrawer" aria-controls="aiAssistantDrawer">
+        <i class="fa-solid fa-robot fs-3"></i>
+    </button>
+    
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('intakeEngine', () => ({
+                currentQuestionIndex: 0,
+                answers: {},
+                showReview: false,
+                transitioningOut: false,
+                transitioningIn: false,
+                submitting: false,
+                hasSavedData: false,
+                
+                microcopies: [
+                    "Take your time.",
+                    "You don't need legal terminology.",
+                    "Tell us only what you're comfortable sharing.",
+                    "We'll organize the details for you.",
+                    "Your information stays secure."
+                ],
+                
+                init() {
+                    const saved = sessionStorage.getItem('lexTalkToLawyerAnswers');
+                    if (saved) {
+                        try { 
+                            const parsed = JSON.parse(saved);
+                            if (Object.keys(parsed).length > 0) {
+                                this.answers = parsed;
+                                this.hasSavedData = true;
+                            }
+                        } catch(e) {}
+                    }
+                    
+                    setTimeout(() => { this.focusInput(); }, 100);
+                },
+                
+                get currentMicrocopy() {
+                    if (this.showReview) return "Review Your Details";
+                    return this.microcopies[this.currentQuestionIndex % this.microcopies.length];
+                },
+                
+                get visibleQuestions() {
+                    let q = [];
+                    q.push({ id: 'description', text: 'What happened?', subtext: 'Tell us in your own words. You don\'t need to know the legal terminology.', type: 'textarea', placeholder: 'Tell us what happened...' });
+                    q.push({ id: 'category', text: 'What type of issue is this?', type: 'choice', options: ['Property', 'Family', 'Criminal', 'Employment', 'Consumer', 'Corporate', 'I Don\'t Know'] });
+                    
+                    const cat = this.answers.category;
+                    if (cat === 'Employment') {
+                        q.push({ id: 'emp_terminated', text: 'Were you terminated?', type: 'choice', options: ['Yes', 'No'] });
+                        if (this.answers.emp_terminated === 'Yes') {
+                            q.push({ id: 'emp_notice', text: 'Did you receive notice?', type: 'choice', options: ['Yes', 'No'] });
+                        }
+                        q.push({ id: 'emp_contract', text: 'Do you have an employment contract?', type: 'choice', options: ['Yes', 'No', 'I\'m not sure'] });
+                    } else if (cat === 'Property') {
+                        q.push({ id: 'prop_type', text: 'Is this regarding ownership or rental?', type: 'choice', options: ['Ownership', 'Rental', 'Other'] });
+                        q.push({ id: 'prop_notice', text: 'Have you received any legal notice?', type: 'choice', options: ['Yes', 'No'] });
+                    } else if (cat === 'Family') {
+                        q.push({ id: 'fam_type', text: 'What type of family matter is this?', type: 'choice', options: ['Divorce', 'Custody', 'Maintenance', 'Domestic Violence', 'Other'] });
+                    } else if (cat === 'Criminal') {
+                        q.push({ id: 'crim_fir', text: 'Has an FIR been filed?', type: 'choice', options: ['Yes', 'No', 'I\'m not sure'] });
+                    }
+                    
+                    q.push({ id: 'city', text: 'Where are you located?', subtext: 'City name', type: 'text', placeholder: 'Enter city' });
+                    q.push({ id: 'state', text: 'State', type: 'text', placeholder: 'Enter state' });
+                    q.push({ id: 'incident_date', text: 'When did this happen?', type: 'date' });
+                    q.push({ id: 'urgency', text: 'How urgent is it?', type: 'choice', options: ['Exploring', 'This Week', 'Urgent', 'Emergency'] });
+                    q.push({ id: 'hearing_scheduled', text: 'Do you have any upcoming hearing or deadline?', type: 'choice', options: ['Yes', 'No', 'I\'m not sure'] });
+                    q.push({ id: 'preferred_consultation', text: 'What consultation mode do you prefer?', type: 'choice', options: ['Video', 'Audio', 'Chat'] });
+                    q.push({ id: 'preferred_language', text: 'Preferred Language?', type: 'choice', options: ['English', 'Hindi', 'Marathi', 'Any'] });
+                    q.push({ id: 'budget', text: 'What is your approximate budget?', type: 'choice', options: ['₹500–₹2,000', '₹2,000–₹5,000', '₹5,000–₹10,000', '₹10,000+', 'Flexible'] });
+                    q.push({ id: 'already_have_lawyer', text: 'Have you already hired a lawyer?', type: 'choice', options: ['Yes', 'No', 'Not Sure'] });
+                    
+                    return q;
+                },
+                
+                get currentQuestion() {
+                    return this.visibleQuestions[this.currentQuestionIndex];
+                },
+                
+                get canContinue() {
+                    if (!this.currentQuestion) return false;
+                    const val = this.answers[this.currentQuestion.id];
+                    if (this.currentQuestion.type === 'textarea' || this.currentQuestion.type === 'text') {
+                        return val && val.trim().length > 0;
+                    }
+                    return val !== undefined && val !== '';
+                },
+                
+                saveDraft() {
+                    sessionStorage.setItem('lexTalkToLawyerAnswers', JSON.stringify(this.answers));
+                    this.hasSavedData = true;
+                },
+                
+                autoGrow(el) {
+                    el.style.height = 'auto';
+                    el.style.height = (el.scrollHeight) + 'px';
+                },
+                
+                next() {
+                    if (!this.canContinue) return;
+                    
+                    this.saveDraft();
+
+                    this.transitioningOut = true;
+                    this.transitioningIn = false;
+                    
+                    setTimeout(() => {
+                        if (this.currentQuestionIndex < this.visibleQuestions.length - 1) {
+                            this.currentQuestionIndex++;
+                        } else {
+                            this.showReview = true;
+                        }
+                        this.transitioningOut = false;
+                        this.transitioningIn = true;
+                        
+                        setTimeout(() => {
+                            this.transitioningIn = false;
+                            this.focusInput();
+                        }, 50);
+                    }, 400);
+                },
+                
+                back() {
+                    this.transitioningOut = true;
+                    setTimeout(() => {
+                        if (this.showReview) {
+                            this.showReview = false;
+                        } else if (this.currentQuestionIndex > 0) {
+                            this.currentQuestionIndex--;
+                        }
+                        this.transitioningOut = false;
+                        this.transitioningIn = true;
+                        
+                        setTimeout(() => {
+                            this.transitioningIn = false;
+                            this.focusInput();
+                        }, 50);
+                    }, 400);
+                },
+                
+                editQuestion(id) {
+                    const idx = this.visibleQuestions.findIndex(q => q.id === id);
+                    if (idx !== -1) {
+                        this.showReview = false;
+                        this.currentQuestionIndex = idx;
+                        setTimeout(() => { this.focusInput(); }, 100);
+                    }
+                },
+                
+                focusInput() {
+                    if (this.$refs.currentInput) {
+                        this.$refs.currentInput.focus();
+                        if (this.$refs.currentInput.tagName.toLowerCase() === 'textarea') {
+                            this.autoGrow(this.$refs.currentInput);
+                        }
+                    }
+                },
+                
+                submitIntake(e) {
+                    this.submitting = true;
+                    sessionStorage.removeItem('lexTalkToLawyerAnswers');
+                },
+                
+                mapUrgency(val) {
+                    if(val === 'Urgent') return 'URGENT';
+                    if(val === 'Emergency') return 'EMERGENCY';
+                    return 'ROUTINE';
+                },
+                
+                generateExtraContext() {
+                    let ctx = "\n--- Additional Context ---\n";
+                    for(let q of this.visibleQuestions) {
+                        if(!['description', 'category', 'city', 'state', 'incident_date', 'urgency', 'budget', 'preferred_consultation', 'preferred_language', 'already_have_lawyer'].includes(q.id)) {
+                            if(this.answers[q.id]) {
+                                ctx += `${q.text}: ${this.answers[q.id]}\n`;
+                            }
+                        }
+                    }
+                    return ctx;
+                }
+            }));
+        });
+    </script>
+</body>
+</html>

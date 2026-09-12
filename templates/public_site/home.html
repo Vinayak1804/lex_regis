@@ -12,13 +12,13 @@
         <p class="lead mb-5 mx-auto opacity-75" style="max-width: 800px;">
             LEX REGIS combines AI-powered legal assistance, enterprise case management, verified lawyers, and judicial analytics into one integrated platform for citizens, advocates, and law firms.
         </p>
-        <div class="d-flex justify-content-center gap-3">
-            <a href="{% url 'intake:landing' %}" class="btn btn-gold btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg hover-lift">
-                Start AI Legal Analysis <i class="fa-solid fa-arrow-right ms-2"></i>
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+            <a href="{% url 'intake:talk_wizard' %}" target="_blank" rel="noopener noreferrer" class="btn btn-gold btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg hover-lift">
+                Talk to a Lawyer <i class="fa-solid fa-comments ms-2"></i>
             </a>
             {% if user.is_authenticated %}
                 {% if user.role == 'CLIENT' %}
-                    <a href="{% url 'intake:landing' %}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold hover-lift bg-navy bg-opacity-50">
+                    <a href="{% url 'intake:landing' %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold hover-lift bg-navy bg-opacity-50">
                         Find a Lawyer
                     </a>
                 {% else %}
@@ -27,10 +27,13 @@
                     </button>
                 {% endif %}
             {% else %}
-                <button type="button" data-bs-toggle="modal" data-bs-target="#authModal" @click="window.dispatchEvent(new CustomEvent('open-auth-modal', { detail: { mode: 'login', specificRole: 'client', skipStep1: true, redirectUrl: '/intake/' } }))" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold hover-lift bg-navy bg-opacity-50">
+                <a href="{% url 'accounts:login' %}?next={% url 'intake:landing' %}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold hover-lift bg-navy bg-opacity-50">
                     Find a Lawyer
-                </button>
+                </a>
             {% endif %}
+            <a href="{% url 'intake:learn_more' %}" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold hover-lift">
+                Learn More
+            </a>
         </div>
     </div>
 </section>
@@ -342,8 +345,8 @@
 <section class="py-5 bg-gold text-white text-center">
     <div class="container">
         <h2 class="font-serif fw-bold mb-4">Ready to Resolve Your Legal Issues?</h2>
-        <a href="{% url 'intake:landing' %}" class="btn btn-navy bg-navy text-white btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg hover-lift">
-            Start Free AI Analysis
+        <a href="{% url 'intake:wizard' %}" target="_blank" rel="noopener noreferrer" class="btn btn-navy bg-navy text-white btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg hover-lift">
+            Talk to a Lawyer
         </a>
     </div>
 </section>

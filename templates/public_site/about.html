@@ -1,0 +1,283 @@
+{% extends 'public_site/base_public.html' %}
+{% load static %}
+
+{% block title %}About Lex Regis{% endblock %}
+
+{% block content %}
+<style>
+    .about-hero {
+        background: linear-gradient(135deg, rgba(12,35,64,0.95) 0%, rgba(7,21,38,0.98) 100%), url('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80') center/cover;
+        min-height: 70vh;
+        color: white;
+        display: flex;
+        align-items: center;
+        position: relative;
+    }
+    
+    .about-section-title {
+        font-family: var(--font-family-serif);
+        color: var(--lex-navy);
+        font-weight: 700;
+        margin-bottom: 2rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .about-section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: var(--lex-gold);
+    }
+    
+    .about-card {
+        background: white;
+        border: 1px solid rgba(12, 35, 64, 0.1);
+        border-radius: var(--lex-radius-lg);
+        padding: 2.5rem 2rem;
+        height: 100%;
+        box-shadow: var(--lex-shadow-sm);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .about-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--lex-shadow-lg);
+        border-color: rgba(201, 162, 77, 0.5);
+    }
+    
+    .about-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(201, 162, 77, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .about-icon-wrapper i {
+        font-size: 1.5rem;
+        color: var(--lex-gold);
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="about-hero mt-5 pt-5">
+    <div class="container text-center position-relative z-1">
+        <h1 class="display-3 fw-bold mb-4 font-serif text-white">Building a More Accessible<br>Legal Ecosystem</h1>
+        <p class="lead mx-auto text-white-50 mb-5" style="max-width: 800px;">
+            Lex Regis is an integrated LegalTech platform connecting citizens, lawyers, and law firms through legal intelligence, comprehensive case management, and judicial analytics.
+        </p>
+        <div class="d-flex justify-content-center flex-wrap gap-3">
+            <a href="{% url 'intake:wizard' %}" class="btn btn-gold btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg hover-lift">
+                TALK TO A LAWYER
+            </a>
+            <a href="{% url 'public_site:home' %}#features" class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold hover-lift">
+                EXPLORE LEX REGIS
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Vision Section -->
+<section class="py-5 bg-light">
+    <div class="container text-center">
+        <h6 class="text-gold fw-bold text-uppercase tracking-wide mb-3">Our Vision</h6>
+        <h2 class="font-serif fw-bold text-navy mb-4">Technology for more accessible, informed and connected legal services.</h2>
+        <p class="text-muted mx-auto" style="max-width: 800px; font-size: 1.1rem;">
+            We believe that seeking justice should not be a labyrinth. Lex Regis provides a unified digital space where legal matters are organized transparently, where citizens can easily find the right representation, and where legal professionals have the intelligent tools they need to practice effectively.
+        </p>
+    </div>
+</section>
+
+<!-- Why Lex Regis -->
+<section class="py-5 py-md-7 bg-white">
+    <div class="container">
+        <div class="text-center mb-5 pb-3">
+            <h2 class="about-section-title">What Lex Regis Does</h2>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Card 1 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="about-card">
+                    <div class="about-icon-wrapper">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-3">AI-Assisted Understanding</h5>
+                    <p class="text-muted small mb-0">Our AI Legal Intake system helps structure natural-language problem descriptions into organized legal categories for initial understanding.</p>
+                </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="about-card">
+                    <div class="about-icon-wrapper">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-3">Connect With Lawyers</h5>
+                    <p class="text-muted small mb-0">Discover and consult with verified legal professionals based on matching practice areas, region, and availability.</p>
+                </div>
+            </div>
+            <!-- Card 3 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="about-card">
+                    <div class="about-icon-wrapper">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-3">Manage Legal Matters</h5>
+                    <p class="text-muted small mb-0">A comprehensive case management dashboard for lawyers and law firms to organize workflow seamlessly.</p>
+                </div>
+            </div>
+            <!-- Card 4 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="about-card">
+                    <div class="about-icon-wrapper">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-3">Understand Legal History</h5>
+                    <p class="text-muted small mb-0">Gain context from similar historical matters to better understand potential pathways, without promising specific outcomes.</p>
+                </div>
+            </div>
+            <!-- Card 5 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="about-card">
+                    <div class="about-icon-wrapper">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-3">Track Hearings</h5>
+                    <p class="text-muted small mb-0">Unified calendaring and hearing tracking keeps all stakeholders informed of upcoming dates and schedules.</p>
+                </div>
+            </div>
+            <!-- Card 6 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="about-card">
+                    <div class="about-icon-wrapper">
+                        <i class="fa-solid fa-file-shield"></i>
+                    </div>
+                    <h5 class="fw-bold text-navy mb-3">Secure Documents</h5>
+                    <p class="text-muted small mb-0">Permission-controlled document storage ensures that sensitive legal files remain secure and accessible only to authorized parties.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Legal Intelligence (Current vs Future) -->
+<section class="py-5 py-md-7 bg-light border-top border-bottom">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h2 class="about-section-title">Legal Intelligence</h2>
+                <p class="text-muted mb-4">Lex Regis utilizes Artificial Intelligence thoughtfully. We differentiate between tools that are currently operational to assist you today, and predictive capabilities under careful research.</p>
+                
+                <div class="d-flex mb-4">
+                    <div class="me-3">
+                        <span class="badge bg-success">CURRENT</span>
+                    </div>
+                    <div>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> AI-Assisted Legal Intake</li>
+                            <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Structured Matter Analysis</li>
+                            <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i> Historical Case Context Extraction</li>
+                            <li class="mb-0"><i class="fa-solid fa-check text-success me-2"></i> Smart Lawyer Matching</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="d-flex">
+                    <div class="me-3">
+                        <span class="badge bg-warning text-dark">FUTURE / DEVELOPING</span>
+                    </div>
+                    <div>
+                        <ul class="list-unstyled mb-0 text-muted">
+                            <li class="mb-2"><i class="fa-solid fa-flask text-warning me-2"></i> Advanced Predictive Analytics</li>
+                            <li class="mb-0"><i class="fa-solid fa-flask text-warning me-2"></i> Deep Legal Research Support Automation</li>
+                        </ul>
+                        <small class="d-block mt-2 text-muted fst-italic">* We do not represent research-stage machine learning predictions as production guarantees.</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="bg-white p-4 rounded-4 shadow-sm border">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-navy text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <h5 class="fw-bold text-navy mb-0">The Role of AI</h5>
+                    </div>
+                    <p class="text-muted mb-0">
+                        Our AI acts as an intelligent assistant, not a replacement for legal counsel. It is designed to prepare you with context and organize your information so that your time with a human lawyer is focused, productive, and efficient.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Section -->
+<section class="py-5 py-md-7 bg-white">
+    <div class="container text-center">
+        <h2 class="about-section-title">Built on Trust</h2>
+        <p class="text-muted mx-auto mb-5" style="max-width: 700px;">
+            The foundation of any legal system is trust. Lex Regis is engineered around strict principles to ensure the integrity of your information and interactions.
+        </p>
+        
+        <div class="row g-4 justify-content-center text-start">
+            <div class="col-md-6 col-lg-3">
+                <div class="p-3">
+                    <i class="fa-solid fa-eye-slash text-gold fs-3 mb-3"></i>
+                    <h6 class="fw-bold text-navy">Privacy & Evidence</h6>
+                    <p class="small text-muted">Strict data isolation and immutable audit trails where applicable to maintain evidence integrity.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-3">
+                    <i class="fa-solid fa-lock text-gold fs-3 mb-3"></i>
+                    <h6 class="fw-bold text-navy">Permission Control</h6>
+                    <p class="small text-muted">Granular access controls ensure documents and case details are seen only by authorized participants.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-3">
+                    <i class="fa-solid fa-user-shield text-gold fs-3 mb-3"></i>
+                    <h6 class="fw-bold text-navy">Human Involvement</h6>
+                    <p class="small text-muted">Core legal advice and representation are exclusively provided by verified human professionals.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3">
+                <div class="p-3">
+                    <i class="fa-solid fa-lightbulb text-gold fs-3 mb-3"></i>
+                    <h6 class="fw-bold text-navy">AI Transparency</h6>
+                    <p class="small text-muted">We clearly label AI-generated context and openly acknowledge its limitations and scope.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Bottom CTA -->
+<section class="py-5 bg-navy text-white text-center">
+    <div class="container py-4">
+        <h2 class="font-serif fw-bold mb-4">Ready to get started?</h2>
+        <div class="d-flex justify-content-center gap-3 mb-4">
+            <a href="{% url 'intake:wizard' %}" class="btn btn-gold btn-lg px-4 rounded-pill fw-bold">
+                Talk to a Lawyer
+            </a>
+            <a href="{% url 'accounts:login' %}?next={% url 'intake:landing' %}" class="btn btn-outline-light btn-lg px-4 rounded-pill fw-bold">
+                Find a Lawyer
+            </a>
+        </div>
+        <div>
+            <a href="{% url 'public_site:home' %}" class="text-white-50 text-decoration-none hover-gold small">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to Home
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

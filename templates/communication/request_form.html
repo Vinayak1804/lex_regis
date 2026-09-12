@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+  <div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">
+        Request Consultation with {{ lawyer.user.get_full_name }}
+      </h3>
+      <p class="mt-1 text-sm text-gray-500">
+        Please provide details about your case to help the lawyer understand your situation.
+      </p>
+    </div>
+    <div class="px-4 py-5 sm:p-6">
+      <form method="post">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 gap-6">
+          
+          <div>
+            <label for="case" class="block text-sm font-medium text-gray-700">Select Case (Optional)</label>
+            <select id="case" name="case" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+              <option value="">-- None --</option>
+              {% for c in client_cases %}
+                <option value="{{ c.id }}">{{ c.title }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div>
+            <label for="initial_message" class="block text-sm font-medium text-gray-700">Initial Message</label>
+            <div class="mt-1">
+              <textarea id="initial_message" name="initial_message" rows="4" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md" required placeholder="Describe your legal issue..."></textarea>
+            </div>
+          </div>
+
+        </div>
+        <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+          <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm">
+            Send Request
+          </button>
+          <a href="{% url 'public_site:lawyer_detail' lawyer.pk %}" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

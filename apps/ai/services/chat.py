@@ -78,7 +78,7 @@ class AIChatService:
         log = AIRequestLog(
             user=conversation.user,
             endpoint='chat.completions.create',
-            model_name=settings.GROQ_MODEL if hasattr(settings, 'GROQ_MODEL') else 'llama-3.1-8b-instant',
+            model_name=getattr(settings, 'GROQ_MODEL', 'openai/gpt-oss-120b'),
         )
         
         try:

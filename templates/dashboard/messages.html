@@ -185,6 +185,19 @@
 
 {% block scripts %}
 <style>
+.chat-container { height: calc(100vh - 100px); }
+.search-icon { left: 15px; top: 12px; }
+.chat-avatar { width: 45px; height: 45px; }
+.chat-status { width: 12px; height: 12px; }
+.time-stamp { font-size: 0.7rem; }
+.empty-icon { font-size: 80px; opacity: 0.2; }
+.msg-avatar { width: 28px; height: 28px; font-size: 10px; }
+.msg-received { max-width: 75%; border-bottom-left-radius: 4px !important; }
+.msg-sent { max-width: 75%; border-bottom-right-radius: 4px !important; }
+.status-dot { font-size: 6px; }
+.msg-area { background-color: #f8f9fc; }
+.msg-input { resize: none; }
+.send-btn { width: 40px; height: 40px; }
 .hover-bg-light:hover { background-color: #f8f9fa !important; }
 .hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
 .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important; }

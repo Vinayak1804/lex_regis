@@ -19,7 +19,6 @@ class DocumentMetadata(BaseModel):
     summary_version = models.CharField(max_length=50, blank=True)
     extraction_version = models.CharField(max_length=50, blank=True)
     ai_provider = models.CharField(max_length=100, blank=True)
-
-
+    extracted_text = models.TextField(blank=True, help_text="Text extracted via OCR or native parsing")
     def __str__(self):
         return f"Metadata for {self.document}"

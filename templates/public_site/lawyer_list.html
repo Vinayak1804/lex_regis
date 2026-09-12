@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+  <h1 class="text-3xl font-extrabold text-gray-900">Lawyer Marketplace</h1>
+  
+  <div class="mt-8 flex flex-col md:flex-row gap-8">
+    <div class="w-full md:w-1/4">
+      <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Filters</h3>
+        <form method="get">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Search</label>
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">Practice Area</label>
+            <input type="text" name="practice_area" value="{{ request.GET.practice_area|default:'' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+          </div>
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700">City</label>
+            <input type="text" name="city" value="{{ request.GET.city|default:'' }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+          </div>
+          <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700">Apply Filters</button>
+        </form>
+      </div>
+    </div>
+    
+    <div class="w-full md:w-3/4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for lawyer in lawyers %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+          <div class="p-6 flex-grow">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-xl font-semibold text-gray-900">{{ lawyer.user.get_full_name }}</h3>
+              {% if lawyer.user.first_name == "Demo" %}
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Demo Profile</span>
+              {% endif %}
+            </div>
+            <p class="text-sm text-gray-500 mb-2">{{ lawyer.designation|default:"Advocate" }}</p>
+            <p class="text-sm text-gray-500 mb-4">
+              <svg class="h-4 w-4 inline-block mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {{ lawyer.user.profile.city|default:"City not specified" }}
+            </p>
+            <div class="mt-4">
+              <p class="text-sm font-medium text-gray-900">Experience: {{ lawyer.years_of_experience }} years</p>
+            </div>
+          </div>
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+            <a href="{% url 'public_site:lawyer_detail' lawyer.pk %}" class="text-indigo-600 hover:text-indigo-900 font-medium text-sm">View Profile &rarr;</a>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-12 text-center text-gray-500">
+          No lawyers found matching your criteria.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

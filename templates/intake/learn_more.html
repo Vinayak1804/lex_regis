@@ -1,0 +1,681 @@
+{% extends 'public_site/base_public.html' %}
+{% load static %}
+
+{% block title %}Learn About Lex Regis | AI Legal Intake{% endblock %}
+
+{% block content %}
+<style>
+    /* Scoped CSS for Learn More Page */
+    .learn-more-page {
+        --lm-gold: var(--lex-gold, #C9A24D);
+        --lm-navy: var(--lex-navy, #0C2340);
+        --lm-ivory: var(--lex-ivory, #F7F4ED);
+        background-color: var(--lm-ivory);
+    }
+    
+    .lm-hero {
+        background: linear-gradient(135deg, var(--lm-navy) 0%, #071526 100%);
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .lm-hero::after {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0; left: 0;
+        background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M0,50 Q25,25 50,50 T100,50" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="2"/></svg>');
+        background-size: 200px;
+        opacity: 0.3;
+        z-index: 1;
+    }
+    
+    .lm-hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .lm-section-title {
+        font-family: var(--font-family-serif);
+        color: var(--lm-navy);
+        font-weight: 700;
+        margin-bottom: 2rem;
+        position: relative;
+        display: inline-block;
+    }
+    
+    .lm-section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: var(--lm-gold);
+    }
+    
+    /* Interactive Timeline */
+    .timeline-container {
+        position: relative;
+        padding-left: 2rem;
+    }
+    
+    @media (min-width: 992px) {
+        .timeline-container {
+            padding-left: 0;
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+    
+    .timeline-step {
+        position: relative;
+        padding-bottom: 2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    @media (min-width: 992px) {
+        .timeline-step {
+            flex: 1;
+            padding-bottom: 0;
+            padding-top: 3rem;
+            text-align: center;
+        }
+    }
+    
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        background-color: white;
+        border: 2px solid var(--lm-navy);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--lm-navy);
+        font-weight: bold;
+        position: absolute;
+        left: -2rem;
+        top: 0;
+        transform: translateX(-50%);
+        transition: all 0.3s ease;
+        z-index: 2;
+    }
+    
+    @media (min-width: 992px) {
+        .timeline-icon {
+            left: 50%;
+            top: 0;
+            transform: translate(-50%, -50%);
+        }
+    }
+    
+    .timeline-step:hover .timeline-icon, .timeline-step.active .timeline-icon {
+        background-color: var(--lm-gold);
+        border-color: var(--lm-gold);
+        color: var(--lm-navy);
+        transform: translateX(-50%) scale(1.1);
+    }
+    
+    @media (min-width: 992px) {
+        .timeline-step:hover .timeline-icon, .timeline-step.active .timeline-icon {
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+    }
+    
+    .timeline-content {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid rgba(12, 35, 64, 0.1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        opacity: 0.7;
+        transition: all 0.3s ease;
+    }
+    
+    .timeline-step:hover .timeline-content, .timeline-step.active .timeline-content {
+        opacity: 1;
+        border-color: var(--lm-gold);
+        box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+        transform: translateY(-5px);
+    }
+    
+    .timeline-line {
+        position: absolute;
+        left: -2rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background-color: rgba(12, 35, 64, 0.1);
+        z-index: 1;
+    }
+    
+    @media (min-width: 992px) {
+        .timeline-line {
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: auto;
+            height: 2px;
+            width: 100%;
+        }
+    }
+
+    .timeline-line-active {
+        position: absolute;
+        left: -2rem;
+        top: 0;
+        width: 2px;
+        background-color: var(--lm-gold);
+        z-index: 1;
+        transition: height 0.5s ease;
+    }
+    
+    @media (min-width: 992px) {
+        .timeline-line-active {
+            left: 0;
+            top: 0;
+            height: 2px;
+            transition: width 0.5s ease;
+        }
+    }
+    
+    .lm-card {
+        background: white;
+        border: 1px solid rgba(12, 35, 64, 0.1);
+        border-radius: 12px;
+        padding: 2rem;
+        height: 100%;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .lm-card:hover {
+        box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+        border-color: rgba(201, 162, 77, 0.5);
+    }
+    
+    .flow-arrow {
+        color: var(--lm-gold);
+        font-size: 1.5rem;
+        margin: 1rem 0;
+        text-align: center;
+    }
+    
+    @media (min-width: 768px) {
+        .flow-arrow {
+            margin: 0 1rem;
+            transform: rotate(-90deg);
+        }
+    }
+    
+    .accordion-button:not(.collapsed) {
+        background-color: rgba(201, 162, 77, 0.1);
+        color: var(--lm-navy);
+        font-weight: 600;
+    }
+    
+    .accordion-button:focus {
+        border-color: var(--lm-gold);
+        box-shadow: 0 0 0 0.25rem rgba(201, 162, 77, 0.25);
+    }
+</style>
+
+<div class="learn-more-page">
+    
+
+    <!-- Hero Section -->
+    <section class="lm-hero mt-5 pt-5 pb-5 py-md-7">
+        <div class="container lm-hero-content text-center py-5">
+            <h1 class="display-3 fw-bold mb-4" style="font-family: var(--font-family-serif);">Legal Guidance, Made Simpler</h1>
+            <p class="lead mb-5 mx-auto" style="max-width: 800px; color: rgba(255,255,255,0.9);">
+                Lex Regis combines AI-assisted legal triage, historical case intelligence and access to lawyers to help you understand your next step.
+            </p>
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                <a href="{% url 'intake:wizard' %}" class="btn btn-lex-primary btn-lg px-5 rounded-pill fw-bold border-0 shadow-lg" style="background-color: var(--lm-gold); color: var(--lm-navy);">
+                    START A CONSULTATION <i class="fa-solid fa-arrow-right ms-2"></i>
+                </a>
+                <a href="/" class="btn btn-outline-light btn-lg px-5 rounded-pill fw-bold">
+                    BACK TO HOME
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works (Interactive Timeline) -->
+    <section class="py-5 py-md-7 bg-white">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="lm-section-title">How It Works</h2>
+            </div>
+            
+            <div class="mt-5" x-data="{ activeStep: 1 }">
+                <div class="timeline-container position-relative">
+                    <div class="timeline-line"></div>
+                    <div class="timeline-line-active" :style="window.innerWidth >= 992 ? `width: ${(activeStep-1) * 25}%` : `height: ${(activeStep-1) * 25}%`"></div>
+                    
+                    <!-- Step 1 -->
+                    <div class="timeline-step" :class="activeStep >= 1 ? 'active' : ''" @mouseenter="activeStep = 1" @click="activeStep = 1">
+                        <div class="timeline-icon">01</div>
+                        <div class="timeline-content">
+                            <h5 class="fw-bold text-lex-navy mb-2">Tell Us What Happened</h5>
+                            <p class="small text-muted mb-0" x-show="activeStep === 1" x-transition>Explain your issue in your own words. No legal jargon required.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="timeline-step" :class="activeStep >= 2 ? 'active' : ''" @mouseenter="activeStep = 2" @click="activeStep = 2">
+                        <div class="timeline-icon">02</div>
+                        <div class="timeline-content">
+                            <h5 class="fw-bold text-lex-navy mb-2">AI Understands</h5>
+                            <p class="small text-muted mb-0" x-show="activeStep === 2" x-transition>Lex AI organizes the information and identifies the likely legal area.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="timeline-step" :class="activeStep >= 3 ? 'active' : ''" @mouseenter="activeStep = 3" @click="activeStep = 3">
+                        <div class="timeline-icon">03</div>
+                        <div class="timeline-content">
+                            <h5 class="fw-bold text-lex-navy mb-2">Review History</h5>
+                            <p class="small text-muted mb-0" x-show="activeStep === 3" x-transition>See similar historical matters and their high-level outcomes where available.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 4 -->
+                    <div class="timeline-step" :class="activeStep >= 4 ? 'active' : ''" @mouseenter="activeStep = 4" @click="activeStep = 4">
+                        <div class="timeline-icon">04</div>
+                        <div class="timeline-content">
+                            <h5 class="fw-bold text-lex-navy mb-2">Find a Lawyer</h5>
+                            <p class="small text-muted mb-0" x-show="activeStep === 4" x-transition>Review suitable lawyers based on practice area, location, experience, budget and availability.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 5 -->
+                    <div class="timeline-step" :class="activeStep >= 5 ? 'active' : ''" @mouseenter="activeStep = 5" @click="activeStep = 5">
+                        <div class="timeline-icon">05</div>
+                        <div class="timeline-content">
+                            <h5 class="fw-bold text-lex-navy mb-2">Talk to a Lawyer</h5>
+                            <p class="small text-muted mb-0" x-show="activeStep === 5" x-transition>Send a consultation request and, after lawyer acceptance, communicate through chat, audio or video.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- What AI Does & Historical Context -->
+    <section class="py-5 py-md-7">
+        <div class="container">
+            <div class="row g-5">
+                <!-- What AI Does -->
+                <div class="col-lg-6">
+                    <h2 class="lm-section-title">How Lex AI Helps</h2>
+                    <div class="lm-card">
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-check text-lex-gold mt-1 me-3"></i> <span>Understands natural-language descriptions</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-check text-lex-gold mt-1 me-3"></i> <span>Classifies likely legal area</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-check text-lex-gold mt-1 me-3"></i> <span>Identifies important facts</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-check text-lex-gold mt-1 me-3"></i> <span>Highlights missing information</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-check text-lex-gold mt-1 me-3"></i> <span>Helps assess preliminary urgency</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-check text-lex-gold mt-1 me-3"></i> <span>Finds relevant historical context</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-check text-lex-gold mt-1 me-3"></i> <span>Helps identify suitable lawyer types</span></li>
+                        </ul>
+                        
+                        <div class="alert alert-warning border-0 bg-warning bg-opacity-10 d-flex align-items-start">
+                            <i class="fa-solid fa-circle-info text-warning mt-1 me-3"></i>
+                            <div>
+                                <strong class="text-warning d-block mb-1">Important Disclaimer</strong>
+                                <span class="small text-muted">AI-generated preliminary guidance — not legal advice. Lex AI does not determine legal outcomes.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Historical Context -->
+                <div class="col-lg-6">
+                    <h2 class="lm-section-title">Learn From Legal History</h2>
+                    <div class="lm-card">
+                        <p class="text-muted mb-4">Lex Regis can identify similar authorized historical matters and show you context to help you understand your situation better.</p>
+                        
+                        <div class="border rounded p-3 mb-4 bg-light position-relative">
+                            <span class="badge bg-secondary position-absolute top-0 end-0 m-2">Illustrative Example</span>
+                            <h6 class="fw-bold text-lex-navy border-bottom pb-2 mb-2">Similar Matter: Property Dispute</h6>
+                            <div class="row small">
+                                <div class="col-6 mb-2"><strong>Similarity:</strong> 85% Match</div>
+                                <div class="col-6 mb-2"><strong>Court:</strong> High Court</div>
+                                <div class="col-6 mb-2"><strong>Year:</strong> 2021</div>
+                                <div class="col-6 mb-2"><strong>Duration:</strong> 14 Months</div>
+                                <div class="col-12 mt-2 pt-2 border-top"><strong>Disposition:</strong> Settled via Mediation</div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info border-0 bg-info bg-opacity-10 d-flex align-items-start">
+                            <i class="fa-solid fa-scale-balanced text-info mt-1 me-3"></i>
+                            <div>
+                                <span class="small text-muted">Historical cases provide context and do not guarantee the outcome of your matter.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lawyer Matching & Consultation Flow -->
+    <section class="py-5 py-md-7 bg-white">
+        <div class="container">
+            <!-- Lawyer Matching -->
+            <div class="text-center mb-5">
+                <h2 class="lm-section-title">Find the Right Legal Professional</h2>
+                <p class="text-muted max-w-75 mx-auto">Our platform uses an explainable <strong class="text-lex-navy">Platform Match Score</strong> to recommend lawyers, based on objective factors, rather than pretending to guarantee the best lawyer.</p>
+            </div>
+            
+            <div class="row justify-content-center mb-5 pb-5 border-bottom">
+                <div class="col-auto"><span class="badge bg-light text-dark border p-2 m-1">Practice Area</span></div>
+                <div class="col-auto"><span class="badge bg-light text-dark border p-2 m-1">Region</span></div>
+                <div class="col-auto"><span class="badge bg-light text-dark border p-2 m-1">Experience</span></div>
+                <div class="col-auto"><span class="badge bg-light text-dark border p-2 m-1">Court Familiarity</span></div>
+                <div class="col-auto"><span class="badge bg-light text-dark border p-2 m-1">Budget</span></div>
+                <div class="col-auto"><span class="badge bg-light text-dark border p-2 m-1">Consultation Mode</span></div>
+                <div class="col-auto"><span class="badge bg-light text-dark border p-2 m-1">Availability</span></div>
+                <div class="col-auto"><span class="badge bg-light text-dark border p-2 m-1">Response Time</span></div>
+            </div>
+            
+            <!-- Consultation Flow -->
+            <div class="text-center mb-5 mt-5">
+                <h2 class="lm-section-title">The Consultation Flow</h2>
+            </div>
+            
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-5">
+                <div class="text-center p-3">
+                    <div class="bg-lex-navy text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-paper-plane fa-lg"></i>
+                    </div>
+                    <h6 class="fw-bold">Request<br>Consultation</h6>
+                </div>
+                <i class="fa-solid fa-arrow-right flow-arrow d-none d-md-block"></i>
+                <i class="fa-solid fa-arrow-down flow-arrow d-block d-md-none"></i>
+                
+                <div class="text-center p-3">
+                    <div class="bg-light text-lex-navy border border-lex-navy rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+                    </div>
+                    <h6 class="fw-bold">Lawyer<br>Reviews Request</h6>
+                </div>
+                <i class="fa-solid fa-arrow-right flow-arrow d-none d-md-block"></i>
+                <i class="fa-solid fa-arrow-down flow-arrow d-block d-md-none"></i>
+                
+                <div class="text-center p-3">
+                    <div class="bg-light text-lex-navy border border-lex-navy rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-hourglass-half fa-lg"></i>
+                    </div>
+                    <h6 class="fw-bold">Waiting Room<br><small class="text-muted fw-normal">(Accepted/Declined)</small></h6>
+                </div>
+                <i class="fa-solid fa-arrow-right flow-arrow d-none d-md-block"></i>
+                <i class="fa-solid fa-arrow-down flow-arrow d-block d-md-none"></i>
+                
+                <div class="text-center p-3">
+                    <div class="bg-lex-gold text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-comments fa-lg"></i>
+                    </div>
+                    <h6 class="fw-bold">Chat, Audio<br>or Video</h6>
+                </div>
+                <i class="fa-solid fa-arrow-right flow-arrow d-none d-md-block"></i>
+                <i class="fa-solid fa-arrow-down flow-arrow d-block d-md-none"></i>
+                
+                <div class="text-center p-3">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-check-double fa-lg"></i>
+                    </div>
+                    <h6 class="fw-bold">Consultation<br>Completed</h6>
+                </div>
+            </div>
+            
+            <p class="text-center text-muted small">
+                If the lawyer is unavailable or declines, you can browse other recommended lawyers from the Waiting Room.
+            </p>
+        </div>
+    </section>
+
+    <!-- Full Case Conversion -->
+    <section class="py-5 py-md-7">
+        <div class="container">
+            <div class="lm-card bg-lex-navy text-white border-0">
+                <div class="text-center mb-5">
+                    <h2 class="text-white" style="font-family: var(--font-family-serif);">Need more than a consultation?</h2>
+                    <p class="text-white-50">Seamlessly upgrade to a full case management experience.</p>
+                </div>
+                
+                <div class="row text-center g-4 justify-content-center">
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border border-white border-opacity-25 rounded h-100">
+                            <i class="fa-solid fa-folder-open text-lex-gold mb-2 fs-4"></i>
+                            <h6 class="mb-0 small mt-2 text-white">Formal Case Management</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border border-white border-opacity-25 rounded h-100">
+                            <i class="fa-solid fa-file-contract text-lex-gold mb-2 fs-4"></i>
+                            <h6 class="mb-0 small mt-2 text-white">Documents</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border border-white border-opacity-25 rounded h-100">
+                            <i class="fa-solid fa-gavel text-lex-gold mb-2 fs-4"></i>
+                            <h6 class="mb-0 small mt-2 text-white">Hearings</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border border-white border-opacity-25 rounded h-100">
+                            <i class="fa-solid fa-calendar-days text-lex-gold mb-2 fs-4"></i>
+                            <h6 class="mb-0 small mt-2 text-white">Calendar</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border border-white border-opacity-25 rounded h-100">
+                            <i class="fa-solid fa-message text-lex-gold mb-2 fs-4"></i>
+                            <h6 class="mb-0 small mt-2 text-white">Messages</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="p-3 border border-white border-opacity-25 rounded h-100">
+                            <i class="fa-solid fa-chart-line text-lex-gold mb-2 fs-4"></i>
+                            <h6 class="mb-0 small mt-2 text-white">Case Tracking</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Trust & Safety and What it's Not -->
+    <section class="py-5 py-md-7 bg-white">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6">
+                    <h2 class="lm-section-title">Built Around Trust</h2>
+                    <ul class="list-group list-group-flush mt-4">
+                        <li class="list-group-item bg-transparent border-0 px-0 py-3 d-flex">
+                            <i class="fa-solid fa-shield-halved text-lex-navy me-3 mt-1"></i>
+                            <div><strong>Secure Account Access:</strong> Your data is protected.</div>
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 px-0 py-3 d-flex">
+                            <i class="fa-solid fa-file-shield text-lex-navy me-3 mt-1"></i>
+                            <div><strong>Permission-Controlled Documents:</strong> Only authorized parties can view your files.</div>
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 px-0 py-3 d-flex">
+                            <i class="fa-solid fa-id-card-clip text-lex-navy me-3 mt-1"></i>
+                            <div><strong>Lawyer Verification:</strong> Professional profiles are verified where applicable.</div>
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 px-0 py-3 d-flex">
+                            <i class="fa-solid fa-eye text-lex-navy me-3 mt-1"></i>
+                            <div><strong>AI Transparency:</strong> We clearly explain what the AI does and its limitations.</div>
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 px-0 py-3 d-flex">
+                            <i class="fa-solid fa-user-tie text-lex-navy me-3 mt-1"></i>
+                            <div><strong>Human Lawyer Involvement:</strong> Actual legal consultation is always handled by a human professional.</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="lm-card border-danger border-opacity-25 bg-danger bg-opacity-10 h-auto">
+                        <h4 class="text-danger mb-4 fw-bold"><i class="fa-solid fa-hand me-2"></i> LEX REGIS DOES NOT:</h4>
+                        <ul class="list-unstyled">
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-xmark text-danger mt-1 me-3"></i> <span>replace a qualified lawyer</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-xmark text-danger mt-1 me-3"></i> <span>guarantee case outcomes</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-xmark text-danger mt-1 me-3"></i> <span>guarantee timelines</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-xmark text-danger mt-1 me-3"></i> <span>guarantee fees</span></li>
+                            <li class="mb-3 d-flex"><i class="fa-solid fa-xmark text-danger mt-1 me-3"></i> <span>treat historical cases as precedent automatically</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-5 py-md-7">
+        <div class="container" style="max-width: 800px;">
+            <div class="text-center mb-5">
+                <h2 class="lm-section-title">Frequently Asked Questions</h2>
+            </div>
+            
+            <div class="accordion shadow-sm" id="faqAccordion">
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-4" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            What is Talk to a Lawyer?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted pb-4">
+                            Talk to a Lawyer is a digital portal that uses AI to understand your legal issue, organize the facts, and connect you with the most suitable legal professionals for an initial consultation.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-4" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            How does AI assist me?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted pb-4">
+                            Lex AI reads your natural-language description to identify the likely practice area, pull out key facts, suggest missing information, and find relevant historical context to prepare you and the lawyer for a productive consultation.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-4" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            Are AI answers legal advice?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted pb-4">
+                            No. AI-generated guidance is preliminary and strictly for informational purposes. It does not constitute legal advice and cannot replace the counsel of a qualified lawyer.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-4" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            How are lawyers recommended?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted pb-4">
+                            Lawyers are recommended based on a Platform Match Score that considers objective criteria such as practice area alignment, region, experience, budget fit, and their typical response time.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-4" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            Can I talk to a lawyer online?
+                        </button>
+                    </h2>
+                    <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted pb-4">
+                            Yes, once a lawyer accepts your consultation request, you can communicate securely through the Lex Regis platform via chat, audio, or video based on mutual preference.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-4" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
+                            What happens if a lawyer declines my request?
+                        </button>
+                    </h2>
+                    <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted pb-4">
+                            If a lawyer is unavailable or declines your request, you will be notified in the Waiting Room where you can seamlessly browse and request a consultation from other recommended professionals.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 border-bottom">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-4" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
+                            Can I convert my consultation into a full case?
+                        </button>
+                    </h2>
+                    <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted pb-4">
+                            Yes. If both you and the lawyer agree to proceed after the consultation, the matter can be converted into a formal case on the platform, giving you access to document management, calendars, and tracking.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed py-4" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
+                            Can I see similar historical cases?
+                        </button>
+                    </h2>
+                    <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body text-muted pb-4">
+                            Yes, Lex Regis can show you high-level details of similar historical cases to provide context. However, remember that every case is unique, and historical outcomes do not guarantee future results.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="py-5 py-md-7 text-center bg-white border-top">
+        <div class="container">
+            <h2 class="display-6 fw-bold text-lex-navy mb-4" style="font-family: var(--font-family-serif);">Ready to explain your situation?</h2>
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-3 mt-5">
+                <a href="{% url 'intake:wizard' %}" class="btn btn-lex-primary btn-lg px-5 rounded-pill fw-bold border-0 shadow-lg" style="background-color: var(--lm-gold); color: var(--lm-navy);">
+                    START A CONSULTATION
+                </a>
+                {% if user.is_authenticated %}
+                    {% if user.role == 'CLIENT' %}
+                        <a href="{% url 'intake:landing' %}" class="btn btn-outline-secondary btn-lg px-5 rounded-pill fw-bold text-lex-navy border-lex-navy">
+                            FIND A LAWYER
+                        </a>
+                    {% else %}
+                        <button type="button" class="btn btn-outline-secondary btn-lg px-5 rounded-pill fw-bold text-lex-navy border-lex-navy" data-bs-toggle="modal" data-bs-target="#restrictionModal">
+                            FIND A LAWYER
+                        </button>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'accounts:login' %}?next={% url 'intake:landing' %}" class="btn btn-outline-secondary btn-lg px-5 rounded-pill fw-bold text-lex-navy border-lex-navy">
+                        FIND A LAWYER
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

@@ -17,16 +17,126 @@
     <!-- Custom Theme -->
     <link rel="stylesheet" href="/static/css/theme.css">
     <style>
+        :root {
+            --royal-navy: #0a192f;
+            --royal-gold: #c5a059;
+            --light-bg: #f8f9fa;
+        }
         body {
-            background-color: var(--color-primary);
-            background-image: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+        }
+        h1, h2, h3, h4, h5, h6, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        /* Auth specific styles */
+        .auth-container {
+            background-color: var(--royal-navy);
+            background-image: linear-gradient(135deg, rgba(10, 25, 47, 0.95) 0%, rgba(10, 25, 47, 1) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .auth-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .auth-card-wide {
+            max-width: 900px;
+        }
+        
+        /* Top Accent */
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background-color: var(--royal-gold);
+        }
+        
+        .btn-gold {
+            background-color: var(--royal-gold);
+            color: #fff;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gold:hover {
+            background-color: #a88849;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline-navy {
+            border: 1px solid var(--royal-navy);
+            color: var(--royal-navy);
+            background-color: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-navy:hover {
+            background-color: var(--royal-navy);
+            color: #fff;
+        }
+        
+        .text-navy {
+            color: var(--royal-navy);
+        }
+        
+        .text-gold {
+            color: var(--royal-gold);
+        }
+
+        .form-control-premium {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            transition: all 0.2s;
+        }
+        
+        .form-control-premium:focus {
+            background-color: #fff;
+            border-color: var(--royal-gold);
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.2);
+            outline: none;
+        }
+
+        .auth-logo {
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .auth-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.875rem;
         }
     </style>
 </head>
-<body class="d-flex align-items-center justify-content-center min-vh-100 p-3">
+<body class="bg-light lex-regis-app d-flex flex-column min-vh-100">
 
-    {% block content %}
-    {% endblock %}
+    <div class="auth-container">
+        {% block content %}
+        {% endblock %}
+    </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

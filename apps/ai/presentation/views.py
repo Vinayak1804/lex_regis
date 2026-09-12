@@ -75,7 +75,7 @@ class AIDiagnosticsView(LoginRequiredMixin, View):
         status = "Unknown"
         latency = "N/A"
         error_msg = None
-        model_name = settings.GROQ_MODEL if hasattr(settings, 'GROQ_MODEL') else "llama-3.1-8b-instant"
+        model_name = getattr(settings, 'GROQ_MODEL', "openai/gpt-oss-120b")
         
         try:
             start = time.time()

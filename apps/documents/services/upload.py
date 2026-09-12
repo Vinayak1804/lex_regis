@@ -10,10 +10,16 @@ from .timeline import DocumentTimelineService
 class DocumentUploadService:
     @staticmethod
     @transaction.atomic
-    def upload_document(data, file_obj, user):
+    def upload_document(data, file_obj, user, force=False):
         DocumentValidationService.validate_upload(data, file_obj, user)
         
         checksum = DocumentHashService.generate_hash(file_obj)
+        
+        if not force:
+            existing = Document.objects.filter(checksum=checksum).first()
+            if existing:
+                from .exceptions import DuplicateDocumentError
+                raise DuplicateDocumentError(f"Duplicate document detected.", document_id=existing.id)
         
         # Determine sequence year
         year = timezone.now().year
@@ -23,13 +29,13 @@ class DocumentUploadService:
         
         document = Document.objects.create(
             document_number=doc_number,
-            case=data['case'],
+            case=data.get('case'),
             uploaded_by=user,
             owner=data.get('owner', user),
-            document_type=data['document_type'],
-            category=data['category'],
-            status=data['status'],
-            visibility=data['visibility'],
+            document_type=data.get('document_type'),
+            category=data.get('category'),
+            status=data.get('status', 'DRAFT'),
+            visibility=data.get('visibility', 'PRIVATE'),
             original_file=file_obj,
             file_size=file_obj.size,
             file_extension=file_extension,
@@ -38,7 +44,7 @@ class DocumentUploadService:
             version_number=1,
             description=data.get('description', '')
         )
-        
+        # Document is already saved with original_file during create()
         version = DocumentVersionService.add_version(
             document=document,
             file_obj=file_obj,

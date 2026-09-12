@@ -20,7 +20,20 @@
             {{ form.errors }}
         </div>
         {% endif %}
-        <form method="post" action="{% url 'documents_ui:upload' %}" enctype="multipart/form-data">
+        
+        {% if duplicate_error %}
+        <div class="alert alert-warning border-warning">
+            <h5 class="alert-heading text-dark fw-bold"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i> Duplicate Detected</h5>
+            <p class="mb-2 text-dark">{{ duplicate_error }}</p>
+            <hr>
+            <div class="d-flex gap-2">
+                <a href="#" class="btn btn-sm btn-outline-dark fw-bold">View Existing Document</a>
+                <button type="submit" form="upload-form" name="force_upload" value="true" class="btn btn-sm btn-warning fw-bold">Upload Anyway</button>
+            </div>
+        </div>
+        {% endif %}
+        
+        <form id="upload-form" method="post" action="{% url 'documents_ui:upload' %}" enctype="multipart/form-data">
             {% csrf_token %}
             
             <div class="row g-4">

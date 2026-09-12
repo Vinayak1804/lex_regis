@@ -25,7 +25,7 @@ class DashboardStatisticsService:
     @staticmethod
     def get_pending_hearings_count(user):
         from apps.hearings.models import Hearing
-        return Hearing.objects.filter(status__code='SCHEDULED').count()
+        return Hearing.objects.filter(status='SCHEDULED').count()
         
     @staticmethod
     def get_total_documents_count(user):
@@ -46,7 +46,7 @@ class DashboardWidgetService:
     @staticmethod
     def get_upcoming_hearings(user, limit=5):
         from apps.hearings.models import Hearing
-        return Hearing.objects.select_related('case', 'presiding_judge', 'court_room').filter(status__code='SCHEDULED').order_by('scheduled_date', 'scheduled_time')[:limit]
+        return Hearing.objects.select_related('case', 'presiding_judge', 'court_room').filter(status='SCHEDULED').order_by('start_time')[:limit]
 
     @staticmethod
     def get_recent_documents(user, limit=5):

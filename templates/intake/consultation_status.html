@@ -1,0 +1,94 @@
+{% extends 'consult_base.html' %}
+{% load static %}
+
+{% block title %}Consultation Status | Lex Regis{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="lex-card overflow-hidden">
+                <div class="bg-lex-surface-light border-bottom p-4 text-center">
+                    <h4 class="font-serif fw-bold text-lex-navy mb-0">Consultation Request</h4>
+                    <p class="text-lex-text-muted mb-0">Request ID: #{{ consultation.id }}</p>
+                </div>
+                
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        {% if consultation.status == 'PENDING' %}
+                            <div class="bg-lex-surface-light text-lex-warning border rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                                <i class="fa-solid fa-hourglass-half fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold text-lex-navy">Request Pending</h3>
+                            <p class="text-lex-text-muted">Your consultation request has been sent to {{ consultation.lawyer.user.get_full_name }}. Please wait for them to accept or decline.</p>
+                        {% elif consultation.status == 'WAITING' %}
+                            <div class="bg-lex-surface-light text-lex-navy border rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                                <i class="fa-solid fa-user-clock fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold text-lex-navy">In Waiting Room</h3>
+                            <p class="text-lex-text-muted">Your consultation request has been placed in the lawyer's waiting queue.</p>
+                        {% elif consultation.status == 'ACCEPTED' or consultation.status == 'ACTIVE' %}
+                            <div class="bg-lex-surface-light text-lex-success border rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                                <i class="fa-solid fa-check fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold text-lex-navy">Consultation Active</h3>
+                            <p class="text-lex-text-muted">Your request was accepted! You can now communicate with your lawyer.</p>
+                            <a href="{% url 'intake:room' consultation.id %}" class="btn btn-lex-primary btn-lg rounded-pill px-5 mt-3 shadow-sm">Enter Consultation Room</a>
+                        {% elif consultation.status == 'DECLINED' %}
+                            <div class="bg-lex-surface-light text-lex-danger border rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                                <i class="fa-solid fa-xmark fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold text-lex-navy">Request Declined</h3>
+                            <p class="text-lex-text-muted">The lawyer is currently unavailable to take this consultation.</p>
+                            <a href="{% url 'intake:triage_results' consultation.issue.id %}" class="btn btn-lex-secondary rounded-pill px-4 mt-3">Choose Another Lawyer</a>
+                        {% elif consultation.status == 'CANCELLED' %}
+                            <div class="bg-lex-surface-light text-lex-text-muted border rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                                <i class="fa-solid fa-ban fs-1"></i>
+                            </div>
+                            <h3 class="fw-bold text-lex-navy">Request Cancelled</h3>
+                            <p class="text-lex-text-muted">You cancelled this consultation request.</p>
+                        {% endif %}
+                    </div>
+                    
+                    <hr class="border-lex-border">
+                    
+                    <h5 class="fw-bold text-lex-navy mb-3 mt-4">Details</h5>
+                    <div class="row">
+                        <div class="col-sm-4 text-lex-text-muted small text-uppercase fw-bold mb-1">Lawyer</div>
+                        <div class="col-sm-8 mb-3 fw-bold text-lex-text">{{ consultation.lawyer.user.get_full_name }}</div>
+                        
+                        <div class="col-sm-4 text-lex-text-muted small text-uppercase fw-bold mb-1">Issue</div>
+                        <div class="col-sm-8 mb-3 text-lex-text">{{ consultation.issue.description|truncatechars:100 }}</div>
+                        
+                        <div class="col-sm-4 text-lex-text-muted small text-uppercase fw-bold mb-1">Urgency</div>
+                        <div class="col-sm-8 mb-3 text-lex-text">
+                            <span class="lex-badge border" style="background: var(--lex-white);">{{ consultation.issue.get_urgency_display }}</span>
+                        </div>
+                        
+                        <div class="col-sm-4 text-lex-text-muted small text-uppercase fw-bold mb-1">Preferred Mode</div>
+                        <div class="col-sm-8 mb-3 text-lex-text">{{ consultation.issue.preferred_consultation }}</div>
+                    </div>
+                </div>
+                
+                {% if consultation.status == 'PENDING' or consultation.status == 'WAITING' %}
+                <div class="bg-lex-surface-light p-4 text-center border-top">
+                    <form method="POST" action="{% url 'intake:convert_consultation' consultation.id %}">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-lex-secondary text-lex-danger fw-bold rounded-pill px-4 border-lex-danger">Cancel Request</button>
+                    </form>
+                </div>
+                {% endif %}
+                
+                {% if consultation.status == 'ACTIVE' %}
+                <div class="bg-lex-surface-light p-4 text-center border-top">
+                    <form method="POST" action="{% url 'intake:convert_consultation' consultation.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-lex-primary fw-bold rounded-pill px-4 shadow-sm">Convert to Full Case</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

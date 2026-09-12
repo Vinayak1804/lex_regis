@@ -18,9 +18,11 @@ class CaseStatus(models.TextChoices):
     JUDGEMENT = 'JUDGEMENT', 'Judgement Reserved'
     CLOSED = 'CLOSED', 'Closed'
     ARCHIVED = 'ARCHIVED', 'Archived'
+    LAWYER_DECLINED = 'LAWYER_DECLINED', 'Lawyer Declined'
 
 class MatterSource(models.TextChoices):
     AI_INTAKE = 'AI_INTAKE', 'AI Intake'
+    TALK_TO_LAWYER = 'TALK_TO_LAWYER', 'Talk to a Lawyer'
     MANUAL = 'MANUAL', 'Manual Case Creation'
 
 class Case(BaseModel):

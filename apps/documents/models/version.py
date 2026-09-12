@@ -8,6 +8,7 @@ class DocumentVersion(BaseModel):
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='versions')
     version_number = models.PositiveIntegerField()
     file = models.FileField(upload_to=get_document_upload_path)
+    file_size = models.PositiveIntegerField(default=0)
     checksum = models.CharField(max_length=64, blank=True)
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     upload_time = models.DateTimeField(auto_now_add=True)

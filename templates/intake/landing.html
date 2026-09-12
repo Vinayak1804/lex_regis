@@ -19,13 +19,16 @@
                 Tell us what happened in your own words. Our AI will analyse your matter and recommend the right legal pathway, documents, and suitable lawyers.
             </p>
             
-            <div class="d-flex gap-3 mb-5">
-                <a href="{% url 'intake:wizard' %}" class="btn btn-primary btn-lg px-5 shadow-lg rounded-pill fw-bold">
-                    <i class="fa-solid fa-play me-2"></i> Start Analysis
+            <div class="d-flex gap-3 mb-5 flex-wrap">
+                <a href="{% url 'intake:wizard' %}" class="btn btn-primary btn-lg px-4 shadow-sm rounded-pill fw-bold">
+                    <i class="fa-solid fa-microchip me-2"></i> AI Legal Intake
                 </a>
-                <button class="btn btn-outline-secondary btn-lg px-4 rounded-pill fw-bold">
+                <a href="{% url 'intake:talk_wizard' %}" class="btn btn-lex-gold btn-lg px-4 shadow-sm rounded-pill fw-bold text-lex-navy-dark">
+                    <i class="fa-solid fa-comments me-2"></i> Talk to a Lawyer
+                </a>
+                <a href="{% url 'intake:learn_more' %}" class="btn btn-lex-secondary btn-lg px-4 rounded-pill fw-bold">
                     Learn More
-                </button>
+                </a>
             </div>
             
             <h6 class="text-uppercase fw-bold text-muted small mb-3">Try asking about:</h6>

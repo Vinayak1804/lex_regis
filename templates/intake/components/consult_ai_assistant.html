@@ -1,0 +1,180 @@
+<div class="offcanvas offcanvas-end shadow-lg border-start-0" tabindex="-1" id="aiAssistantDrawer" aria-labelledby="aiAssistantLabel" style="width: 400px; z-index: 1055;" x-data="aiAssistant()">
+    <!-- Header -->
+    <div class="offcanvas-header bg-lex-navy border-bottom border-light border-opacity-10 p-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <div class="bg-lex-navy-dark rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 36px; height: 36px;">
+                <i class="fa-solid fa-robot text-lex-gold fs-5"></i>
+            </div>
+            <div>
+                <h6 class="offcanvas-title fw-bold mb-0 font-serif text-lex-gold" id="aiAssistantLabel">LEX AI ASSISTANT</h6>
+                <div class="d-flex align-items-center gap-1 mt-1">
+                    <i class="fa-solid fa-circle text-lex-success" style="font-size: 0.5rem;"></i>
+                    <small class="text-white-50" style="font-size: 0.75rem;">Online</small>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    
+    <!-- Disclaimer -->
+    <div class="bg-lex-navy-dark p-2 text-center border-bottom border-light border-opacity-10">
+        <p class="mb-0 text-white-50" style="font-size: 0.7rem;"><i class="fa-solid fa-triangle-exclamation text-lex-gold me-1"></i> AI-generated preliminary guidance — not legal advice.</p>
+    </div>
+
+    <!-- Chat Messages Area -->
+    <div class="offcanvas-body p-3 overflow-auto d-flex flex-column" id="aiChatBox" style="background-color: var(--lex-navy);">
+        
+        <!-- Welcome Message -->
+        <div class="d-flex mb-4 mt-auto">
+            <div class="bg-lex-navy-dark text-lex-gold rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 shadow-sm border border-light border-opacity-10" style="width: 32px; height: 32px;">
+                <i class="fa-solid fa-robot" style="font-size: 0.85rem;"></i>
+            </div>
+            <div class="bg-lex-navy-dark border border-light border-opacity-10 shadow-sm rounded-3 p-3 text-lex-ivory small" style="max-width: 85%; border-top-left-radius: 0 !important;">
+                Hello! I'm the Lex AI Assistant. I can help answer questions about your current consultation, suggest what documents to gather, or clarify legal terms.<br><br>How can I assist you today?
+            </div>
+        </div>
+
+        <!-- Rendered Chat History (Alpine loop) -->
+        <template x-for="(msg, index) in messages" :key="index">
+            <div class="d-flex mb-3" :class="msg.role === 'user' ? 'justify-content-end' : ''">
+                
+                <!-- AI Avatar (only if AI) -->
+                <template x-if="msg.role === 'ai'">
+                    <div class="bg-lex-navy-dark text-lex-gold rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 shadow-sm border border-light border-opacity-10" style="width: 32px; height: 32px;">
+                        <i class="fa-solid fa-robot" style="font-size: 0.85rem;"></i>
+                    </div>
+                </template>
+
+                <!-- Message Bubble -->
+                <div class="shadow-sm p-3 small border border-light border-opacity-10" 
+                     :class="msg.role === 'user' ? 'bg-lex-gold text-lex-navy-dark rounded-3 ms-2' : 'bg-lex-navy-dark text-lex-ivory rounded-3 me-2'"
+                     :style="msg.role === 'user' ? 'max-width: 85%; border-bottom-right-radius: 0 !important;' : 'max-width: 85%; border-top-left-radius: 0 !important;'">
+                     <span x-html="msg.content.replace(/\n/g, '<br>')"></span>
+                </div>
+
+                <!-- User Avatar (only if User) -->
+                <template x-if="msg.role === 'user'">
+                    <div class="bg-lex-cream text-lex-navy-dark rounded-circle d-flex align-items-center justify-content-center ms-2 flex-shrink-0 shadow-sm" style="width: 32px; height: 32px;">
+                        <i class="fa-solid fa-user" style="font-size: 0.85rem;"></i>
+                    </div>
+                </template>
+            </div>
+        </template>
+        
+        <!-- Loading Indicator -->
+        <div class="d-flex mb-3" x-show="loading" x-transition>
+            <div class="bg-white text-lex-navy rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0 shadow-sm border" style="width: 32px; height: 32px;">
+                <i class="fa-solid fa-robot" style="font-size: 0.85rem;"></i>
+            </div>
+            <div class="bg-white border shadow-sm rounded-3 p-3 text-lex-text small d-flex align-items-center gap-1" style="max-width: 85%; border-top-left-radius: 0 !important;">
+                <span class="spinner-grow spinner-grow-sm text-lex-gold" role="status" style="width: 0.5rem; height: 0.5rem;"></span>
+                <span class="spinner-grow spinner-grow-sm text-lex-gold animation-delay-1" role="status" style="width: 0.5rem; height: 0.5rem;"></span>
+                <span class="spinner-grow spinner-grow-sm text-lex-gold animation-delay-2" role="status" style="width: 0.5rem; height: 0.5rem;"></span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Input Area -->
+    <div class="p-3 border-top border-light border-opacity-10 bg-lex-navy">
+        <form @submit.prevent="sendMessage">
+            <div class="input-group bg-lex-cream rounded-pill p-1 shadow-sm">
+                <input type="text" class="form-control border-0 bg-transparent shadow-none text-lex-navy" placeholder="Ask about your consultation..." x-model="inputText" :disabled="loading" autocomplete="off" required>
+                <button class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center" type="submit" :disabled="loading || inputText.trim() === ''" style="width: 40px; height: 40px;">
+                    <i class="fa-solid fa-paper-plane text-lex-navy-dark"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('aiAssistant', () => ({
+            messages: [],
+            inputText: '',
+            loading: false,
+            
+            init() {
+                const saved = sessionStorage.getItem('lexAiChatHistory');
+                if (saved) {
+                    try {
+                        this.messages = JSON.parse(saved);
+                    } catch(e) {}
+                }
+                
+                const myOffcanvas = document.getElementById('aiAssistantDrawer')
+                if(myOffcanvas) {
+                    myOffcanvas.addEventListener('shown.bs.offcanvas', () => {
+                        this.scrollToBottom();
+                    })
+                }
+            },
+            
+            scrollToBottom() {
+                setTimeout(() => {
+                    const box = document.getElementById('aiChatBox');
+                    if(box) box.scrollTop = box.scrollHeight;
+                }, 50);
+            },
+            
+            async sendMessage() {
+                const text = this.inputText.trim();
+                if(!text) return;
+                
+                this.messages.push({ role: 'user', content: text });
+                this.inputText = '';
+                this.loading = true;
+                this.saveHistory();
+                this.scrollToBottom();
+                
+                let issueId = null;
+                const pathParts = window.location.pathname.split('/');
+                if (pathParts.length > 2 && pathParts[2].length > 10) {
+                    issueId = pathParts[2];
+                }
+                const metaIssueId = document.querySelector('meta[name="issue_id"]');
+                if (metaIssueId) {
+                    issueId = metaIssueId.getAttribute('content');
+                }
+                
+                try {
+                    const response = await fetch('/consult/api/chat/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                        },
+                        body: JSON.stringify({
+                            message: text,
+                            history: this.messages.slice(0, -1),
+                            issue_id: issueId
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.messages.push({ role: 'ai', content: data.reply });
+                    } else {
+                        this.messages.push({ role: 'ai', content: "AI analysis is temporarily unavailable. You can continue manually." });
+                    }
+                } catch (error) {
+                    console.error('AI Chat Error:', error);
+                    this.messages.push({ role: 'ai', content: "AI analysis is temporarily unavailable. You can continue manually." });
+                } finally {
+                    this.loading = false;
+                    this.saveHistory();
+                    this.scrollToBottom();
+                }
+            },
+            
+            saveHistory() {
+                sessionStorage.setItem('lexAiChatHistory', JSON.stringify(this.messages));
+            }
+        }));
+    });
+</script>
+<style>
+    .animation-delay-1 { animation-delay: 0.1s; }
+    .animation-delay-2 { animation-delay: 0.2s; }
+</style>

@@ -129,12 +129,15 @@ class LawyerDashboardView(LoginRequiredMixin, TemplateView):
         try:
             profile = user.professional_profile
             incoming_requests = ConsultationRequest.objects.filter(lawyer=profile, status='PENDING')
+            ai_intake_cases = Case.objects.filter(assigned_lawyer=profile, status='PENDING_ACCEPTANCE', matter_source='AI_INTAKE')
         except:
             profile = None
             incoming_requests = []
+            ai_intake_cases = []
             
         context['marketplace_issues'] = marketplace_issues
         context['incoming_requests'] = incoming_requests
+        context['ai_intake_cases'] = ai_intake_cases
         context['profile'] = profile
         
         # Realistic Demo Data
@@ -181,24 +184,102 @@ class LawyerDashboardView(LoginRequiredMixin, TemplateView):
 
 class AcceptRequestView(LoginRequiredMixin, View):
     def post(self, request, request_id):
+        from apps.intake.services.consultation import ConsultationService
         from apps.intake.models import ConsultationRequest
-        from apps.cases.models.case import Case
-        
-        consultation_req = ConsultationRequest.objects.get(id=request_id, lawyer=request.user.professional_profile)
-        consultation_req.status = 'ACCEPTED'
-        consultation_req.save()
-        
-        # Create Case automatically
-        case = Case.objects.create(
-            title=consultation_req.issue.description[:50],
-            client=consultation_req.client,
-            description=consultation_req.issue.description,
-            status='OPEN'
-        )
-        
-        # We should also associate the lawyer, but wait, `Case` model might need assignment or team member
-        # I'll let it be for now or just check if `Case` has a lawyer field. (I can't without reading it, but for demo, redirect is enough).
-        
         from django.contrib import messages
-        messages.success(request, f"You have accepted the matter for {consultation_req.client.get_full_name()}. The case has been automatically created.")
+        
+        try:
+            req = ConsultationRequest.objects.get(id=request_id, lawyer=request.user.professional_profile)
+            ConsultationService.accept_consultation(req.id)
+            messages.success(request, f"You have accepted the consultation with {req.client.get_full_name()}.")
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            
         return redirect('lawyer_portal:dashboard')
+
+class DeclineRequestView(LoginRequiredMixin, View):
+    def post(self, request, request_id):
+        from apps.intake.services.consultation import ConsultationService
+        from apps.intake.models import ConsultationRequest
+        from django.contrib import messages
+        
+        try:
+            req = ConsultationRequest.objects.get(id=request_id, lawyer=request.user.professional_profile)
+            ConsultationService.decline_consultation(req.id)
+            messages.success(request, "Consultation request declined.")
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            
+        return redirect('lawyer_portal:dashboard')
+
+class WaitRequestView(LoginRequiredMixin, View):
+    def post(self, request, request_id):
+        from apps.intake.services.consultation import ConsultationService
+        from apps.intake.models import ConsultationRequest
+        from django.contrib import messages
+        
+        try:
+            req = ConsultationRequest.objects.get(id=request_id, lawyer=request.user.professional_profile)
+            ConsultationService.wait_consultation(req.id)
+            messages.success(request, "Client moved to waiting room.")
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            
+        return redirect('lawyer_portal:dashboard')
+
+class AcceptAILegalIntakeCaseView(LoginRequiredMixin, View):
+    def post(self, request, case_id):
+        from apps.cases.models.case import Case, CaseStatus
+        from apps.notifications.models import Notification
+        from django.contrib import messages
+        
+        try:
+            case = Case.objects.get(id=case_id, assigned_lawyer=request.user.professional_profile, status=CaseStatus.PENDING_ACCEPTANCE)
+            case.status = CaseStatus.LAWYER_ASSIGNED
+            case.save()
+            
+            # Notify Client
+            Notification.objects.create(
+                user=case.client.user,
+                title="Case Accepted",
+                message=f"Your selected lawyer {request.user.get_full_name()} has accepted your case.",
+                notification_type='CASE_ACCEPTED',
+                target_url=reverse('cases_ui:detail', kwargs={'pk': case.id})
+            )
+            
+            messages.success(request, f"You have accepted the case {case.case_number}.")
+        except Case.DoesNotExist:
+            messages.error(request, "Case not found or already processed.")
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            
+        return redirect('lawyer_portal:dashboard')
+
+class DeclineAILegalIntakeCaseView(LoginRequiredMixin, View):
+    def post(self, request, case_id):
+        from apps.cases.models.case import Case, CaseStatus
+        from apps.notifications.models import Notification
+        from django.contrib import messages
+        
+        try:
+            case = Case.objects.get(id=case_id, assigned_lawyer=request.user.professional_profile, status=CaseStatus.PENDING_ACCEPTANCE)
+            case.status = CaseStatus.LAWYER_DECLINED
+            case.save()
+            
+            # Notify Client
+            Notification.objects.create(
+                user=case.client.user,
+                title="Case Declined",
+                message=f"Your selected lawyer {request.user.get_full_name()} has declined your case.",
+                notification_type='CASE_DECLINED',
+                target_url=reverse('cases_ui:detail', kwargs={'pk': case.id})
+            )
+            
+            messages.success(request, f"You have declined the case {case.case_number}.")
+        except Case.DoesNotExist:
+            messages.error(request, "Case not found or already processed.")
+        except Exception as e:
+            messages.error(request, f"An error occurred: {str(e)}")
+            
+        return redirect('lawyer_portal:dashboard')
+

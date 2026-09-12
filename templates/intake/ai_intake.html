@@ -1,0 +1,973 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lex Regis - AI Legal Intake{% endblock %}
+
+{% block content %}
+<style>
+:root {
+    --deep-navy: #0B132B;
+    --royal-gold: #D4AF37;
+    --warm-ivory: #FFFFF0;
+    --pure-white: #FFFFFF;
+    --navy-light: #1C2541;
+    --navy-lighter: #3A506B;
+    --gold-light: #F1D570;
+    --gold-dim: rgba(212, 175, 55, 0.2);
+    --text-primary: var(--warm-ivory);
+    --text-secondary: #A0AAB2;
+    --success-color: #4CAF50;
+    --danger-color: #F44336;
+}
+
+body {
+    background-color: var(--deep-navy);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Playfair Display', serif;
+    color: var(--royal-gold);
+}
+
+.intake-container {
+    max-width: 700px;
+    margin: 4rem auto;
+    background: var(--navy-light);
+    border-radius: 16px;
+    border: 1px solid var(--navy-lighter);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    overflow: hidden;
+    position: relative;
+}
+
+.intake-header {
+    padding: 2rem 2rem 1.5rem 2rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+}
+
+.intake-header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    font-weight: 600;
+}
+
+.intake-header p {
+    color: var(--text-secondary);
+    margin: 0.5rem 0 0 0;
+    font-size: 1rem;
+}
+
+.progress-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(0,0,0,0.2);
+    border-bottom: 1px solid var(--navy-lighter);
+}
+
+.progress-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--navy-lighter);
+    margin: 0 8px;
+    transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+    background: var(--royal-gold);
+    box-shadow: 0 0 10px var(--royal-gold);
+}
+
+.progress-dot.completed {
+    background: var(--royal-gold);
+    opacity: 0.6;
+}
+
+.progress-line {
+    height: 2px;
+    width: 30px;
+    background: var(--navy-lighter);
+    margin: 0 4px;
+}
+.progress-line.completed {
+    background: var(--royal-gold);
+    opacity: 0.6;
+}
+
+.intake-body {
+    padding: 2.5rem;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.step-content {
+    display: none;
+    animation: slideUp 0.5s ease forwards;
+    flex-grow: 1;
+}
+
+.step-content.active {
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--royal-gold), var(--gold-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--deep-navy);
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+.ai-message {
+    font-size: 1.3rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    color: var(--pure-white);
+}
+
+.form-control {
+    width: 100%;
+    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--navy-lighter);
+    border-radius: 12px;
+    color: var(--pure-white);
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    resize: none;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--royal-gold);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px var(--gold-dim);
+}
+
+.form-control::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.option-btn {
+    padding: 1.2rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--navy-lighter);
+    border-radius: 12px;
+    color: var(--pure-white);
+    font-size: 1.1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.option-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--gold-light);
+}
+
+.option-btn.selected {
+    background: var(--gold-dim);
+    border-color: var(--royal-gold);
+    color: var(--royal-gold);
+    font-weight: 500;
+}
+
+.actions-row {
+    margin-top: auto;
+    padding-top: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-primary {
+    background: var(--royal-gold);
+    color: var(--deep-navy);
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    color: var(--pure-white);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Document Upload */
+.upload-zone {
+    border: 2px dashed var(--navy-lighter);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--royal-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: var(--royal-gold);
+    margin-bottom: 1rem;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-top: 1rem;
+    border: 1px solid var(--navy-lighter);
+}
+
+/* Loading overlay */
+.processing-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(11, 19, 43, 0.95);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    text-align: center;
+}
+
+.processing-steps {
+    margin-top: 2rem;
+    text-align: left;
+    width: 100%;
+    max-width: 300px;
+}
+
+.proc-step {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+}
+
+.proc-step.done {
+    color: var(--pure-white);
+}
+
+.proc-step.done i {
+    color: var(--success-color);
+}
+
+.proc-step.active {
+    color: var(--royal-gold);
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--gold-dim);
+    border-top-color: var(--royal-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Cards */
+.info-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--navy-lighter);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.info-card h4 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Inter', sans-serif;
+}
+
+.lawyer-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--navy-lighter);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.lawyer-card:hover {
+    border-color: var(--gold-light);
+    transform: translateY(-2px);
+}
+
+.lawyer-card.selected {
+    background: var(--gold-dim);
+    border-color: var(--royal-gold);
+}
+
+.lawyer-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--navy-lighter);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--warm-ivory);
+}
+
+.match-badge {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+</style>
+
+<div class="container" x-data="aiIntakeFlow()">
+    <div class="intake-container">
+        
+        <div class="processing-overlay" x-show="isProcessing" style="display: none;" x-transition.opacity>
+            <div class="ai-avatar" style="width: 80px; height: 80px; font-size: 2.5rem; margin-bottom: 2rem;">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h2>Lex Regis AI</h2>
+            <p style="color: var(--royal-gold); font-size: 1.2rem;">Reviewing your matter...</p>
+            
+            <div class="processing-steps">
+                <div class="proc-step" :class="{'done': procStep > 1, 'active': procStep === 1}">
+                    <i class="fas" :class="procStep > 1 ? 'fa-check-circle' : (procStep === 1 ? 'fa-circle-notch fa-spin' : 'fa-circle')"></i>
+                    <span>Reviewing your answers</span>
+                </div>
+                <div class="proc-step" :class="{'done': procStep > 2, 'active': procStep === 2}">
+                    <i class="fas" :class="procStep > 2 ? 'fa-check-circle' : (procStep === 2 ? 'fa-circle-notch fa-spin' : 'fa-circle')"></i>
+                    <span>Reading uploaded documents</span>
+                </div>
+                <div class="proc-step" :class="{'done': procStep > 3, 'active': procStep === 3}">
+                    <i class="fas" :class="procStep > 3 ? 'fa-check-circle' : (procStep === 3 ? 'fa-circle-notch fa-spin' : 'fa-circle')"></i>
+                    <span>Checking historical context</span>
+                </div>
+                <div class="proc-step" :class="{'done': procStep > 4, 'active': procStep === 4}">
+                    <i class="fas" :class="procStep > 4 ? 'fa-check-circle' : (procStep === 4 ? 'fa-circle-notch fa-spin' : 'fa-circle')"></i>
+                    <span>Preparing your assessment</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="intake-header">
+            <h1 x-text="getHeaderTitle()"></h1>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-dot" :class="{'active': step === 1, 'completed': step > 1}"></div>
+            <div class="progress-line" :class="{'completed': step > 1}"></div>
+            
+            <div class="progress-dot" :class="{'active': step === 2, 'completed': step > 2}"></div>
+            <div class="progress-line" :class="{'completed': step > 2}"></div>
+            
+            <div class="progress-dot" :class="{'active': step === 3, 'completed': step > 3}"></div>
+            <div class="progress-line" :class="{'completed': step > 3}"></div>
+            
+            <div class="progress-dot" :class="{'active': step === 4, 'completed': step > 4}"></div>
+            <div class="progress-line" :class="{'completed': step > 4}"></div>
+            
+            <div class="progress-dot" :class="{'active': step === 5, 'completed': step > 5}"></div>
+            <div class="progress-line" :class="{'completed': step > 5}"></div>
+
+            <div class="progress-dot" :class="{'active': step === 6, 'completed': step > 6}"></div>
+        </div>
+
+        <div class="intake-body">
+            
+            <!-- STEP 1: STORY -->
+            <div class="step-content" :class="{'active': step === 1}">
+                <div class="ai-message">
+                    Tell us what happened in your own words. You don't need to know legal terminology.
+                </div>
+                <textarea class="form-control" x-model="description" rows="5" placeholder="Describe your situation..."></textarea>
+                
+                <div style="margin-top: 1rem; display: flex; gap: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                    <span><i class="fas fa-lock"></i> Private & Secure</span>
+                    <span><i class="fas fa-robot"></i> AI-Powered</span>
+                </div>
+
+                <div class="actions-row">
+                    <div></div>
+                    <button class="btn-primary" @click="submitStory()" :disabled="description.length < 10">
+                        Continue <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: UNDERSTANDING & CLARIFICATION -->
+            <div class="step-content" :class="{'active': step === 2}">
+                
+                <!-- If showing summary -->
+                <div x-show="showingSummary">
+                    <div class="ai-avatar"><i class="fas fa-robot"></i></div>
+                    <div class="ai-message" x-text="understandingSummary"></div>
+                    
+                    <div class="options-grid" style="margin-top: 2rem;">
+                        <button class="option-btn" @click="confirmUnderstanding(true)">
+                            <i class="fas fa-check-circle" style="color: var(--success-color); margin-right: 10px;"></i> That's right
+                        </button>
+                        <button class="option-btn" @click="confirmUnderstanding(false)">
+                            <i class="fas fa-pen" style="color: var(--royal-gold); margin-right: 10px;"></i> Not quite — let me correct it
+                        </button>
+                    </div>
+                </div>
+
+                <!-- If correcting -->
+                <div x-show="correctingSummary" style="display: none;">
+                    <div class="ai-message">Please clarify what we missed or misunderstood:</div>
+                    <textarea class="form-control" x-model="correctionText" rows="4" placeholder="Actually, it was..."></textarea>
+                    <div class="actions-row">
+                        <button class="btn-secondary" @click="cancelCorrection()">Cancel</button>
+                        <button class="btn-primary" @click="submitCorrection()">Update</button>
+                    </div>
+                </div>
+
+                <!-- If answering adaptive questions -->
+                <div x-show="!showingSummary && !correctingSummary && clarificationQuestions.length > 0">
+                    <div class="ai-avatar"><i class="fas fa-question-circle"></i></div>
+                    
+                    <div x-show="currentQuestionIndex < clarificationQuestions.length">
+                        <div class="ai-message" x-text="currentQuestion().text"></div>
+                        
+                        <template x-if="currentQuestion().type === 'choice' || currentQuestion().options">
+                            <div class="options-grid">
+                                <template x-for="opt in currentQuestion().options" :key="opt">
+                                    <button class="option-btn" 
+                                            :class="{'selected': answers[currentQuestion().id] === opt}"
+                                            @click="selectOption(currentQuestion().id, opt)"
+                                            x-text="opt"></button>
+                                </template>
+                                <button class="option-btn" @click="selectOption(currentQuestion().id, 'Not sure')">Not sure</button>
+                            </div>
+                        </template>
+
+                        <template x-if="currentQuestion().type !== 'choice' && !currentQuestion().options">
+                            <textarea class="form-control" x-model="answers[currentQuestion().id]" rows="3" placeholder="Your answer..."></textarea>
+                        </template>
+                        
+                        <div class="actions-row">
+                            <button class="btn-secondary" @click="skipQuestion()">Skip</button>
+                            <button class="btn-primary" @click="nextQuestion()" 
+                                    :disabled="!answers[currentQuestion().id] && currentQuestion().type !== 'choice'">
+                                Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: DOCUMENTS -->
+            <div class="step-content" :class="{'active': step === 3}">
+                <div class="ai-avatar"><i class="fas fa-file-alt"></i></div>
+                <div class="ai-message">
+                    Documents can help us understand your matter more accurately.
+                </div>
+                
+                <div class="upload-zone" id="drop-zone" @click="$refs.fileInput.click()" 
+                     @dragover.prevent="$el.classList.add('dragover')" 
+                     @dragleave.prevent="$el.classList.remove('dragover')" 
+                     @drop.prevent="handleDrop($event, $el)">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h3 style="color: var(--pure-white); margin-bottom: 0.5rem;">Add Documents That May Help</h3>
+                    <p style="color: var(--text-secondary);">PDF, DOCX, JPG, PNG (Max 10MB)</p>
+                    <input type="file" x-ref="fileInput" multiple style="display: none;" @change="handleFiles">
+                </div>
+                
+                <div style="margin-top: 1.5rem;">
+                    <template x-for="(file, index) in files" :key="index">
+                        <div class="file-item">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <i class="fas" :class="file.status === 'Uploaded' ? 'fa-check-circle' : 'fa-file'" style="color: var(--success-color);"></i>
+                                <div>
+                                    <div style="color: var(--pure-white); font-weight: 500;" x-text="file.file.name"></div>
+                                    <div style="color: var(--text-secondary); font-size: 0.85rem;" x-text="formatSize(file.file.size) + ' • ' + file.status"></div>
+                                </div>
+                            </div>
+                            <i class="fas fa-times" style="color: var(--danger-color); cursor: pointer;" @click="removeFile(index)"></i>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="actions-row">
+                    <button class="btn-secondary" @click="step = 2">Back</button>
+                    <button class="btn-primary" @click="startAnalysis()">
+                        Analyze My Matter <i class="fas fa-magic"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 4: ASSESSMENT & HISTORY -->
+            <div class="step-content" :class="{'active': step === 4}">
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-gavel"></i> Preliminary Assessment</h3>
+                        
+                        <div class="info-card">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Matter Type</div>
+                                    <div style="color: var(--pure-white); font-size: 1.1rem; font-weight: 500;" x-text="analysis?.category"></div>
+                                </div>
+                                <div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Urgency</div>
+                                    <div style="color: var(--pure-white); font-size: 1.1rem; font-weight: 500;" x-text="analysis?.urgency"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-card" style="border-color: var(--royal-gold);">
+                            <h4>OUTCOME ASSESSMENT</h4>
+                            <div style="font-size: 1.2rem; font-weight: 600; color: var(--pure-white); margin-bottom: 0.5rem;" x-text="analysis?.preliminary_assessment || 'Insufficient Data'"></div>
+                            <p style="color: var(--text-secondary); line-height: 1.5;" x-text="analysis?.assessment_reasoning"></p>
+                            
+                            <div style="margin-top: 1.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.5); font-style: italic;">
+                                <i class="fas fa-info-circle"></i> AI-generated preliminary assessment — not legal advice and not a guarantee of outcome.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-history"></i> Historical Context</h3>
+                        
+                        <div x-show="historicalCases.length > 0">
+                            <template x-for="hc in historicalCases" :key="hc.id">
+                                <div class="info-card">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+                                        <div style="color: var(--royal-gold); font-weight: 600;" x-text="hc.court + ' • ' + hc.year"></div>
+                                        <div class="match-badge" x-text="hc.similarity + '% Match'"></div>
+                                    </div>
+                                    <div style="color: var(--pure-white); margin-bottom: 0.5rem;" x-text="hc.legal_issue"></div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Outcome: <span style="color: var(--warm-ivory);" x-text="hc.disposition"></span></div>
+                                </div>
+                            </template>
+                        </div>
+                        
+                        <div x-show="historicalCases.length === 0" class="info-card">
+                            <p style="color: var(--text-secondary); margin: 0;">No sufficiently similar historical matters were found.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="actions-row">
+                    <div></div>
+                    <button class="btn-primary" @click="step = 5">
+                        View Recommended Lawyers <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 5: LAWYERS -->
+            <div class="step-content" :class="{'active': step === 5}">
+                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-user-tie"></i> Recommended Lawyers</h3>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">We have found professionals with specific expertise in your type of matter.</p>
+                
+                <div x-show="matchedLawyers.length > 0">
+                    <template x-for="lawyer in matchedLawyers" :key="lawyer.id">
+                        <div class="lawyer-card" :class="{'selected': selectedLawyerId === lawyer.id}" @click="selectedLawyerId = lawyer.id">
+                            <div class="lawyer-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div style="flex-grow: 1;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                                    <h4 style="margin: 0; color: var(--pure-white); font-size: 1.2rem;" x-text="lawyer.name"></h4>
+                                    <div class="match-badge" x-text="lawyer.match_score + '% Match'"></div>
+                                </div>
+                                <div style="color: var(--royal-gold); font-size: 0.95rem; margin-bottom: 0.5rem;" x-text="lawyer.practice_area"></div>
+                                <div style="color: var(--text-secondary); font-size: 0.9rem;">
+                                    <i class="fas fa-map-marker-alt"></i> <span x-text="lawyer.region"></span> &nbsp;•&nbsp; 
+                                    <i class="fas fa-briefcase"></i> <span x-text="lawyer.experience + ' yrs exp'"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <div class="actions-row">
+                    <button class="btn-secondary" @click="step = 4">Back</button>
+                    <button class="btn-primary" @click="step = 6" :disabled="!selectedLawyerId">
+                        Review & Submit <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 6: REVIEW -->
+            <div class="step-content" :class="{'active': step === 6}">
+                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-clipboard-check"></i> Review Your Information</h3>
+                
+                <div class="info-card">
+                    <h4>Your Situation</h4>
+                    <p style="color: var(--pure-white); line-height: 1.6;" x-text="description"></p>
+                </div>
+                
+                <div class="info-card">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <h4>Documents</h4>
+                            <div style="color: var(--pure-white);" x-text="files.length + ' files attached'"></div>
+                        </div>
+                        <div>
+                            <h4>Selected Lawyer</h4>
+                            <div style="color: var(--royal-gold); font-weight: 600;" x-text="getSelectedLawyerName()"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="actions-row">
+                    <button class="btn-secondary" @click="step = 5">Edit</button>
+                    <button class="btn-primary" @click="submitCase()" :disabled="isSubmitting">
+                        <span x-text="isSubmitting ? 'Submitting...' : 'Submit Case'"></span>
+                        <i class="fas fa-paper-plane" x-show="!isSubmitting"></i>
+                        <i class="fas fa-circle-notch fa-spin" x-show="isSubmitting"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('alpine:init', () => {
+    Alpine.data('aiIntakeFlow', () => ({
+        step: 1,
+        issueId: null,
+        
+        description: '',
+        
+        understandingSummary: '',
+        clarificationQuestions: [],
+        answers: {},
+        currentQuestionIndex: 0,
+        
+        showingSummary: false,
+        correctingSummary: false,
+        correctionText: '',
+        
+        files: [],
+        
+        analysis: null,
+        historicalCases: [],
+        matchedLawyers: [],
+        selectedLawyerId: null,
+        
+        isProcessing: false,
+        procStep: 1,
+        isSubmitting: false,
+
+        getCSRFToken() {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, 10) === ('csrftoken=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(10));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        },
+
+        getHeaderTitle() {
+            const titles = {
+                1: 'Tell Us What Happened',
+                2: 'AI Understanding',
+                3: 'Relevant Documents',
+                4: 'AI Assessment',
+                5: 'Recommended Lawyers',
+                6: 'Review & Submit'
+            };
+            return titles[this.step] || 'AI Legal Intake';
+        },
+
+        async submitStory() {
+            this.isProcessing = true;
+            this.procStep = 1;
+            
+            try {
+                const res = await fetch('{% url "intake:api_ai_clarify" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCSRFToken()
+                    },
+                    body: JSON.stringify({ 
+                        description: this.description,
+                        urgency: 'ROUTINE', // Default, AI will refine
+                        category: '' 
+                    })
+                });
+                const data = await res.json();
+                
+                this.issueId = data.issue_id;
+                this.understandingSummary = data.understanding_summary || "I've reviewed your situation.";
+                this.clarificationQuestions = data.questions || [];
+                
+                this.clarificationQuestions.forEach(q => {
+                    this.answers[q.id] = '';
+                });
+                
+                this.showingSummary = true;
+                this.step = 2;
+                
+            } catch (e) {
+                alert('Connection error. Please try again.');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+        
+        confirmUnderstanding(isCorrect) {
+            if (isCorrect) {
+                this.showingSummary = false;
+                if (this.clarificationQuestions.length === 0) {
+                    this.step = 3; // Skip straight to documents if no questions
+                }
+            } else {
+                this.showingSummary = false;
+                this.correctingSummary = true;
+            }
+        },
+        
+        cancelCorrection() {
+            this.correctingSummary = false;
+            this.showingSummary = true;
+        },
+        
+        async submitCorrection() {
+            this.description += "\nCorrection: " + this.correctionText;
+            this.correctingSummary = false;
+            this.correctionText = '';
+            // Resubmit story
+            await this.submitStory();
+        },
+        
+        currentQuestion() {
+            return this.clarificationQuestions[this.currentQuestionIndex];
+        },
+        
+        selectOption(qid, opt) {
+            this.answers[qid] = opt;
+            // Auto advance
+            setTimeout(() => this.nextQuestion(), 300);
+        },
+        
+        skipQuestion() {
+            this.answers[this.currentQuestion().id] = "Skipped";
+            this.nextQuestion();
+        },
+        
+        async nextQuestion() {
+            this.currentQuestionIndex++;
+            if (this.currentQuestionIndex >= this.clarificationQuestions.length) {
+                // Save answers and move to docs
+                this.isProcessing = true;
+                try {
+                    await fetch('{% url "intake:api_ai_clarify_save" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.getCSRFToken()
+                        },
+                        body: JSON.stringify({
+                            issue_id: this.issueId,
+                            answers: this.answers
+                        })
+                    });
+                    this.step = 3;
+                } catch(e) {
+                    console.error(e);
+                } finally {
+                    this.isProcessing = false;
+                }
+            }
+        },
+
+        handleFiles(e) {
+            Array.from(e.target.files).forEach(f => {
+                this.files.push({ file: f, status: 'Ready' });
+            });
+        },
+        handleDrop(e, el) {
+            el.classList.remove('dragover');
+            if (e.dataTransfer.files) {
+                Array.from(e.dataTransfer.files).forEach(f => {
+                    this.files.push({ file: f, status: 'Ready' });
+                });
+            }
+        },
+        removeFile(index) {
+            this.files.splice(index, 1);
+        },
+        formatSize(bytes) {
+            if(bytes === 0) return '0 B';
+            const k = 1024, dm = 1, sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        },
+
+        async startAnalysis() {
+            this.isProcessing = true;
+            this.procStep = 1;
+            
+            try {
+                // Step 2: Upload Docs
+                if (this.files.length > 0) {
+                    this.procStep = 2;
+                    const formData = new FormData();
+                    formData.append('issue_id', this.issueId);
+                    this.files.forEach(f => {
+                        formData.append('files', f.file);
+                        f.status = 'Uploaded';
+                    });
+                    
+                    await fetch('{% url "intake:api_ai_upload" %}', {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': this.getCSRFToken() },
+                        body: formData
+                    });
+                }
+                
+                this.procStep = 3;
+                setTimeout(() => { this.procStep = 4; }, 1500);
+                
+                const res = await fetch('{% url "intake:api_ai_analyze" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCSRFToken()
+                    },
+                    body: JSON.stringify({ issue_id: this.issueId })
+                });
+                
+                const data = await res.json();
+                this.analysis = data.analysis;
+                this.historicalCases = data.historical_cases || [];
+                this.matchedLawyers = data.matched_lawyers || [];
+                
+                this.step = 4;
+            } catch(e) {
+                alert('Analysis failed. Please try again.');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+
+        getSelectedLawyerName() {
+            if(!this.selectedLawyerId) return '';
+            const lawyer = this.matchedLawyers.find(l => l.id === this.selectedLawyerId);
+            return lawyer ? lawyer.name : '';
+        },
+
+        async submitCase() {
+            if (this.isSubmitting) return;
+            this.isSubmitting = true;
+            
+            try {
+                const res = await fetch('{% url "intake:api_ai_save_case" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': this.getCSRFToken()
+                    },
+                    body: JSON.stringify({ 
+                        issue_id: this.issueId,
+                        lawyer_id: this.selectedLawyerId
+                    })
+                });
+                
+                const data = await res.json();
+                if (data.status === 'success') {
+                    window.location.href = data.redirect_url;
+                }
+            } catch(e) {
+                alert('Error submitting case.');
+                this.isSubmitting = false;
+            }
+        }
+    }));
+});
+</script>
+{% endblock %}

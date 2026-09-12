@@ -3,24 +3,29 @@
 
 {% block title %}Hearing Management | Lex Regis Enterprise{% endblock %}
 
+{% block head %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css' rel='stylesheet' />
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid p-0" x-data="hearingDashboard()">
     <!-- Top Header Bar -->
     <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom sticky-top bg-light" style="top: 0; z-index: 1020; padding-top: 1rem;">
         <div>
             <h3 class="mb-0 fw-bold font-serif text-navy">
-                <i class="fa-solid fa-scale-balanced me-2 text-danger"></i> Enterprise Hearing Management
+                <i class="fa-solid fa-scale-balanced me-2 text-gold"></i> Enterprise Hearing Management
             </h3>
             <p class="text-muted small mb-0 mt-1">Master calendar, active proceedings, and virtual courtrooms.</p>
         </div>
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold hover-lift" @click="viewMode = 'calendar'" :class="{'btn-navy text-white': viewMode === 'calendar'}">
+            <button class="btn bg-white border border-navy text-navy btn-sm rounded-pill px-4 fw-bold hover-lift" @click="viewMode = 'calendar'; setTimeout(initCalendar, 100)" :class="{'bg-gold border-gold text-navy-dark': viewMode === 'calendar'}">
                 <i class="fa-solid fa-calendar-days me-1"></i> Calendar View
             </button>
-            <button class="btn btn-outline-secondary btn-sm rounded-pill px-4 fw-bold hover-lift" @click="viewMode = 'list'" :class="{'btn-navy text-white': viewMode === 'list'}">
+            <button class="btn bg-white border border-navy text-navy btn-sm rounded-pill px-4 fw-bold hover-lift" @click="viewMode = 'list'" :class="{'bg-gold border-gold text-navy-dark': viewMode === 'list'}">
                 <i class="fa-solid fa-list me-1"></i> List View
             </button>
-            <a href="{% url 'hearings_ui:schedule' %}" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold hover-lift ms-2 shadow-sm">
+            <a href="{% url 'hearings_ui:schedule' %}" class="btn btn-gold btn-sm rounded-pill px-4 fw-bold hover-lift ms-2 shadow-sm">
                 <i class="fa-solid fa-plus me-1"></i> Schedule Hearing
             </a>
         </div>
@@ -30,37 +35,37 @@
     <div class="row g-4 mb-4">
         <div class="col-md-3">
             <div class="card card-premium shadow-sm border-0 bg-navy text-white rounded-4 h-100 position-relative overflow-hidden">
-                <div class="position-absolute opacity-25" style="right: -20px; bottom: -20px;"><i class="fa-solid fa-calendar-check" style="font-size: 100px;"></i></div>
+                <div class="position-absolute opacity-25" style="right: -20px; bottom: -20px;"><i class="fa-solid fa-calendar-check text-gold" style="font-size: 100px;"></i></div>
                 <div class="card-body p-4 position-relative z-1">
                     <h6 class="text-white-50 text-uppercase fw-bold small tracking-wide">Today's Hearings</h6>
-                    <h2 class="fw-bold font-serif text-gold mb-0">3</h2>
-                    <p class="small text-white-50 mb-0 mt-2">All scheduled for morning bench.</p>
+                    <h2 class="fw-bold font-serif text-gold mb-0">{{ today_count }}</h2>
+                    <p class="small text-white-50 mb-0 mt-2">Hearings scheduled for today.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100 border-bottom border-navy border-4">
                 <div class="card-body p-4">
                     <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Upcoming (7 Days)</h6>
-                    <h2 class="fw-bold text-primary mb-0">12</h2>
-                    <p class="small text-success fw-bold mb-0 mt-2"><i class="fa-solid fa-circle-check me-1"></i> All reminders sent.</p>
+                    <h2 class="fw-bold text-navy mb-0">{{ upcoming_count }}</h2>
+                    <p class="small text-gold fw-bold mb-0 mt-2"><i class="fa-solid fa-circle-check me-1"></i> All reminders sent.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100 border-bottom border-navy border-4">
                 <div class="card-body p-4">
                     <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Adjourned / Postponed</h6>
-                    <h2 class="fw-bold text-danger mb-0">4</h2>
+                    <h2 class="fw-bold text-navy mb-0">{{ adjourned_postponed_count }}</h2>
                     <p class="small text-muted mb-0 mt-2">Pending new date assignment.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100">
+            <div class="card card-premium shadow-sm border-0 bg-white rounded-4 h-100 border-bottom border-navy border-4">
                 <div class="card-body p-4">
                     <h6 class="text-muted text-uppercase fw-bold small tracking-wide">Virtual Proceedings</h6>
-                    <h2 class="fw-bold text-info mb-0">8</h2>
+                    <h2 class="fw-bold text-navy mb-0">{{ virtual_count }}</h2>
                     <p class="small text-muted mb-0 mt-2">Requires secure video bridge.</p>
                 </div>
             </div>
@@ -71,24 +76,20 @@
     <div class="card card-premium shadow-sm border-0 rounded-4 mb-5">
         
         <!-- Filter Bar -->
-        <div class="card-header bg-white pt-4 pb-3 border-bottom d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white pt-4 pb-3 border-bottom d-flex justify-content-between align-items-center" x-show="viewMode === 'list'">
             <div class="d-flex gap-3">
-                <select class="form-select form-select-sm bg-light fw-bold text-muted border-0" style="width: auto;" x-model="filterStatus">
+                <select class="form-select form-select-sm bg-light fw-bold text-navy border-0" style="width: auto;" x-model="filterStatus">
                     <option value="ALL">All Statuses</option>
                     <option value="SCHEDULED">Scheduled</option>
                     <option value="COMPLETED">Completed</option>
                     <option value="ADJOURNED">Adjourned</option>
                 </select>
-                <select class="form-select form-select-sm bg-light fw-bold text-muted border-0" style="width: auto;">
-                    <option>All Courts</option>
-                    <option>High Court</option>
-                    <option>District Court</option>
-                    <option>Tribunals</option>
-                </select>
             </div>
             <div class="position-relative" style="width: 300px;">
-                <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 15px; top: 10px;"></i>
-                <input type="text" class="form-control form-control-sm rounded-pill ps-5 bg-light border-0" placeholder="Search hearings by case...">
+                <form method="GET" action="">
+                    <i class="fa-solid fa-magnifying-glass position-absolute text-muted" style="left: 15px; top: 10px;"></i>
+                    <input type="text" name="q" value="{{ search_query }}" class="form-control form-control-sm rounded-pill ps-5 bg-light border-0" placeholder="Search hearings...">
+                </form>
             </div>
         </div>
 
@@ -102,50 +103,57 @@
                                 <th class="ps-4">Date & Time</th>
                                 <th>Case Details</th>
                                 <th>Hearing Type</th>
-                                <th>Court / Judge</th>
+                                <th>Court / Mode</th>
                                 <th>Status</th>
                                 <th class="text-end pe-4">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for hearing in hearings %}
-                            <tr class="hover-lift" x-show="filterStatus === 'ALL' || filterStatus === '{{ hearing.status }}'">
+                            <tr class="hover-lift" x-show="filterStatus === 'ALL' || filterStatus === '{{ hearing.status_raw }}'">
                                 <td class="ps-4">
                                     <div class="d-flex align-items-center">
-                                        <div class="bg-danger bg-opacity-10 text-danger text-center rounded p-2 me-3" style="min-width: 50px;">
-                                            <span class="d-block text-uppercase fw-bold" style="font-size: 0.6rem;">{{ hearing.date|date:"M" }}</span>
-                                            <span class="d-block fw-bold">{{ hearing.date|date:"d" }}</span>
+                                        <div class="bg-light border border-gold text-navy text-center rounded p-2 me-3" style="min-width: 50px;">
+                                            <span class="d-block text-uppercase fw-bold text-gold" style="font-size: 0.6rem;">{{ hearing.start_time|date:"M" }}</span>
+                                            <span class="d-block fw-bold">{{ hearing.start_time|date:"d" }}</span>
                                         </div>
                                         <div>
-                                            <h6 class="fw-bold mb-0 text-dark">{{ hearing.time|time:"h:i A"|default:"TBD" }}</h6>
-                                            <small class="text-danger fw-bold"><i class="fa-solid fa-bell me-1"></i> Reminder On</small>
+                                            <h6 class="fw-bold mb-0 text-dark">{{ hearing.start_time|time:"h:i A" }} - {{ hearing.end_time|time:"h:i A" }}</h6>
+                                            <small class="text-muted fw-bold"><i class="fa-solid fa-clock me-1"></i> {{ hearing.priority }} Priority</small>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
                                     <h6 class="fw-bold mb-0 text-navy">{{ hearing.case_title }}</h6>
-                                    <small class="text-muted">{{ hearing.number }}</small>
+                                    <small class="text-muted">{{ hearing.case_number }}</small>
                                 </td>
                                 <td>
-                                    <span class="fw-bold text-dark">{{ hearing.title }}</span>
+                                    <span class="fw-bold text-dark">{{ hearing.type }}</span>
+                                    <br><small class="text-muted">{{ hearing.title }}</small>
                                 </td>
                                 <td>
                                     <div class="d-flex flex-column">
                                         <span class="fw-bold text-dark"><i class="fa-solid fa-building-columns text-muted me-1"></i> {{ hearing.courtroom }}</span>
-                                        <small class="text-muted">Hon'ble Judge</small>
+                                        <small class="text-muted">{{ hearing.mode }}</small>
                                     </div>
                                 </td>
                                 <td>
-                                    {% if hearing.status == 'Scheduled' %}
-                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-1 rounded-pill">{{ hearing.status }}</span>
-                                    {% elif hearing.status == 'Completed' %}
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-1 rounded-pill">{{ hearing.status }}</span>
+                                    {% if hearing.status_raw == 'SCHEDULED' %}
+                                        <span class="badge badge-status-scheduled px-3 py-1 rounded-pill">{{ hearing.status }}</span>
+                                    {% elif hearing.status_raw == 'COMPLETED' %}
+                                        <span class="badge badge-status-completed px-3 py-1 rounded-pill">{{ hearing.status }}</span>
+                                    {% elif hearing.status_raw == 'ADJOURNED' %}
+                                        <span class="badge badge-status-adjourned px-3 py-1 rounded-pill">{{ hearing.status }}</span>
+                                    {% elif hearing.status_raw == 'CANCELLED' %}
+                                        <span class="badge badge-status-cancelled px-3 py-1 rounded-pill">{{ hearing.status }}</span>
                                     {% else %}
-                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-3 py-1 rounded-pill">{{ hearing.status }}</span>
+                                        <span class="badge badge-status-pending px-3 py-1 rounded-pill">{{ hearing.status }}</span>
                                     {% endif %}
                                 </td>
                                 <td class="text-end pe-4">
-                                    <button class="btn btn-sm btn-outline-success rounded-pill fw-bold" title="Join Virtual Court"><i class="fa-solid fa-video me-1"></i> Join</button>
+                                    {% if hearing.mode == 'Virtual' %}
+                                    <button class="btn btn-sm btn-gold rounded-pill fw-bold" title="Join Virtual Court"><i class="fa-solid fa-video me-1"></i> Join</button>
+                                    {% endif %}
                                     <button class="btn btn-sm btn-outline-navy rounded-pill fw-bold px-3 ms-1">Details</button>
                                 </td>
                             </tr>
@@ -163,15 +171,10 @@
                 </div>
             </div>
             
-            <!-- Calendar View Mock -->
-            <div x-show="viewMode === 'calendar'" style="display: none;" class="p-5 text-center bg-light">
-                <i class="fa-solid fa-calendar-days text-muted fs-1 mb-4"></i>
-                <h4 class="fw-bold text-navy">Enterprise Master Calendar</h4>
-                <p class="text-muted mx-auto" style="max-width: 500px;">The interactive calendar view natively synchronizes with Google Calendar, Microsoft Exchange, and Outlook. Full month grids are available in production.</p>
-                <div class="d-flex justify-content-center gap-2 mt-4">
-                    <button class="btn btn-outline-navy rounded-pill fw-bold"><i class="fa-brands fa-google me-2"></i> Sync Google Workspace</button>
-                    <button class="btn btn-outline-primary rounded-pill fw-bold"><i class="fa-brands fa-microsoft me-2"></i> Sync Outlook 365</button>
-                </div>
+            <!-- Calendar View -->
+            <div x-show="viewMode === 'calendar'" style="display: none;" class="p-4">
+                <form style="display:none;">{% csrf_token %}</form>
+                <div id="hearingCalendar"></div>
             </div>
 
         </div>
@@ -180,7 +183,68 @@
 {% endblock %}
 
 {% block scripts %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 <script>
+let calendar = null;
+
+function initCalendar() {
+    if (calendar) return; // Already initialized
+
+    var calendarEl = document.getElementById('hearingCalendar');
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: '/api/v1/hearings/hearings/events/', // API Endpoint for events
+        editable: true,
+        droppable: true,
+        eventDrop: function(info) {
+            if (confirm("Are you sure about this change?")) {
+                const data = {
+                    start_time: info.event.startStr,
+                    end_time: info.event.endStr || info.event.startStr,
+                    reason: "Rescheduled via calendar drag-and-drop"
+                };
+                
+                // Fetch CSRF token from cookies
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+                fetch(`/api/v1/hearings/hearings/${info.event.id}/reschedule/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(!data.success) {
+                        alert(data.message || "Failed to reschedule.");
+                        info.revert();
+                    } else {
+                        alert("Hearing rescheduled successfully.");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Error communicating with server.");
+                    info.revert();
+                });
+            } else {
+                info.revert();
+            }
+        },
+        eventClick: function(info) {
+            alert('Case: ' + info.event.title + '\nStatus: ' + info.event.extendedProps.status);
+        }
+    });
+    calendar.render();
+}
+
 function hearingDashboard() {
     return {
         viewMode: 'list', // 'list' or 'calendar'
@@ -190,16 +254,21 @@ function hearingDashboard() {
 </script>
 <style>
 .hover-lift { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-.hover-lift:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08) !important; z-index: 10; position: relative; }
-.text-gold { color: #d4af37 !important; }
-.text-navy { color: #0b2d5c !important; }
-.bg-navy { background-color: #0b2d5c !important; }
-.btn-navy { background-color: #0b2d5c !important; border-color: #0b2d5c !important; color: white !important; }
-.btn-navy:hover { background-color: #082246 !important; color: white !important; }
-.btn-outline-navy { color: #0b2d5c; border-color: #0b2d5c; }
-.btn-outline-navy:hover { background-color: #0b2d5c; color: white; }
-.card-premium { border-radius: 16px; border: 1px solid rgba(0,0,0,0.05); }
-.font-serif { font-family: 'Playfair Display', serif; }
+.hover-lift:hover { transform: translateY(-2px); box-shadow: var(--lex-shadow-lg) !important; z-index: 10; position: relative; }
 .tracking-wide { letter-spacing: 0.05em; }
+
+/* Calendar custom styles */
+#hearingCalendar {
+    min-height: 600px;
+}
+.fc-toolbar-title {
+    font-family: var(--font-family-serif);
+    color: var(--lex-navy);
+    font-weight: bold;
+}
+.fc-button-primary {
+    background-color: var(--lex-navy) !important;
+    border-color: var(--lex-navy) !important;
+}
 </style>
 {% endblock %}

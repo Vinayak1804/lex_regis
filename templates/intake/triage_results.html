@@ -1,0 +1,225 @@
+{% extends 'consult_base.html' %}
+{% load static %}
+
+{% block title %}Analysis Results | Lex Regis{% endblock %}
+
+{% block content %}
+<style>
+    .reveal-card {
+        opacity: 0;
+        transform: translateY(15px);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal-card.revealed {
+        opacity: 1;
+        transform: translateY(0);
+    }
+</style>
+
+<div class="container py-5" x-data="triageResults()">
+    
+    <!-- Loading State -->
+    <div x-show="loading" class="d-flex flex-column align-items-center justify-content-center" style="min-height: 60vh;">
+        <div class="spinner-border text-lex-gold mb-4" style="width: 3rem; height: 3rem; border-width: 0.2em;" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h3 class="fw-bold text-lex-navy" style="font-family: var(--font-family-serif);" x-text="loadingMessages[loadingIndex]"></h3>
+        <p class="text-lex-text-muted">Please wait while Lex AI analyzes your consultation details.</p>
+    </div>
+
+    <!-- Results State -->
+    <div x-show="!loading" style="display: none;">
+        
+        <div class="text-center mb-5 reveal-card" :class="{'revealed': step >= 1}">
+            <h2 class="fw-bold text-lex-navy" style="font-family: var(--font-family-serif);">Your Consultation Analysis</h2>
+            <p class="text-lex-text-muted fs-5">Here's what Lex Regis understood from your information.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <!-- Center Panel: Results -->
+            <div class="col-xl-7 col-lg-7">
+                
+                {% if analysis %}
+                <!-- SECTION 1: AI TRIAGE -->
+                <div class="lex-card mb-4 reveal-card overflow-hidden" :class="{'revealed': step >= 2}">
+                    <div class="card-body p-5">
+                        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="bg-lex-surface-light rounded-circle d-inline-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 48px; height: 48px;">
+                                <i class="fa-solid fa-microchip text-lex-gold fs-5"></i>
+                            </div>
+                            <h4 class="fw-bold text-lex-navy mb-0" style="font-family: var(--font-family-serif);">AI Triage</h4>
+                        </div>
+                        
+                        <div class="row g-4">
+                            <div class="col-sm-6">
+                                <h6 class="text-lex-text-muted small text-uppercase fw-bold mb-1">Practice Area</h6>
+                                <h5 class="fw-bold text-lex-text mb-0">{{ analysis.practice_area }}</h5>
+                            </div>
+                            <div class="col-sm-6">
+                                <h6 class="text-lex-text-muted small text-uppercase fw-bold mb-1">Category</h6>
+                                <h5 class="fw-bold text-lex-text mb-0">{{ analysis.category }}</h5>
+                            </div>
+                            <div class="col-sm-6">
+                                <h6 class="text-lex-text-muted small text-uppercase fw-bold mb-1">Complexity</h6>
+                                <h5 class="fw-bold text-lex-warning mb-0">{{ analysis.complexity }}</h5>
+                            </div>
+                            <div class="col-sm-6">
+                                <h6 class="text-lex-text-muted small text-uppercase fw-bold mb-1">Urgency</h6>
+                                <h5 class="fw-bold text-lex-danger mb-0">{{ issue.urgency }}</h5>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-top">
+                            <h6 class="text-lex-text-muted small text-uppercase fw-bold mb-3">Important Facts Identified</h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for fact in analysis.important_keywords %}
+                                <span class="lex-badge bg-lex-surface-light text-lex-text border">{{ fact }}</span>
+                                {% empty %}
+                                <span class="text-lex-text-muted small">No specific facts identified.</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- SECTION 2: PREVIOUS CASE HISTORY -->
+                <div class="lex-card mb-4 reveal-card overflow-hidden" :class="{'revealed': step >= 3}">
+                    <div class="card-body p-5">
+                        <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                            <div class="bg-lex-surface-light rounded-circle d-inline-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 48px; height: 48px;">
+                                <i class="fa-solid fa-book-open text-lex-gold fs-5"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold text-lex-navy mb-0" style="font-family: var(--font-family-serif);">Previous Case History</h4>
+                                <small class="text-lex-text-muted">Similar historical matters found</small>
+                            </div>
+                        </div>
+                        
+                        {% if historical_cases %}
+                            <div class="list-group list-group-flush gap-3">
+                                {% for item in historical_cases %}
+                                <div class="list-group-item rounded-3 p-4 border shadow-sm bg-white">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h5 class="fw-bold mb-0 text-lex-navy">{{ item.category }} Matter</h5>
+                                        <span class="lex-badge lex-badge-gold">{{ item.similarity_score|default:"High" }} Similarity</span>
+                                    </div>
+                                    <div class="text-lex-text-muted small mb-3 d-flex flex-wrap gap-3">
+                                        <span><i class="fa-solid fa-scale-balanced me-1 text-lex-navy opacity-50"></i> {{ item.practice_area|default:analysis.practice_area }}</span>
+                                        <span><i class="fa-solid fa-building-columns me-1 text-lex-navy opacity-50"></i> {{ item.court }}</span>
+                                        <span><i class="fa-regular fa-calendar me-1 text-lex-navy opacity-50"></i> {{ item.year }}</span>
+                                        <span><i class="fa-regular fa-clock me-1 text-lex-navy opacity-50"></i> {{ item.duration }}</span>
+                                        <span><i class="fa-solid fa-gavel me-1 text-lex-navy opacity-50"></i> {{ item.disposition }}</span>
+                                    </div>
+                                    <p class="small text-lex-text-muted mb-3"><i class="fa-solid fa-lightbulb text-lex-warning me-1"></i> <strong class="text-lex-text">Why similar:</strong> {{ item.why_similar }}</p>
+                                    <button class="btn btn-sm btn-lex-secondary">View Case Context</button>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="lex-empty-state">
+                                <i class="fa-solid fa-folder-open"></i>
+                                <h6 class="fw-bold text-lex-navy">No matches found</h6>
+                                <p class="text-lex-text-muted mb-4">We couldn't find sufficiently similar historical matters in our database.</p>
+                                <button class="btn btn-lex-secondary btn-sm px-4">Continue to Lawyer Matching</button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- SECTION 3: RECOMMENDED LAWYERS -->
+            <div class="col-xl-5 col-lg-5">
+                <div class="reveal-card" :class="{'revealed': step >= 4}">
+                    <h5 class="fw-bold text-lex-navy mb-4" style="font-family: var(--font-family-serif);"><i class="fa-solid fa-user-tie me-2 text-lex-gold"></i> Recommended Lawyers</h5>
+                    
+                    {% for match in matched_lawyers %}
+                    <div class="lex-card mb-4 overflow-hidden">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-lex-surface-light rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm position-relative" style="width: 56px; height: 56px;">
+                                        <i class="fa-solid fa-user-tie fs-4 text-lex-navy opacity-75"></i>
+                                        <i class="fa-solid fa-circle-check text-lex-success position-absolute" style="bottom: 0; right: 0; font-size: 14px; background: white; border-radius: 50%;"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-lex-navy">{{ match.lawyer.user.get_full_name }}</h5>
+                                        <span class="text-lex-text-muted small d-block">{{ match.lawyer.designation|default:"Senior Advocate" }}</span>
+                                    </div>
+                                </div>
+                                <span class="lex-badge" style="background-color: rgba(22, 139, 91, 0.1); color: var(--lex-success);">{{ match.score }}% Match</span>
+                            </div>
+                            
+                            <div class="bg-lex-surface-light rounded-3 p-3 mb-4">
+                                <p class="small fw-bold text-lex-navy mb-2 text-uppercase tracking-wide" style="font-size: 0.7rem;">Why they match</p>
+                                <ul class="list-unstyled small text-lex-text-muted mb-0">
+                                    {% for reason in match.reasons %}
+                                    <li class="mb-1"><i class="fa-solid fa-check text-lex-success me-2"></i> {{ reason }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-lex-secondary flex-grow-1" type="button">View Profile</button>
+                                <form method="POST" action="{% url 'intake:book_lawyer' issue.id %}" class="flex-grow-1">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="lawyer_id" value="{{ match.lawyer.id }}">
+                                    <button type="submit" class="btn btn-lex-primary w-100">Request Consultation</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="lex-empty-state">
+                        <i class="fa-solid fa-triangle-exclamation text-lex-warning"></i>
+                        <h6 class="fw-bold text-lex-navy">No Exact Matches</h6>
+                        <p class="text-lex-text-muted small mb-4">We couldn't find an exact match, but you can browse available lawyers who may still be suitable.</p>
+                        <div class="d-flex flex-column gap-2">
+                            <button class="btn btn-lex-primary w-100">Browse All Lawyers</button>
+                            <button class="btn btn-lex-secondary w-100">Adjust Preferences</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('triageResults', () => ({
+            loading: true,
+            step: 0,
+            loadingMessages: [
+                'Reading your description...',
+                'Organizing the legal issue...',
+                'Checking relevant history...',
+                'Finding suitable lawyers...'
+            ],
+            loadingIndex: 0,
+            
+            init() {
+                const msgInterval = setInterval(() => {
+                    if (this.loadingIndex < this.loadingMessages.length - 1) {
+                        this.loadingIndex++;
+                    } else {
+                        clearInterval(msgInterval);
+                        setTimeout(() => {
+                            this.loading = false;
+                            this.startReveal();
+                        }, 800);
+                    }
+                }, 800);
+            },
+            
+            startReveal() {
+                setTimeout(() => { this.step = 1; }, 100);
+                setTimeout(() => { this.step = 2; }, 400);
+                setTimeout(() => { this.step = 3; }, 700);
+                setTimeout(() => { this.step = 4; }, 1000);
+            }
+        }));
+    });
+</script>
+{% endblock %}

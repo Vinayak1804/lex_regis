@@ -738,7 +738,8 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 - <strong><code>DocumentUpload</code> Model:</strong> Handles supporting grievance documents (contracts, FIRs, notices).<br />
 - <strong><code>AIAnalysis</code> Model:</strong> Persists the structured evaluation produced by Groq AI, including statutory category, practice area, complexity, suggested documents, applicable Acts, applicable Sections, next steps, cost estimates, and risk level.<br />
 - <strong><code>Recommendation</code> Model &amp; Matchmaker:</strong> Computes match scores between legal issues and verified <code>ProfessionalProfile</code> records, presenting top advocate matches.<br />
-- <strong><code>ConsultationRequest</code> Model:</strong> Manages formal booking requests from citizens to advocates, capturing snapshot pricing and initiating case creation upon lawyer acceptance.</p>
+- <strong><code>ConsultationRequest</code> Model</strong>: Manages formal booking requests from citizens to advocates, capturing snapshot pricing and initiating case creation upon lawyer acceptance.<br />
+- <strong><code>ConsultationService</code> &amp; <code>MatchingService</code></strong>: Advanced backend services orchestrating end-to-end consultation workflows and dynamic lawyer matchmaking algorithms based on specialization and availability.</p>
 <h3 id="53-appscases-enterprise-case-management-state-engine">5.3 <code>apps.cases</code>: Enterprise Case Management &amp; State Engine</h3>
 <p>The core domain of LEX REGIS, handling the complete lifecycle of legal matters:<br />
 - <strong><code>Case</code> Model:</strong> Features unique human-readable case numbers (<code>CASE-XXXXXXXX</code>), full case narrative, AI summaries, client references, assigned advocate/firm links, practice classification, case valuation, and court venue.<br />
@@ -759,7 +760,9 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 - <strong>SHA-256 Checksum Calculation:</strong> Files are processed through <code>hashlib.sha256</code> upon upload to create a unique cryptographic fingerprint, preventing file corruption or silent tampering.<br />
 - <strong><code>DocumentVersion</code> Model:</strong> Maintains complete historical snapshots whenever a document is modified or updated.<br />
 - <strong><code>DocumentMetadata</code> Model:</strong> Stores extracted text, OCR results, and page metrics.<br />
-- <strong>Master Classifications:</strong> <code>DocumentType</code>, <code>DocumentCategory</code>, <code>DocumentStatus</code>, <code>DocumentVisibility</code>.</p>
+- <strong>Master Classifications:</strong> <code>DocumentType</code>, <code>DocumentCategory</code>, <code>DocumentStatus</code>, <code>DocumentVisibility</code>.<br />
+- <strong><code>OCR Service</code> &amp; <code>AI Document Parsing</code></strong>: Extracts full-text from scanned files and image-based PDFs, utilizing LLMs to automatically parse key legal entities and metadata from unstructured texts.<br />
+- <strong><code>E-Signature Subsystem</code></strong>: Enables secure, verifiable digital signing of contracts and agreements embedded within the platform.</p>
 <h3 id="55-appshearings-court-docketing-adjournment-management">5.5 <code>apps.hearings</code>: Court Docketing &amp; Adjournment Management</h3>
 <p>Controls court proceedings, calendar schedules, and hearing analytics:<br />
 - <strong><code>Hearing</code> Model:</strong> Docket records with scheduled date, time, court room, presiding judge, estimated duration, actual start/end times, and outcome summary.<br />
@@ -770,11 +773,16 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <p>Integrates high-speed inference for legal analysis and conversational support:<br />
 - <strong>Groq Cloud API Client:</strong> Configured with <code>openai/gpt-oss-120b</code>, temperature 0.1 for deterministic statutory extraction, and temperature 0.3 for conversational legal assistance.<br />
 - <strong><code>Conversation</code> &amp; <code>Message</code> Models:</strong> Multi-turn legal chat history linked optionally to a specific <code>Case</code> or <code>Document</code>.<br />
-- <strong><code>AIRequestLog</code> Model:</strong> Comprehensive observability table recording every API call, prompt tokens, completion tokens, total tokens, latency in milliseconds (<code>latency_ms</code>), status codes, response payloads, and exception tracebacks.</p>
+- <strong><code>AIRequestLog</code> Model:</strong> Comprehensive observability table recording every API call, prompt tokens, completion tokens, total tokens, latency in milliseconds (<code>latency_ms</code>), status codes, response payloads, and exception tracebacks.<br />
+- <strong><code>Triage Engine</code> &amp; <code>Clarification Service</code></strong>: Dynamically interrogates the citizen for missing critical facts if the initial grievance description is underspecified before finalizing the analysis.</p>
 <h3 id="57-appsml-predictive-analytics-workload-modeling">5.7 <code>apps.ml</code>: Predictive Analytics &amp; Workload Modeling</h3>
 <p>Machine learning feature stores and statistical prediction representations:<br />
 - <strong><code>CasePrediction</code> Model:</strong> Stores machine-generated predictions for case duration in days (<code>duration_days_predicted</code>), success probability percentage (<code>success_probability</code>), risk score (<code>risk_score</code>), and delay likelihood (<code>delay_probability</code>).<br />
-- <strong><code>CourtWorkload</code> Model:</strong> Computes court congestion indices (<code>congestion_index</code>), active case counts, and average disposal turnaround times.</p>
+- <strong><code>CasePrediction</code> Model:</strong> Stores machine-generated predictions for case duration in days (<code>duration_days_predicted</code>), success probability percentage (<code>success_probability</code>), risk score (<code>risk_score</code>), and delay likelihood (<code>delay_probability</code>).<br />
+- <strong><code>CourtWorkload</code> Model:</strong> Computes court congestion indices (<code>congestion_index</code>), active case counts, and average disposal turnaround times.<br />
+- <strong>End-to-End ML Pipeline (<code>pipeline.py</code>, <code>training.py</code>)</strong>: Fully automated ML lifecycle for model training and retraining based on historical context.<br />
+- <strong><code>Feature Extraction</code> &amp; <code>Data Quality</code> Services</strong>: Ensures input data hygiene and normalizes court delay metrics.<br />
+- <strong><code>EmbeddingService</code> &amp; <code>Retrieval</code></strong>: Vector-based semantic search for retrieving similar historical case precedents and judicial rulings.</p>
 <h3 id="58-appsblockchain-distributed-ledger-verification-subsystem">5.8 <code>apps.blockchain</code>: Distributed Ledger &amp; Verification Subsystem</h3>
 <p>Provides cryptographic proof of authenticity for sensitive legal records:<br />
 - <strong><code>BlockchainRecord</code> Model:</strong> Utilizes Django's <code>GenericForeignKey</code> framework (<code>ContentType</code>, <code>object_id</code>) to bind to any entity (Document, Case Event, Evidence, Hearing).<br />

@@ -269,7 +269,8 @@ The intake module empowers citizens to navigate legal complexity without initial
 - **`DocumentUpload` Model:** Handles supporting grievance documents (contracts, FIRs, notices).
 - **`AIAnalysis` Model:** Persists the structured evaluation produced by Groq AI, including statutory category, practice area, complexity, suggested documents, applicable Acts, applicable Sections, next steps, cost estimates, and risk level.
 - **`Recommendation` Model & Matchmaker:** Computes match scores between legal issues and verified `ProfessionalProfile` records, presenting top advocate matches.
-- **`ConsultationRequest` Model:** Manages formal booking requests from citizens to advocates, capturing snapshot pricing and initiating case creation upon lawyer acceptance.
+- **`ConsultationRequest` Model**: Manages formal booking requests from citizens to advocates, capturing snapshot pricing and initiating case creation upon lawyer acceptance.
+- **`ConsultationService` & `MatchingService`**: Advanced backend services orchestrating end-to-end consultation workflows and dynamic lawyer matchmaking algorithms based on specialization and availability.
 
 ### 5.3 `apps.cases`: Enterprise Case Management & State Engine
 The core domain of LEX REGIS, handling the complete lifecycle of legal matters:
@@ -294,6 +295,8 @@ The document vault ensures file integrity, categorization, and auditability:
 - **`DocumentVersion` Model:** Maintains complete historical snapshots whenever a document is modified or updated.
 - **`DocumentMetadata` Model:** Stores extracted text, OCR results, and page metrics.
 - **Master Classifications:** `DocumentType`, `DocumentCategory`, `DocumentStatus`, `DocumentVisibility`.
+- **`OCR Service` & `AI Document Parsing`**: Extracts full-text from scanned files and image-based PDFs, utilizing LLMs to automatically parse key legal entities and metadata from unstructured texts.
+- **`E-Signature Subsystem`**: Enables secure, verifiable digital signing of contracts and agreements embedded within the platform.
 
 ### 5.5 `apps.hearings`: Court Docketing & Adjournment Management
 Controls court proceedings, calendar schedules, and hearing analytics:
@@ -307,11 +310,16 @@ Integrates high-speed inference for legal analysis and conversational support:
 - **Groq Cloud API Client:** Configured with `openai/gpt-oss-120b`, temperature 0.1 for deterministic statutory extraction, and temperature 0.3 for conversational legal assistance.
 - **`Conversation` & `Message` Models:** Multi-turn legal chat history linked optionally to a specific `Case` or `Document`.
 - **`AIRequestLog` Model:** Comprehensive observability table recording every API call, prompt tokens, completion tokens, total tokens, latency in milliseconds (`latency_ms`), status codes, response payloads, and exception tracebacks.
+- **`Triage Engine` & `Clarification Service`**: Dynamically interrogates the citizen for missing critical facts if the initial grievance description is underspecified before finalizing the analysis.
 
 ### 5.7 `apps.ml`: Predictive Analytics & Workload Modeling
 Machine learning feature stores and statistical prediction representations:
 - **`CasePrediction` Model:** Stores machine-generated predictions for case duration in days (`duration_days_predicted`), success probability percentage (`success_probability`), risk score (`risk_score`), and delay likelihood (`delay_probability`).
+- **`CasePrediction` Model:** Stores machine-generated predictions for case duration in days (`duration_days_predicted`), success probability percentage (`success_probability`), risk score (`risk_score`), and delay likelihood (`delay_probability`).
 - **`CourtWorkload` Model:** Computes court congestion indices (`congestion_index`), active case counts, and average disposal turnaround times.
+- **End-to-End ML Pipeline (`pipeline.py`, `training.py`)**: Fully automated ML lifecycle for model training and retraining based on historical context.
+- **`Feature Extraction` & `Data Quality` Services**: Ensures input data hygiene and normalizes court delay metrics.
+- **`EmbeddingService` & `Retrieval`**: Vector-based semantic search for retrieving similar historical case precedents and judicial rulings.
 
 ### 5.8 `apps.blockchain`: Distributed Ledger & Verification Subsystem
 Provides cryptographic proof of authenticity for sensitive legal records:

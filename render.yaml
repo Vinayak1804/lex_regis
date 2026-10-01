@@ -1,0 +1,26 @@
+databases:
+  - name: lex-regis-db
+    databaseName: lex_regis
+    user: lex_regis
+    plan: free
+
+services:
+  - type: web
+    name: lex-regis-web
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lex-regis-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: "*" # You can restrict this to your specific render domain later
+      # You need to manually set these in the Render dashboard:
+      - key: GROQ_API_KEY
+        sync: false

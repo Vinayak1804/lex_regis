@@ -1,5 +1,7 @@
 # LEX REGIS
 
+🚀 **Live Demo:** [https://lex-regis-web.onrender.com](https://lex-regis-web.onrender.com)
+
 LEX REGIS is an enterprise-grade AI-powered Legal Technology Platform allowing citizens, lawyers, and administrators to securely manage legal cases from registration until closure.
 
 ## Architecture Overview

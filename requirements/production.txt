@@ -2,3 +2,6 @@
 gunicorn
 dj-database-url
 whitenoise
+daphne
+channels
+channels-redis
